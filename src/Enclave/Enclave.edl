@@ -1,7 +1,7 @@
 enclave {
     from "mbedtls-SGX/lib/mbedtls_sgx.edl" import *;
     from "EnclaveTest.edl" import *;
-    
+
     include "sgx_report.h"
     include "time.h"
     include "stddef.h"
@@ -53,5 +53,7 @@ enclave {
     };
 
     untrusted {
+        // (DCMMC) 用于在 SGX 里面 debug 输出
+        /* int ocall_print_string_debug([in, string] const char *str); */
     };
 };

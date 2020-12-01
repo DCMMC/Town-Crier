@@ -46,12 +46,22 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <string>
+// (DCMMC) debug
+#include <stdarg.h>
+#include <stdio.h>
+#include <string.h>
 
 using std::string;
+
+// (DCMMC) debug
+// int ocall_print_string_debug(const char *str);
+int debug_sgx(const char *fmt, ...);
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
+
+
 
 int handle_request(int nonce,
                    uint64_t id,

@@ -4,3 +4,13 @@
 16:58:24.569469 version@stat F·[] S·0B[] Sc·[]
 16:58:24.651144 db@janitor F·2 G·0
 16:58:24.651226 db@open done T·83.929864ms
+=============== Dec 1, 2020 (CST) ===============
+20:03:51.632935 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+20:03:51.633489 version@stat F·[] S·0B[] Sc·[]
+20:03:51.633586 db@open opening
+20:03:51.633836 journal@recovery F·1
+20:03:51.636167 journal@recovery recovering @1
+20:03:51.654283 memdb@flush created L0@2 N·2 S·176B "loc..seq,v2":"version,v1"
+20:03:51.655331 version@stat F·[1] S·176B[176B] Sc·[0.25]
+20:03:51.755140 db@janitor F·3 G·0
+20:03:51.755193 db@open done T·121.593265ms

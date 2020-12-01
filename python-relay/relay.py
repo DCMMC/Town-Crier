@@ -41,8 +41,8 @@ class BaseConfig:
 
 class ConfigSim(BaseConfig):
     # (DCMMC) 需要在这里配置好两个区块链地址
-    SGX_WALLET_ADDR = Web3.toChecksumAddress("0xc82Ad85E461B85b17Dc02f0173127798636b3EdE")
-    TC_CONTRACT_ADDR = Web3.toChecksumAddress("")
+    SGX_WALLET_ADDR = Web3.toChecksumAddress("0xc82ad85e461b85b17dc02f0173127798636b3ede")
+    TC_CONTRACT_ADDR = Web3.toChecksumAddress("0x7FF5Fa610d96ecd74EAc58C4d5f05e16b574492E")
     # (DCMMC) TC 合约开始的区块号, relay 将会从这里开始遍历所有区块来找到 TC request
     TC_CONTRACT_BLOCK_NUM = 0
 
@@ -100,6 +100,7 @@ class TCMonitor:
                                                self.config.TC_CONTRACT_BLOCK_NUM)
 
         self.w3 = Web3(HTTPProvider(self.ETH_RPC_ADDRESS))
+        time.sleep(2)
         if not self.w3.isConnected():
             logger.info('cannot connect to {0}'.format(self.ETH_RPC_ADDRESS))
             sys.exit(1)
@@ -108,20 +109,14 @@ class TCMonitor:
 
     def _get_requests_in_block(self, block):
         # (DCMMC) topics 就是 TC contract 发出的 RequestInfo 事件的签名
-        # filter_obj = {'fromBlock': block, 'toBlock': block,
-        #               'address': self.config.TC_CONTRACT_ADDR,
-        #               'topics': [self.TC_REQUEST_TOPIC]}
         filter_obj = {'fromBlock': block, 'toBlock': block,
-                      'address': self.config.TC_CONTRACT_ADDR}
+                      'address': self.config.TC_CONTRACT_ADDR,
+                      'topics': [self.TC_REQUEST_TOPIC]}
         logs = self.w3.eth.getLogs(filter_obj)
         logger.info("{0} requests find in block {1}".format(len(logs), block))
         requests = []
         for log in logs:
             requests.append(Request(Web3.toHex(log['transactionHash']), log['data']))
-
-        if len(logs):
-            logger.info(f'DEBUG: requests: {requests}')
-            sys.exit(-1)
         return requests
 
     def _update_record_one_request(self, req):

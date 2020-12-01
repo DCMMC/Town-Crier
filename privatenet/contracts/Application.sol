@@ -1,6 +1,6 @@
-import './TownCrier.sol';
-
 pragma solidity ^0.5.16;
+
+import './TownCrier.sol';
 
 contract Application {
     event TestApp(bytes4, bytes32[] req_data, uint msg_value, uint tc_fee);

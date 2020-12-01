@@ -1,4 +1,3 @@
-// pragma solidity ^0.4.9;
 pragma solidity ^0.5.16;
 
 contract TownCrier {

@@ -44,6 +44,10 @@
 #include "event_handler.h"
 #include <string>
 #include <inttypes.h>
+// (DCMMC) debug
+#include <stdarg.h>
+#include <stdio.h>
+#include <string.h>
 
 #include "scrapers/scrapers.h"
 #include "scrapers/sql_scrapers.h"
@@ -69,6 +73,25 @@
 #include "hybrid_cipher.h"
 #include "env.h"
 
+// (DCMMC) debug
+// int ocall_print_string_debug(const char *str) {
+//   int ret = printf("%s", str);
+//   fflush(stdout);
+//   return ret;
+// }
+
+int debug_sgx(const char *fmt, ...)
+{
+    int ret = 0;
+    va_list ap;
+    char buf[BUFSIZ] = {'\0'};
+    va_start(ap, fmt);
+    vsnprintf(buf, BUFSIZ, fmt, ap);
+    va_end(ap);
+
+    ocall_print_string(&ret, buf);
+    return ret;
+}
 /*
  * testing data
  *
@@ -88,6 +111,8 @@ int handle_request(int nonce,
                    size_t data_len,
                    uint8_t *raw_tx,
                    size_t *raw_tx_len) {
+  int ret = 0;
+  printf_sgx("DCMMC: In handle req");
   try {
     string tc_address = getContractAddress();
     LL_DEBUG("serving tc address: %s", tc_address.c_str());
@@ -114,6 +139,8 @@ int do_handle_request(int nonce,
                       size_t *raw_tx_len) {
   bytes resp_data;
   int error_flag = 0;
+  printf_sgx("DCMMC!");
+  printf_sgx("DCMMC: data=%s", string(data, data + data_len).c_str());
 
   switch (type) {
     /*
@@ -302,14 +329,17 @@ int do_handle_request(int nonce,
   //   break;
   // }
     case TYPE_GENERIC_SQL_LOCALHOST8443: {
+        LL_INFO("DCMMC: SQL start!");
         SQLScraper sql_scrapers;
         string result;
         switch (sql_scrapers.handle(data, data_len, &result)) {
         case UNKNOWN_ERROR:
         case WEB_ERROR:
+          LL_INFO("DCMMC: SQL TC_INTERNAL_ERROR");
           error_flag = TC_INTERNAL_ERROR;
           break;
         case INVALID_PARAMS:
+          LL_INFO("DCMMC: SQL TC_INPUT_ERROR");
           error_flag = TC_INPUT_ERROR;
           break;
         case NO_ERROR:
