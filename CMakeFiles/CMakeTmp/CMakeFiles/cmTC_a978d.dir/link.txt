@@ -1,0 +1,1 @@
+/usr/bin/cc   -DDEBUG -UNDEBUG -UEDEBUG     CMakeFiles/cmTC_a978d.dir/CheckIncludeFile.c.o  -o cmTC_a978d -rdynamic 

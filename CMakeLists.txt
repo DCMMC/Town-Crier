@@ -18,6 +18,7 @@ endif()
 include(cmake/Init.cmake)
 
 IF(CMAKE_BUILD_TYPE MATCHES Debug)
+  # (DCMMC) 默认的 DEBUG 模式下 SGX 采用模拟方式
     set(SGX_MODE SIM)
     set(SGX_BUILD DEBUG)
 ELSEIF(CMAKE_BUILD_TYPE MATCHES Prerelease)
@@ -38,6 +39,7 @@ set(MBEDTLS_LIB_DIR ${TC_ROOT_DIR}/Enclave/mbedtls-SGX)
 # check cmake configuration
 message(STATUS "Building ${CMAKE_BUILD_TYPE} with CFLAGS ${CMAKE_C_FLAGS}")
 
+# (DCMMC) 主要就是编译这两个子项目
 add_subdirectory(src/App)
 add_subdirectory(src/Enclave)
 

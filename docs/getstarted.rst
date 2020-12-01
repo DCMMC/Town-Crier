@@ -2,8 +2,6 @@ Get Started: Write Your First TC-powered Contract
 =================================================
 
 The TC contract has a very simple API for your contract to call.
-Below we present the generic API,
-and then we'll go through an example (:ref:`rinkeby-example`) with detailed explanation.
 
 Submit queries via ``request``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -12,8 +10,8 @@ An application contract sends queries to TC by calling the ``request`` function.
 
 .. code-block:: javascript
 
-  request(uint8 requestType, address callbackAddr,
-        bytes4 callbackFID, uint256 timestamp,
+  request(uint8 requestType, address callbackAddr, \
+        bytes4 callbackFID, uint256 timestamp, \
         bytes32[] requestData) public payable returns(int256);
 
 Parameters:

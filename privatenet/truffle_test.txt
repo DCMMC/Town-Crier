@@ -1,0 +1,73 @@
+Starting migrations...
+======================
+> Network name:    'develop'
+> Network id:      5777
+> Block gas limit: 6721975 (0x6691b7)
+
+
+1_initial_migration.js
+======================
+
+   Replacing 'Migrations'
+   ----------------------
+   > transaction hash:    0x7f71abe4c551040c4d497785a3e22b8bbcd083b72c30c416689ab626d245a00b
+   > Blocks: 0            Seconds: 0
+   > contract address:    0xc028DaDD8fD8aaB2D462A2a9155Da9600F0D3E9B
+   > block number:        1
+   > block timestamp:     1606649729
+   > account:             0xC3D745574B560319bB29637D92C231E7aB7010A3
+   > balance:             99.99616114
+   > gas used:            191943 (0x2edc7)
+   > gas price:           20 gwei
+   > value sent:          0 ETH
+   > total cost:          0.00383886 ETH
+
+
+   Replacing 'TownCrier'
+   ---------------------
+   > transaction hash:    0x4184b04d549dfb8e30a1cd2f6facc64f3e6f3f977be98f44703a143f5f1d93c5
+   > Blocks: 0            Seconds: 0
+   > contract address:    0x7F13372e73BBa0C732c7130B9449a8A159Ac27a2
+   > block number:        2
+   > block timestamp:     1606649729
+   > account:             0xC3D745574B560319bB29637D92C231E7aB7010A3
+   > balance:             99.959714
+   > gas used:            1822357 (0x1bce95)
+   > gas price:           20 gwei
+   > value sent:          0 ETH
+   > total cost:          0.03644714 ETH
+
+0x7F13372e73BBa0C732c7130B9449a8A159Ac27a2
+
+   Replacing 'Application'
+   -----------------------
+   > transaction hash:    0x7cb5c9b841d479d075ce66249366d2492df95a74fcab1b7f80ed11a370c5f521
+   > Blocks: 0            Seconds: 0
+   > contract address:    0xA0205DBD2F00b4CA5C8c63BE1Dca5CDca9262D01
+   > block number:        3
+   > block timestamp:     1606649729
+   > account:             0xC3D745574B560319bB29637D92C231E7aB7010A3
+   > balance:             99.93890298
+   > gas used:            1040551 (0xfe0a7)
+   > gas price:           20 gwei
+   > value sent:          0 ETH
+   > total cost:          0.02081102 ETH
+
+
+   > Saving migration to chain.
+   > Saving artifacts
+   -------------------------------------
+   > Total cost:          0.06109702 ETH
+
+
+Summary
+=======
+> Total deployments:   3
+> Final cost:          0.06109702 ETH
+
+truffle(develop)> let ins_app = await Application.deployed()
+undefined
+truffle(develop)> let ins_tc = await TownCrier.deployed()
+undefined
+truffle(develop)> let result = await ins_app.request(0, [web3.utils.asciiToHex('Test')])
+

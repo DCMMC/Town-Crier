@@ -1,3 +1,4 @@
+# (DCMMC) 该子项目生成依赖库 enclave
 add_definitions(-DENCLAVE_STD_ALT)
 add_definitions(-DIN_ENCLAVE)
 

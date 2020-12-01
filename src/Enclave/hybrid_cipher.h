@@ -50,7 +50,7 @@
 #include <mbedtls/ecp.h>
 #include <mbedtls/gcm.h>
 
-#include <cstring>
+#include <string.h>
 
 #include <exception>
 #include <vector>
@@ -65,6 +65,8 @@
 
 using namespace std;
 
+// (DCMMC) 这是用于加密 requestData 保证在链上传输数据的保密性用的私钥
+// 也叫做 private-datagram
 #define PREDEFINED_HYBRID_SECKEY "cd244b3015703ddf545595da06ada5516628c5feadbf49dc66049c4b370cc5d8"
 #undef PREDEFINED_HYBRID_SECKEY
 
@@ -74,6 +76,14 @@ using namespace std;
 #define DEBUG_BUFFER(title, buf, len) do { \
   mbedtls_debug_print_buf(&dummy_ssl_ctx, 0, __FILE__,__LINE__, title, buf, len); } \
  while (0);
+
+static void my_debug(void *ctx, int level, const char *file, int line,
+                     const char *str) {
+  (void) ctx;
+  (void) level;
+
+  mbedtls_printf("%s:%d: %s", file, line, str);
+}
 
 typedef uint8_t AESKey[32];
 typedef uint8_t AESIv[32];
@@ -92,7 +102,7 @@ class HybridCiphertext {
   GCMTag gcm_tag;
   vector <uint8_t> data;
 
-  HybridCiphertext() = default;
+  HybridCiphertext() {};
   void toString();
 };
 
@@ -154,7 +164,7 @@ class DecryptionException: public std::exception {
  private:
   const string reason;
  public:
-  explicit DecryptionException(string reason) : reason(reason) {}
+  DecryptionException(string reason): reason(reason) {}
   const char* what() const throw() { return reason.c_str(); }
 };
 

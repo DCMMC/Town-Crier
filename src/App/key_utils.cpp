@@ -86,6 +86,7 @@ string unseal_key(sgx_enclave_id_t eid, string sealed_key, tc::keyUtils::KeyType
 
   int ret = 0;
   sgx_status_t ecall_ret;
+  // (DCMMC) 在 Enclave 中可信执行 eth_ecdsa.cpp 中的 ecdsa_keygen_unseal 函数
   ecall_ret = ecdsa_keygen_unseal(
       eid, &ret, reinterpret_cast<sgx_sealed_data_t*>(secret_sealed),
       buffer_used, pubkey, address);

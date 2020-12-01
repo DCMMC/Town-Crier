@@ -51,19 +51,32 @@
 #define TC_REQUEST_PAYLOAD_LIMIT 20480 // 2k payload limit
 
 /* Define any events that Town Crier Supports here */
-#define TYPE_LOOP_THROUGH   0x0
-#define TYPE_FLIGHT_INS     0x1
-#define TYPE_BITCOIN_FEE    0x2
-#define TYPE_FINANCE_INFO   0x3
-#define TYPE_UPS_TRACKING   0x4
-#define TYPE_COINMARKET     0x5
-#define TYPE_WEATHER        0x6
-#define TYPE_CURRENT_VOTE   0x7
-#define TYPE_ENCRYPT_TEST   0x8
-#define TYPE_WOLFRAM		0x9
+// #define TYPE_LOOP_THROUGH   0x0
+// #define TYPE_FLIGHT_INS     0x1
+// #define TYPE_BITCOIN_FEE    0x2
+// #define TYPE_FINANCE_INFO   0x3
+// #define TYPE_UPS_TRACKING   0x4
+// #define TYPE_COINMARKET     0x5
+// #define TYPE_WEATHER        0x6
+// #define TYPE_CURRENT_VOTE   0x7
+// #define TYPE_ENCRYPT_TEST   0x8
+// #define TYPE_WOLFRAM		0x9
+//
+// #define TYPE_FLIGHT_INS_ENC	0x10
+// #define TYPE_STEAM_EX       0x11
 
-#define TYPE_FLIGHT_INS_ENC	0x10
-#define TYPE_STEAM_EX       0x11
+// (DCMMD) requestData 为原始的 SQL 语句，但是服务器只能是 https://localhost:8443
+// 该服务器是一个 https 服务器，返回数据为 JSON 格式。
+#define TYPE_GENERIC_SQL_LOCALHOST8443 0x0
+// TODO (DCMMD) requestData 为想要执行的 SQL 语句的描述，在 TC server 中对其进行安全校验才拼接成
+// 最终的 SQL 语句，但是服务器只能是 https://localhost:8443
+// requestData 可以是一个 JSON 对象, 参考 flight.cpp
+#define TYPE_RESTRICTED_SQL_LOCALHOST8443 0x1
+// (DCMMC) 可以在 TC server 的 src/Enclave/hybrid_cipher 中设置私钥 PREDEFINED_HYBRID_SECKEY
+// 然后 TC server 公开其对应的公钥，这样用户可以在 User Contract 中提交事先通过公钥加密的数据作为
+// RequestData（用户不需要在区块链上加密）
+#define TYPE_PRIVATE_SQL_LOCALHOST8443 0x2
+#define TYPE_RESTRICTED_PRIVATE_SQL_LOCALHOST8443 0x4
 
 /* Possible return values to be used in Enclave-Relay Connections */
 #define TC_SUCCESS          0x0

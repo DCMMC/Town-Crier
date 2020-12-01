@@ -46,6 +46,7 @@
 #include <inttypes.h>
 
 #include "scrapers/scrapers.h"
+#include "scrapers/sql_scrapers.h"
 #include "scrapers/yahoo_yql_stock.h"
 #include "scrapers/Scraper.h"
 #include "scrapers/flight.h"
@@ -76,6 +77,9 @@ Request(app, 2, ['f68d2a32cf17b1312c6db3f236a38c94', '4c9f92f6ec1e2a20a1413d0ac1
 Request(app, 3, ['GOOG', pad(1262390400,64)]);;
 Request(app, 4, ['1ZE331480394808282']);
 Request(app, 5, ['bitcoin']);
+
+(DCMMD) 为了适配其他类型的请求（比如 SQL 查询），主要就是更改这个文件
+RequestType 在 src/Common/Constants.h 中定义
  */
 int handle_request(int nonce,
                    uint64_t id,
@@ -88,7 +92,8 @@ int handle_request(int nonce,
     string tc_address = getContractAddress();
     LL_DEBUG("serving tc address: %s", tc_address.c_str());
 
-    return do_handle_request(nonce, id, type, data, data_len, raw_tx, raw_tx_len);
+    int ret = do_handle_request(nonce, id, type, data, data_len, raw_tx, raw_tx_len);
+    return ret;
   }
   catch (const std::exception &e) {
     LL_CRITICAL("exception while handling request: %s", e.what());
@@ -126,130 +131,130 @@ int do_handle_request(int nonce,
       return -1;
     }
      */
-  case TYPE_BITCOIN_FEE: {
-    BitcoinFees bitcoinFees;
-    int fastestFee;
-    switch (bitcoinFees.handle(data, data_len, &fastestFee)) {
-    case UNKNOWN_ERROR:
-    case WEB_ERROR:
-      error_flag = TC_INTERNAL_ERROR;
-      break;
-    case INVALID_PARAMS:
-      error_flag = TC_INPUT_ERROR;
-      break;
-    case NO_ERROR:
-      append_as_uint256(resp_data, fastestFee, sizeof(fastestFee));
-      break;
-    }
-    break;
-  }
-  case TYPE_FLIGHT_INS: {
-    FlightScraper flightHandler;
-    int delay = 0;
-    switch (flightHandler.handle(data, data_len, &delay)) {
-    case UNKNOWN_ERROR:
-    case WEB_ERROR:
-      error_flag = TC_INTERNAL_ERROR;
-      break;
-    case INVALID_PARAMS:
-      error_flag = TC_INPUT_ERROR;
-      break;
-    case NO_ERROR:
-      append_as_uint256(resp_data, delay, sizeof(delay));
-      break;
-    };
-    break;
-  }
-  case TYPE_STEAM_EX: {
-    SteamScraper steamHandler;
-    int found;
-    switch (steamHandler.handle(data, data_len, &found)) {
-    case UNKNOWN_ERROR:
-    case WEB_ERROR:
-      error_flag = TC_INTERNAL_ERROR;
-      break;
-    case INVALID_PARAMS:
-      error_flag = TC_INPUT_ERROR;
-      break;
-    case NO_ERROR:
-      append_as_uint256(resp_data, found, sizeof(found));
-      break;
-    }
-    break;
-  }
-  case TYPE_FINANCE_INFO: {
-    YahooYQLStock yahooYQLStock;
-    int closing_price = 0;
-    switch (yahooYQLStock.handle(data, data_len, &closing_price)) {
-    case INVALID_PARAMS:
-      error_flag = TC_ERR_FLAG_INVALID_INPUT;
-      break;
-    case WEB_ERROR:
-      error_flag = TC_INTERNAL_ERROR;
-      break;
-    case NO_ERROR:
-      LL_DEBUG("closing pricing is %d", closing_price);
-      append_as_uint256(resp_data, closing_price, sizeof(closing_price));
-      break;
-    default:
-      LL_CRITICAL("unknown state!");
-      error_flag = TC_ERR_FLAG_INTERNAL_ERR;
-    }
-    break;
-  }
-  case TYPE_UPS_TRACKING: {
-    LL_CRITICAL("not supported yet");
-    error_flag = TC_ERR_FLAG_INTERNAL_ERR;
-    break;
-    USPSScraper uSPSScraper;
-    int pkg_status;
-    switch (uSPSScraper.handle(data, data_len, &pkg_status)) {
-    case UNKNOWN_ERROR:
-    case WEB_ERROR:
-      error_flag = TC_INTERNAL_ERROR;
-      break;
-    case INVALID_PARAMS:
-      error_flag = TC_INPUT_ERROR;
-    case NO_ERROR:
-      append_as_uint256(resp_data, pkg_status, sizeof(pkg_status));
-      break;
-    };
-    break;
-  }
-  case TYPE_COINMARKET: {
-    CoinMarket coinMarket;
-    int coin_value;
-    switch (coinMarket.handle(data, data_len, &coin_value)) {
-    case UNKNOWN_ERROR:
-    case WEB_ERROR:
-      error_flag = TC_INTERNAL_ERROR;
-      break;
-    case INVALID_PARAMS:
-      error_flag = TC_INPUT_ERROR;
-      break;
-    case NO_ERROR:
-      append_as_uint256(resp_data, coin_value, sizeof(coin_value));
-      break;
-    };
-    break;
-  }
-  case TYPE_WEATHER: {
-    WeatherScraper weatherScraper;
-    int temperature;
-    switch (weatherScraper.handle(data, data_len, &temperature)) {
-    case UNKNOWN_ERROR:
-    case WEB_ERROR:
-      error_flag = TC_INTERNAL_ERROR;
-      break;
-    case INVALID_PARAMS:
-      error_flag = TC_INPUT_ERROR;
-      break;
-    case NO_ERROR:
-      append_as_uint256(resp_data, temperature, sizeof(temperature));
-      break;
-    };
-    break;
-  }
+  // case TYPE_BITCOIN_FEE: {
+  //   BitcoinFees bitcoinFees;
+  //   int fastestFee;
+  //   switch (bitcoinFees.handle(data, data_len, &fastestFee)) {
+  //   case UNKNOWN_ERROR:
+  //   case WEB_ERROR:
+  //     error_flag = TC_INTERNAL_ERROR;
+  //     break;
+  //   case INVALID_PARAMS:
+  //     error_flag = TC_INPUT_ERROR;
+  //     break;
+  //   case NO_ERROR:
+  //     append_as_uint256(resp_data, fastestFee, sizeof(fastestFee));
+  //     break;
+  //   }
+  //   break;
+  // }
+  // case TYPE_FLIGHT_INS: {
+  //   FlightScraper flightHandler;
+  //   int delay = 0;
+  //   switch (flightHandler.handle(data, data_len, &delay)) {
+  //   case UNKNOWN_ERROR:
+  //   case WEB_ERROR:
+  //     error_flag = TC_INTERNAL_ERROR;
+  //     break;
+  //   case INVALID_PARAMS:
+  //     error_flag = TC_INPUT_ERROR;
+  //     break;
+  //   case NO_ERROR:
+  //     append_as_uint256(resp_data, delay, sizeof(delay));
+  //     break;
+  //   };
+  //   break;
+  // }
+  // case TYPE_STEAM_EX: {
+  //   SteamScraper steamHandler;
+  //   int found;
+  //   switch (steamHandler.handle(data, data_len, &found)) {
+  //   case UNKNOWN_ERROR:
+  //   case WEB_ERROR:
+  //     error_flag = TC_INTERNAL_ERROR;
+  //     break;
+  //   case INVALID_PARAMS:
+  //     error_flag = TC_INPUT_ERROR;
+  //     break;
+  //   case NO_ERROR:
+  //     append_as_uint256(resp_data, found, sizeof(found));
+  //     break;
+  //   }
+  //   break;
+  // }
+  // case TYPE_FINANCE_INFO: {
+  //   YahooYQLStock yahooYQLStock;
+  //   int closing_price = 0;
+  //   switch (yahooYQLStock.handle(data, data_len, &closing_price)) {
+  //   case INVALID_PARAMS:
+  //     error_flag = TC_ERR_FLAG_INVALID_INPUT;
+  //     break;
+  //   case WEB_ERROR:
+  //     error_flag = TC_INTERNAL_ERROR;
+  //     break;
+  //   case NO_ERROR:
+  //     LL_DEBUG("closing pricing is %d", closing_price);
+  //     append_as_uint256(resp_data, closing_price, sizeof(closing_price));
+  //     break;
+  //   default:
+  //     LL_CRITICAL("unknown state!");
+  //     error_flag = TC_ERR_FLAG_INTERNAL_ERR;
+  //   }
+  //   break;
+  // }
+  // case TYPE_UPS_TRACKING: {
+  //   LL_CRITICAL("not supported yet");
+  //   error_flag = TC_ERR_FLAG_INTERNAL_ERR;
+  //   break;
+  //   USPSScraper uSPSScraper;
+  //   int pkg_status;
+  //   switch (uSPSScraper.handle(data, data_len, &pkg_status)) {
+  //   case UNKNOWN_ERROR:
+  //   case WEB_ERROR:
+  //     error_flag = TC_INTERNAL_ERROR;
+  //     break;
+  //   case INVALID_PARAMS:
+  //     error_flag = TC_INPUT_ERROR;
+  //   case NO_ERROR:
+  //     append_as_uint256(resp_data, pkg_status, sizeof(pkg_status));
+  //     break;
+  //   };
+  //   break;
+  // }
+  // case TYPE_COINMARKET: {
+  //   CoinMarket coinMarket;
+  //   int coin_value;
+  //   switch (coinMarket.handle(data, data_len, &coin_value)) {
+  //   case UNKNOWN_ERROR:
+  //   case WEB_ERROR:
+  //     error_flag = TC_INTERNAL_ERROR;
+  //     break;
+  //   case INVALID_PARAMS:
+  //     error_flag = TC_INPUT_ERROR;
+  //     break;
+  //   case NO_ERROR:
+  //     append_as_uint256(resp_data, coin_value, sizeof(coin_value));
+  //     break;
+  //   };
+  //   break;
+  // }
+  // case TYPE_WEATHER: {
+  //   WeatherScraper weatherScraper;
+  //   int temperature;
+  //   switch (weatherScraper.handle(data, data_len, &temperature)) {
+  //   case UNKNOWN_ERROR:
+  //   case WEB_ERROR:
+  //     error_flag = TC_INTERNAL_ERROR;
+  //     break;
+  //   case INVALID_PARAMS:
+  //     error_flag = TC_INPUT_ERROR;
+  //     break;
+  //   case NO_ERROR:
+  //     append_as_uint256(resp_data, temperature, sizeof(temperature));
+  //     break;
+  //   };
+  //   break;
+  // }
     /*
     case TYPE_CURRENT_VOTE: {
       double r1 = 0, r2 = 0;
@@ -258,44 +263,65 @@ int do_handle_request(int nonce,
       break;
     }
      */
-  case TYPE_WOLFRAM: {
-    WolframScraper wolframScraper;
-    string status;
-    switch (wolframScraper.handle(data, data_len, &status)) {
-    case UNKNOWN_ERROR:
-    case WEB_ERROR:
-      error_flag = TC_INTERNAL_ERROR;
-      break;
-    case INVALID_PARAMS:
-      error_flag = TC_INPUT_ERROR;
-      break;
-    case NO_ERROR:
-      LL_INFO("wolfram returned: %s", status.c_str());
-      resp_data.insert(resp_data.end(), status.begin(), status.end());
-      break;
-    default:
-      error_flag = TC_ERR_FLAG_INVALID_INPUT;
-      break;
+  // case TYPE_WOLFRAM: {
+  //   WolframScraper wolframScraper;
+  //   string status;
+  //   switch (wolframScraper.handle(data, data_len, &status)) {
+  //   case UNKNOWN_ERROR:
+  //   case WEB_ERROR:
+  //     error_flag = TC_INTERNAL_ERROR;
+  //     break;
+  //   case INVALID_PARAMS:
+  //     error_flag = TC_INPUT_ERROR;
+  //     break;
+  //   case NO_ERROR:
+  //     LL_INFO("wolfram returned: %s", status.c_str());
+  //     resp_data.insert(resp_data.end(), status.begin(), status.end());
+  //     break;
+  //   default:
+  //     error_flag = TC_ERR_FLAG_INVALID_INPUT;
+  //     break;
+  //   }
+  //   break;
+  // }
+  // case TYPE_FLIGHT_INS_ENC: {
+  //   FlightScraper flightHandler;
+  //   int delay = 0;
+  //   switch (flightHandler.handleEncryptedQuery(data, data_len, &delay)) {
+  //   case UNKNOWN_ERROR:
+  //   case WEB_ERROR:
+  //     error_flag = TC_INTERNAL_ERROR;
+  //     break;
+  //   case INVALID_PARAMS:
+  //     error_flag = TC_INPUT_ERROR;
+  //     break;
+  //   case NO_ERROR:
+  //     append_as_uint256(resp_data, delay, sizeof(delay));
+  //     break;
+  //   };
+  //   break;
+  // }
+    case TYPE_GENERIC_SQL_LOCALHOST8443: {
+        SQLScraper sql_scrapers;
+        string result;
+        switch (sql_scrapers.handle(data, data_len, &result)) {
+        case UNKNOWN_ERROR:
+        case WEB_ERROR:
+          error_flag = TC_INTERNAL_ERROR;
+          break;
+        case INVALID_PARAMS:
+          error_flag = TC_INPUT_ERROR;
+          break;
+        case NO_ERROR:
+          LL_INFO("SQLScraper returned: %s", result.c_str());
+          resp_data.insert(resp_data.end(), result.begin(), result.end());
+          break;
+        default:
+          error_flag = TC_ERR_FLAG_INVALID_INPUT;
+          break;
+        }
+        break;
     }
-    break;
-  }
-  case TYPE_FLIGHT_INS_ENC: {
-    FlightScraper flightHandler;
-    int delay = 0;
-    switch (flightHandler.handleEncryptedQuery(data, data_len, &delay)) {
-    case UNKNOWN_ERROR:
-    case WEB_ERROR:
-      error_flag = TC_INTERNAL_ERROR;
-      break;
-    case INVALID_PARAMS:
-      error_flag = TC_INPUT_ERROR;
-      break;
-    case NO_ERROR:
-      append_as_uint256(resp_data, delay, sizeof(delay));
-      break;
-    };
-    break;
-  }
     /*
     case TYPE_ENCRYPT_TEST: {
       HybridEncryption dec_ctx;

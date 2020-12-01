@@ -44,18 +44,6 @@ using namespace std;
 
 static mbedtls_mpi g_secret_hybrid_key;
 
-static void my_debug(void *ctx,
-                     int level,
-                     const char *file,
-                     int line,
-                     const char *str)
-{
-  (void)ctx;
-  (void)level;
-
-  mbedtls_printf("%s:%d: %s", file, line, str);
-}
-
 int tc_provision_hybrid_key(const sgx_sealed_data_t *secret, size_t secret_len) {
   // used by edge8r
   (void) secret_len;
@@ -85,6 +73,7 @@ int tc_get_hybrid_pubkey(ECPointBuffer pubkey) {
 
 
 const string decrypt_query(const uint8_t* data, size_t data_len) {
+  // (DCMMC) 为了保证在区块链中传输数据的保密性，可以使用 TC 提供的公钥来加密
   HybridEncryption dec_ctx;
   ECPointBuffer tc_pubkey;
   dec_ctx.queryPubkey(tc_pubkey);

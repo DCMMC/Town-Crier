@@ -84,17 +84,25 @@ using std::runtime_error;
 
 // pubkey: 64 Bytes
 // SHA3-256: 32 Bytes
-// use lower 160 bits as address
+// use lower 160 bits (20 Bytes) as address
 /*
+ * (DCMMC) 这就是配置文件中 sealed.sig_key 解密出来的 secret key (SEC) 以及
+ * 对应的 pubkey 和 address
 ---- ADDRESS -------------------------------
 SEC: cd244b3015703ddf545595da06ada5516628c5feadbf49dc66049c4b370cc5d8
 PUB: bb48ae3726c5737344a54b3463fec499cb108a7d11ba137ba3c7d043bd6d7e14994f60462a3f91550749bb2ae5411f22b7f9bee79956a463c308ad508f3557df
 ADR: 89b44e4d3c81ede05d0f5de8d1a68f754d73d997
 */
 
+// (DCMMC) 重要：用于 tc-genkey 生成配置文件中的 sealed.sig_key!
+// /tc/bin/tc-keygen --enclave /tc/enclave/enclave.debug.so --keygen /tmp/key.txt
+// 这个 secret key 可以通过我写的 get_secret_key_from_keystore 获得
+// 仅限于测试环境使用，这个私钥千万不要泄漏出去！
 #define PREDEFINED_SECKEY \
-  "cd244b3015703ddf545595da06ada5516628c5feadbf49dc66049c4b370cc5d8"
-#undef PREDEFINED_SECKEY
+  "ff8e71932b270c2e7aff470668d2c4cfbb259613ad8a4b27396c6da4800d8b1f"
+  // "cd244b3015703ddf545595da06ada5516628c5feadbf49dc66049c4b370cc5d8"
+// #undef PREDEFINED_SECKEY
+// (DCMMC) 这是全局用于存放 SGX WALLET address 对应的私钥的变量
 static mbedtls_mpi g_secret_key;
 
 /*!
@@ -130,6 +138,7 @@ int __ecdsa_seckey_to_pubkey(const mbedtls_mpi *seckey, unsigned char *pubkey,
     return -1;
   }
 
+  // (DCMMC) 以 secret key 作为 EC over G(p) 的入口, 进而得到 pubkey
   ret = mbedtls_ecp_point_write_binary(
       &ctx.grp, &ctx.Q, MBEDTLS_ECP_PF_UNCOMPRESSED, &buflen, __pubkey, 65);
   if (ret == MBEDTLS_ERR_ECP_BUFFER_TOO_SMALL) {
@@ -143,6 +152,7 @@ int __ecdsa_seckey_to_pubkey(const mbedtls_mpi *seckey, unsigned char *pubkey,
     LL_CRITICAL("ecp serialization is incorrect olen=%ld", buflen);
   }
 
+  // (DCMMC) 对 pubkey 计算 keccak hash 就是地址
   ret = keccak(__pubkey + 1, 64, __address, 32);
   if (ret != 0) {
     LL_CRITICAL("keccak returned %d", ret);
@@ -172,6 +182,7 @@ int ecdsa_keygen_unseal(const sgx_sealed_data_t *secret, size_t secret_len,
   uint8_t y[decrypted_text_length];
   sgx_status_t st;
 
+  // (DCMMC)
   st = sgx_unseal_data(secret, NULL, 0, y, &decrypted_text_length);
   if (st != SGX_SUCCESS) {
     LL_CRITICAL("unseal returned %x", st);
@@ -272,12 +283,12 @@ int ecdsa_keygen_seal(unsigned char *o_sealed, size_t *olen,
   {
     uint32_t len = sgx_calc_sealed_data_size(0, sizeof(secret_buffer));
     sgx_sealed_data_t *seal_buffer = (sgx_sealed_data_t *) malloc(len);
-    LL_DEBUG("sealed secret length is %d", len);
+    LL_LOG("sealed secret length is %d", len);
 
     sgx_status_t st = sgx_seal_data(0, NULL, sizeof secret_buffer,
                                     secret_buffer, len, seal_buffer);
     if (st != SGX_SUCCESS) {
-      LL_DEBUG("Failed to seal. Ecall returned %d", st);
+      LL_LOG("Failed to seal. Ecall returned %d", st);
       ret = -1;
       goto exit;
     }
@@ -292,7 +303,7 @@ int ecdsa_keygen_seal(unsigned char *o_sealed, size_t *olen,
     ret = -1;
     goto exit;
   }
-  LL_DEBUG("returning from keygen_seal");
+  LL_LOG("returning from keygen_seal");
 
   exit:
   mbedtls_mpi_free(&secret);
@@ -300,6 +311,9 @@ int ecdsa_keygen_seal(unsigned char *o_sealed, size_t *olen,
   return ret;
 }
 
+// (DCMMC) 用于签名 ETH 数据包
+// 类似于：w3.eth.account.signTransaction
+// Ref: https://web3py.readthedocs.io/en/stable/web3.eth.html#web3.eth.Eth.sendRawTransaction
 int ecdsa_sign(const uint8_t *data, size_t in_len, uint8_t *rr, uint8_t *ss,
                uint8_t *vv) {
   int ret;

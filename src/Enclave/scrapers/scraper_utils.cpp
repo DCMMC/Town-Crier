@@ -63,6 +63,7 @@ static char to_hex(char code) {
 
 /* Returns a url-encoded version of str */
 string url_encode(const char *str) {
+  // (DCMMC) 这是作者实现的一个简单的 URLEncode
   const char *pstr = str;
   char *buf = reinterpret_cast<char *>(malloc(strlen(str) * 3 + 1)), *pbuf = buf;
   while (*pstr) {

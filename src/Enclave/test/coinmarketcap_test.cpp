@@ -55,8 +55,7 @@ int coin_self_test() {
     BitcoinFees bitcoinFees;
     RecommendedFees results;
     bitcoinFees.get_recommended_fees(&results);
-    LL_INFO(
-        "%d, %d, %d", results.fastestFee, results.halfHourFee, results.hourFee);
+    LL_NOTICE("%d, %d, %d", results.fastestFee, results.halfHourFee, results.hourFee);
   }
   CATCH_STD_AND_ALL
 

@@ -67,14 +67,14 @@ class Config {
   const string &getSealedSigKey() const;
   const string &getSealedHybridKey() const;
   const string &getEnclavePath() const;
-  const string &getTcEthereumAddress() const;
+  const string &getContractAddress() const;
   bool getIsPrintMR() const;
 
  private:
   bool isPrintMR;
   string configFile;
   int relayRPCAccessPoint;
-  string tcContractEthereumAddr;
+  string contractAddress;
   string sealedECDSAKey;
   string sealedHybridEncryptionkey;
   string enclavePath;

@@ -8,14 +8,14 @@
 
 using namespace std;
 
-err_code BitcoinFees::handle(const uint8_t *request_data, size_t request_data_len, int *response_data) {
-  (void) request_data;
-  (void) request_data_len;
+err_code BitcoinFees::handle(const uint8_t *req, size_t len, int *resp_data) {
+  (void) req;
+  (void) len;
 
   try {
     RecommendedFees fees;
     get_recommended_fees(&fees);
-    *response_data = fees.fastestFee;
+    *resp_data = fees.fastestFee;
 
     return NO_ERROR;
   }
@@ -37,7 +37,7 @@ void BitcoinFees::get_recommended_fees(RecommendedFees* result) {
 
   HttpResponse http_response = httpClient.getResponse();
 
-  LL_DEBUG("response is %s", http_response.getContent().c_str());
+  LL_LOG("response is %s", http_response.getContent().c_str());
 
   if (http_response.getStatusCode() != 200) {
     LL_CRITICAL("error code: %d", http_response.getStatusCode());

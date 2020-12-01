@@ -1,0 +1,111 @@
+INFO [12-01|16:58:23.239] Maximum peer count                       ETH=50 LES=0 total=50
+WARN [12-01|16:58:23.239] The flag --rpc is deprecated and will be removed in the future, please use --http 
+WARN [12-01|16:58:23.239] The flag --rpcport is deprecated and will be removed in the future, please use --http.port 
+WARN [12-01|16:58:23.239] The flag --rpccorsdomain is deprecated and will be removed in the future, please use --http.corsdomain 
+WARN [12-01|16:58:23.239] The flag --rpcapi is deprecated and will be removed in the future, please use --http.api 
+INFO [12-01|16:58:23.239] Smartcard socket not found, disabling    err="stat /run/pcscd/pcscd.comm: no such file or directory"
+INFO [12-01|16:58:23.239] Set global gas cap                       cap=25000000
+INFO [12-01|16:58:23.239] Allocated trie memory caches             clean=256.00MiB dirty=256.00MiB
+INFO [12-01|16:58:23.239] Allocated cache and file handles         database=/home/kevin/Projects/Town-Crier/privatenet/node03/geth/chaindata cache=512.00MiB handles=262144
+INFO [12-01|16:58:24.421] Opened ancient database                  database=/home/kevin/Projects/Town-Crier/privatenet/node03/geth/chaindata/ancient
+INFO [12-01|16:58:24.422] Initialised chain configuration          config="{ChainID: 15 Homestead: 0 DAO: <nil> DAOSupport: false EIP150: 0 EIP155: 0 EIP158: 0 Byzantium: <nil> Constantinople: <nil> Petersburg: <nil> Istanbul: <nil>, Muir Glacier: <nil>, YOLO v2: <nil>, Engine: unknown}"
+INFO [12-01|16:58:24.422] Disk storage enabled for ethash caches   dir=/home/kevin/Projects/Town-Crier/privatenet/node03/geth/ethash count=3
+INFO [12-01|16:58:24.422] Disk storage enabled for ethash DAGs     dir=/home/kevin/.ethash count=2
+INFO [12-01|16:58:24.423] Initialising Ethereum protocol           versions="[65 64 63]" network=1900 dbversion=<nil>
+WARN [12-01|16:58:24.423] Upgrade blockchain database version      from=<nil> to=8
+INFO [12-01|16:58:24.424] Loaded most recent local header          number=0 hash="f7233b…e9fe85" td=0 age=51y7mo3w
+INFO [12-01|16:58:24.424] Loaded most recent local full block      number=0 hash="f7233b…e9fe85" td=0 age=51y7mo3w
+INFO [12-01|16:58:24.424] Loaded most recent local fast block      number=0 hash="f7233b…e9fe85" td=0 age=51y7mo3w
+INFO [12-01|16:58:24.425] Regenerated local transaction journal    transactions=0 accounts=0
+INFO [12-01|16:58:24.431] Allocated fast sync bloom                size=512.00MiB
+INFO [12-01|16:58:24.432] Starting peer-to-peer node               instance=Geth/node03/v1.9.24-stable-cc05b050/linux-amd64/go1.15.5
+INFO [12-01|16:58:24.434] Initialized fast sync bloom              items=4 errorrate=0.000 elapsed=2.233ms
+INFO [12-01|16:58:24.653] New local node record                    seq=1 id=a093d29868e3a7dc ip=127.0.0.1 udp=0 tcp=30323
+INFO [12-01|16:58:24.653] Started P2P networking                   self="enode://f5782c18e8a108dc5381175b1da6a3782586d43a29bb8a86fb5dc64918810c42ebad2657050ad48a4ac5dd369cc41c6c6bf1f3e7fed8cc7d940dd0cf9965b6c8@127.0.0.1:30323?discport=0"
+INFO [12-01|16:58:24.655] IPC endpoint opened                      url=/home/kevin/Projects/Town-Crier/privatenet/node03/geth.ipc
+INFO [12-01|16:58:24.656] HTTP server started                      endpoint=127.0.0.1:8002 cors=* vhosts=localhost
+INFO [12-01|16:58:24.656] Stats daemon started 
+WARN [12-01|16:58:24.656] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|16:58:34.657] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|16:58:44.660] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|16:58:54.662] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+INFO [12-01|16:59:01.988] Looking for peers                        peercount=1 tried=1 static=1
+WARN [12-01|16:59:04.664] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|16:59:14.664] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|16:59:24.665] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|16:59:34.667] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|16:59:44.669] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|16:59:54.669] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:00:04.672] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:00:14.673] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:00:24.676] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:00:34.678] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:00:44.680] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:00:54.682] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:01:04.683] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:01:14.685] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:01:24.687] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:01:34.690] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:01:44.690] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:01:54.692] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:02:04.695] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:02:14.697] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:02:24.697] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:02:34.699] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:02:44.702] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:02:54.704] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:03:04.706] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:03:14.708] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:03:24.710] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:03:34.711] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:03:44.713] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:03:54.714] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:04:04.716] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:04:14.718] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:04:24.719] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:04:34.721] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:04:44.723] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:04:54.725] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:05:04.725] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:05:14.728] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:05:24.730] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:05:34.732] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:05:44.734] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:05:54.736] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:06:04.738] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:06:14.740] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:06:24.742] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:06:34.745] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:06:44.747] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:06:54.749] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:07:04.751] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:07:14.754] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:07:24.756] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:07:34.758] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:07:44.760] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:07:54.762] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:08:04.764] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:08:14.767] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:08:24.767] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:08:34.769] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:08:44.771] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:08:54.772] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:09:04.774] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:09:14.775] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:09:24.776] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:09:34.778] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:09:44.780] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:09:54.782] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:10:04.784] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:10:14.786] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:10:24.790] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:10:34.792] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:10:44.793] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:10:54.795] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:11:04.797] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:11:14.799] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:11:24.801] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:11:34.803] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:11:44.806] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:11:54.807] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"
+WARN [12-01|17:12:04.809] Stats server unreachable                 err="dial tcp [::1]:3000: connect: connection refused"

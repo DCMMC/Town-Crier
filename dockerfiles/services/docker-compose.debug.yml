@@ -1,0 +1,16 @@
+version: "2"
+services:
+    tc-core:
+        image: "bl4ck5un/tc-core:Debug"
+        network_mode: host
+        entrypoint: "tc"
+        volumes:
+          - ../../config/config-privatenet-sim:/config
+    tc-relay:
+        depends_on:
+          - tc-core
+        image: "bl4ck5un/tc-relay"
+        network_mode: host
+        volumes:
+          - ./relay:/relay
+        command: "-v --db /relay/tc.bin"

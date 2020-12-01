@@ -1,0 +1,1 @@
+../privatenet/compile.sh

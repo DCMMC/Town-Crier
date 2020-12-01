@@ -1,20 +1,15 @@
-.PHONY: console
+.PHONY: compile
 
-ganache:
-	docker run --rm \
-		-v $PWD:/cwd \
- 		-p 8545:8545 \
- 		trufflesuite/ganache-cli \
- 		--deterministic \
- 		--networkId 1827391 \
- 		--account_keys_path /cwd/keys
-
-console:
+console: compile
 	@./geth init /cwd/genesis.json
-	@./geth --preload /cwd/CompiledContracts-solc-v0.4.26.js,/cwd/testing_scripts.js console
+	@./geth --preload /cwd/.compiledContract.js,/cwd/unit_tests.js console
 
 clean:
 	@./geth removedb
+	@rm -rf .compiledContract.js
 
 doc:
 	@./geth --help
+
+compile:
+	@./compile.sh -n privatenet

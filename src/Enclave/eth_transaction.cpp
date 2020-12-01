@@ -135,8 +135,12 @@ void Transaction::rlpEncode(bytes &out, bool withSig) {
 }
 
 
+// (DCMMC) 这是 TC 智能合约中接受函数的定义
 #define DELIVER_CALL_SIGNATURE "deliver(uint64,bytes32,uint64,bytes32)"
 
+// (DCMMC) 这部分是最核心的一部分：先构造一个调用 TC 智能合约中 deliver 函数的 ETH 包，
+// 然后再用 SGX WALLET 的私钥去签名它，这样直接发到区块链上相当于以 SGX WALLET 帐号的身份
+// 发起的智能合约调用
 int form_transaction(int nonce,
                      uint64_t request_id,
                      uint8_t request_type,
@@ -263,6 +267,8 @@ int form_transaction(int nonce,
   tx.r.resize(32, 0);
   tx.s.resize(32, 0);
   if (with_sig) {
+    // (DCMMC) 这里便是用 SGX WALLET 的私钥去签名
+    // 私钥 sealed 后是放在 tc 的 config 文件中的
     if ((ret = ecdsa_sign(_tx_hash, 32, &tx.r[0], &tx.s[0], &tx.v)) != 0) {
       LL_CRITICAL("Error: signing returned %d", ret);
       return TC_INTERNAL_ERROR;
