@@ -139,8 +139,6 @@ int do_handle_request(int nonce,
                       size_t *raw_tx_len) {
   bytes resp_data;
   int error_flag = 0;
-  printf_sgx("DCMMC!");
-  printf_sgx("DCMMC: data=%s", string(data, data + data_len).c_str());
 
   switch (type) {
     /*
@@ -329,21 +327,21 @@ int do_handle_request(int nonce,
   //   break;
   // }
     case TYPE_GENERIC_SQL_LOCALHOST8443: {
-        LL_INFO("DCMMC: SQL start!");
+        LL_INFO("DCMMC: SQL start!\n");
         SQLScraper sql_scrapers;
         string result;
         switch (sql_scrapers.handle(data, data_len, &result)) {
         case UNKNOWN_ERROR:
         case WEB_ERROR:
-          LL_INFO("DCMMC: SQL TC_INTERNAL_ERROR");
+          LL_INFO("DCMMC: SQL TC_INTERNAL_ERROR\n");
           error_flag = TC_INTERNAL_ERROR;
           break;
         case INVALID_PARAMS:
-          LL_INFO("DCMMC: SQL TC_INPUT_ERROR");
+          LL_INFO("DCMMC: SQL TC_INPUT_ERROR\n");
           error_flag = TC_INPUT_ERROR;
           break;
         case NO_ERROR:
-          LL_INFO("SQLScraper returned: %s", result.c_str());
+          LL_INFO("SQLScraper returned: %s\n", result.c_str());
           resp_data.insert(resp_data.end(), result.begin(), result.end());
           break;
         default:

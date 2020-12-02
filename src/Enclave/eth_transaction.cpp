@@ -266,6 +266,8 @@ int form_transaction(int nonce,
 
   tx.r.resize(32, 0);
   tx.s.resize(32, 0);
+  // (DCMMC) 必须要有私钥签名呀
+  with_sig = true;
   if (with_sig) {
     // (DCMMC) 这里便是用 SGX WALLET 的私钥去签名
     // 私钥 sealed 后是放在 tc 的 config 文件中的

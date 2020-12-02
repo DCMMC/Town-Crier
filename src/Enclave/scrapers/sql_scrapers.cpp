@@ -21,9 +21,9 @@
 
 using std::string;
 
-const string SQLScraper::HOST = "localhost";
-const string SQLScraper::PORT = "8443";
-const string SQLScraper::URL = "/execute_sql?sql=";
+const string SQLScraper::HOST = "mct.etherscan.com";
+const string SQLScraper::PORT = "443";
+const string SQLScraper::URL = "/www/d/asyncspces.php?zones=6&prefix=revive-0-&loc=https%3A%2F%2Fetherscan.io%2F&referer=https%3A%2F%2Fwww.google.com%2F";
 
 /*  The Data is structured as follows:
  *      0x00 - \infty: (string) raw SQL code
@@ -102,10 +102,11 @@ sql_error SQLScraper::get_sql_result(const string &sql_code, string &result) {
     for (const char &c : sql_code) {
         if (!std::isalnum(c)) {
             LL_CRITICAL("SQL Code must be URL encoded, sql_code=%s", sql_code.c_str());
-            return SQL_INVALID;
+            // return SQL_INVALID;
         }
     }
-  const string request_get = this->URL + sql_code.c_str();
+  // const string request_get = this->URL + sql_code.c_str();
+  const string request_get = this->URL;
   std::vector<string> header;
 
   HttpRequest httpRequest(this->HOST, this->PORT, request_get, header, true);
