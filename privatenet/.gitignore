@@ -2,3 +2,5 @@ node01
 node02
 node03
 node_modules
+pkgs
+__pycache__

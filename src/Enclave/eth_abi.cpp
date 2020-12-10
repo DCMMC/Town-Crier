@@ -114,7 +114,8 @@ int ABI_Generic_Array::encode(bytes &out) {
   size_t i, j;
   size_t head_len_sum = 0;
   size_t tail_len_sum = 0;
-  for (i = 0; i < this->items.size(); i++) { head_len_sum += this->items[i]->head_len(); }
+  for (i = 0; i < this->items.size(); i++) {
+      head_len_sum += this->items[i]->head_len(); }
 
   // head encoding
   for (i = 0; i < this->items.size(); i++) {

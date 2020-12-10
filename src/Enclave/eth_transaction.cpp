@@ -48,6 +48,7 @@
 #include <cstdint>
 #include <vector>
 #include <cinttypes>
+#include <cmath>
 
 #include "mbedtls/bignum.h"
 
@@ -136,7 +137,7 @@ void Transaction::rlpEncode(bytes &out, bool withSig) {
 
 
 // (DCMMC) 这是 TC 智能合约中接受函数的定义
-#define DELIVER_CALL_SIGNATURE "deliver(uint64,bytes32,uint64,bytes32)"
+#define DELIVER_CALL_SIGNATURE "deliver(uint64,bytes32,uint64,bytes32[])"
 
 // (DCMMC) 这部分是最核心的一部分：先构造一个调用 TC 智能合约中 deliver 函数的 ETH 包，
 // 然后再用 SGX WALLET 的私钥去签名它，这样直接发到区块链上相当于以 SGX WALLET 帐号的身份
@@ -179,24 +180,53 @@ int form_transaction(int nonce,
 
   bytes32 param_hash(__hash_out, sizeof __hash_out);
 
-  bytes32 resp_b32(0);
-  if (resp_error) {
-    resp_b32.reset();
-  } else {
-    // TODO: note that only the first 32 bytes of the response are taken
-    memcpy(resp_b32.data(), &resp_data[0], 32);
-  }
+  // bytes32 resp_b32(0);
+  // if (resp_error) {
+  //   resp_b32.reset();
+  // } else {
+  //   // TODO: note that only the first 32 bytes of the response are taken
+  //   // TODO (DCMMC): Support variable length data
+  //   memcpy(resp_b32.data(), &resp_data[0], 32);
+  // }
 
   // prepare for ABI encoding
   vector<ABI_serializable *> args;
   ABI_UInt64 a(request_id);
   ABI_Bytes32 b(&param_hash);
   ABI_UInt64 c(resp_error);
-  ABI_Bytes32 d(&resp_b32);
+  // (DCMMC): respData of TownCrier.deliver() is bytes32[].
+  // offset: 0x80
+  ABI_UInt64 offset(128);
   args.push_back(&a);
   args.push_back(&b);
   args.push_back(&c);
-  args.push_back(&d);
+  args.push_back(&offset);
+  uint32_t size_d = ceil(resp_data.size() / 32.0);
+
+  LL_INFO("(DCMMC) #resp_data=%d", resp_data.size());
+  LL_INFO("(DCMMC) size_d=%d", size_d);
+  // size of bytes32[]
+  ABI_UInt64 size_bytes32(size_d);
+  args.push_back(&size_bytes32);
+  uint32_t padding_size = size_d * 32 - resp_data.size();
+  LL_INFO("(DCMMC) padding size=%d", padding_size);
+  for (int i = 0; i < padding_size; i++)
+      resp_data.push_back(0);
+  vector<bytes32 *> bytes32_array;
+  vector<ABI_Bytes32 *> abi_d;
+  for (int i = 0; i < size_d; i++) {
+      bytes32 * tmp = new bytes32(resp_data[i * 32]);
+      // bytes32 tmp(resp_data[i * 32]);
+      bytes32_array.push_back(tmp);
+      for (int j = i * 32 + 1; j < (i+1)*32; j++) {
+          tmp->push_back(resp_data[j]);
+      }
+      // ABI_Bytes32 tmp_abi(tmp);
+      ABI_Bytes32 * tmp_abi = new ABI_Bytes32(tmp);
+      args.push_back(tmp_abi);
+  }
+  // ABI_Bytes32 d(&resp_b32);
+  // args.push_back(&d);
   ABI_Generic_Array _abi_array(args);
 
   // encoding the function call per ABI
@@ -299,5 +329,13 @@ int form_transaction(int nonce,
   LL_INFO("finished transaction for nonce=%d, id=%" PRIu64 ", "
       "type=%d, date_len=%zu, err=%" PRIu64 ", total size=%zuB",
           nonce, request_id, request_type, request_data_len, resp_error, *o_len);
+
+  // (DCMMC) memory leak risk when exceptions encountered before here.
+  for (bytes32 * i : bytes32_array) {
+      delete i;
+  }
+  for (ABI_Bytes32 * i : abi_d) {
+      delete i;
+  }
   return TC_SUCCESS;
 }

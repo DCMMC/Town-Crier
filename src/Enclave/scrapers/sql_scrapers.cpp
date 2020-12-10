@@ -30,9 +30,13 @@ const string SQLScraper::URL = "/www/d/asyncspces.php?zones=6&prefix=revive-0-&l
  */
 err_code SQLScraper::handle(const uint8_t *req, size_t data_len, string *resp_data) {
   const string raw_sql_code(req, req + data_len);
-  LL_INFO("Raw SQL code=%s", raw_sql_code.c_str());
+  LL_INFO("Raw SQL code='%s'", raw_sql_code.c_str());
   string result;
   sql_error ret = get_sql_result(raw_sql_code, result);
+  if (result.length() > SQLScraper::MAX_RESP_LEN) {
+      result = result.substr(0, SQLScraper::MAX_RESP_LEN);
+  }
+  LL_INFO("sql result=%d", result.size());
 
   switch (ret) {
     case SQL_INVALID:
@@ -78,6 +82,10 @@ err_code SQLScraper::handleEncryptedQuery(const uint8_t *req, size_t data_len, s
   }
   string result;
   sql_error ret = get_sql_result(raw_sql_code, result);
+  if (result.length() > SQLScraper::MAX_RESP_LEN) {
+      result = result.substr(0, SQLScraper::MAX_RESP_LEN);
+  }
+  LL_INFO("sql result=%d", result.size());
 
   switch (ret) {
     case SQL_INVALID:
@@ -101,7 +109,7 @@ err_code SQLScraper::handleEncryptedQuery(const uint8_t *req, size_t data_len, s
 sql_error SQLScraper::get_sql_result(const string &sql_code, string &result) {
     for (const char &c : sql_code) {
         if (!std::isalnum(c)) {
-            LL_CRITICAL("SQL Code must be URL encoded, sql_code=%s", sql_code.c_str());
+            // LL_CRITICAL("SQL Code must be URL encoded, sql_code=%s", sql_code.c_str());
             // return SQL_INVALID;
         }
     }

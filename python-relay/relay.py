@@ -39,24 +39,23 @@ class BaseConfig:
     TC_CONTRACT_BLOCK_NUM = 0
 
 
-class ConfigSim(BaseConfig):
-    # (DCMMC) 需要在这里配置好两个区块链地址
-    SGX_WALLET_ADDR = Web3.toChecksumAddress("0xc82ad85e461b85b17dc02f0173127798636b3ede")
-    TC_CONTRACT_ADDR = Web3.toChecksumAddress("0x7FF5Fa610d96ecd74EAc58C4d5f05e16b574492E")
-    # (DCMMC) TC 合约开始的区块号, relay 将会从这里开始遍历所有区块来找到 TC request
-    TC_CONTRACT_BLOCK_NUM = 0
-
-
-class ConfigHwAzure(BaseConfig):
-    SGX_WALLET_ADDR = Web3.toChecksumAddress("0x3A8DE03F19C7C4C139B171978F87BFAC9FFE99C0")
-    # https://rinkeby.etherscan.io/address/0x9ec1874ff1def6e178126f7069487c2e9e93d0f9
-    TC_CONTRACT_ADDR = Web3.toChecksumAddress("0x9eC1874FF1deF6E178126f7069487c2e9e93D0f9")
-    TC_CONTRACT_BLOCK_NUM = 2118268
+# class ConfigSim(BaseConfig):
+#     # (DCMMC) 需要在这里配置好两个区块链地址
+#     SGX_WALLET_ADDR = Web3.toChecksumAddress("0xc82ad85e461b85b17dc02f0173127798636b3ede")
+#     TC_CONTRACT_ADDR = Web3.toChecksumAddress("0x7FF5Fa610d96ecd74EAc58C4d5f05e16b574492E")
+#     # (DCMMC) TC 合约开始的区块号, relay 将会从这里开始遍历所有区块来找到 TC request
+#     TC_CONTRACT_BLOCK_NUM = 0
+#
+#
+# class ConfigHwAzure(BaseConfig):
+#     SGX_WALLET_ADDR = Web3.toChecksumAddress("0x3A8DE03F19C7C4C139B171978F87BFAC9FFE99C0")
+#     # https://rinkeby.etherscan.io/address/0x9ec1874ff1def6e178126f7069487c2e9e93d0f9
+#     TC_CONTRACT_ADDR = Web3.toChecksumAddress("0x9eC1874FF1deF6E178126f7069487c2e9e93D0f9")
+#     TC_CONTRACT_BLOCK_NUM = 2118268
 
 
 class TCMonitor:
     ETH_RPC_ADDRESS = 'http://localhost:8000'
-
     TC_CORE_RPC_URL = "http://localhost:8123"
     # (DCMMC) TC 合约发出的 RequestInfo 信号的 Keccak-256 hash
     # RequestInfo(uint64,uint8,address,uint256,address,bytes32,uint256,bytes32[])
@@ -70,14 +69,18 @@ class TCMonitor:
 
     NUM_OF_RETRY_ON_NETWORK_ERROR = 10
 
-    def __init__(self, network, pickle_file):
-        if network == self.SIM_NET:
-            self.config = ConfigSim()
-        elif network == self.TEST_NET:
-            self.config = ConfigHwAzure()
-        else:
-            raise KeyError("{0} is unknown".format(network))
-
+    def __init__(self, pickle_file, config):
+        # if network == self.SIM_NET:
+        #     self.config = ConfigSim()
+        # elif network == self.TEST_NET:
+        #     self.config = ConfigHwAzure()
+        # else:
+        #     raise KeyError("{0} is unknown".format(network))
+        assert config.TC_CONTRACT_BLOCK_NUM >= 0
+        self.config = config
+        print(self.config)
+        self.config.SGX_WALLET_ADDR = Web3.toChecksumAddress(self.config.SGX_WALLET_ADDR)
+        self.config.TC_CONTRACT_ADDR = Web3.toChecksumAddress(self.config.TC_CONTRACT_ADDR)
         self.PICKLE_FILE = pickle_file
 
         logger.info('pickle_file: {0}'.format(self.PICKLE_FILE))
@@ -204,22 +207,29 @@ class TCMonitor:
 
 parser = argparse.ArgumentParser(description="Town Crier Ethereum relay")
 parser.add_argument('-v', action='store_true', dest='verbose', help='Verbose')
-parser.add_argument('-t', action='store_true', dest='testnet', help='Enable testnet')
+# parser.add_argument('-t', action='store_true', dest='testnet', help='Enable testnet')
 parser.add_argument('--db', action='store', dest='database', default='/relay/tc.bin',
                     help='where to store the runtime log')
+parser.add_argument('--sgx_wallet', action='store', dest='SGX_WALLET_ADDR', type=str,
+                    help='sgx wallet address in the blockchain')
+parser.add_argument('--tc_contract', action='store', dest='TC_CONTRACT_ADDR',
+                    help='TC contract address in the blockchain')
+parser.add_argument('--start_block', action='store', dest='TC_CONTRACT_BLOCK_NUM', type=int,
+                    default=0, help='block number where TC contract start running, default=0')
 
 args = parser.parse_args()
 args.parser = parser
 
 logger.setLevel('INFO')
 # (DCMMC) 默认不采用 testnet，采用 privatenet
-network = TCMonitor.SIM_NET
+# network = TCMonitor.SIM_NET
 
 if args.verbose:
     logger.setLevel('DEBUG')
 
-if args.testnet:
-    network = TCMonitor.TEST_NET
+# if args.testnet:
+#     network = TCMonitor.TEST_NET
+# monitor = TCMonitor(network, args.database, args)
 
-monitor = TCMonitor(network, args.database)
+monitor = TCMonitor(args.database, args)
 monitor.loop()

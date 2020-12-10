@@ -35,6 +35,7 @@ class SQLScraper : Scraper {
   static const string PORT;
   static const string URL;
  public:
+  const uint32_t MAX_RESP_LEN = 1024;
   err_code handle(const uint8_t *req, size_t data_len, string *resp_data);
   err_code handleEncryptedQuery(const uint8_t *data, size_t data_len, string *resp_data);
   err_code handle(const uint8_t *req, size_t data_len, int *resp_data);

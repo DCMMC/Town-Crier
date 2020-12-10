@@ -40,6 +40,7 @@ rl.question('Which node?\n', (node) => {
       fs.readdirSync(node + '/keystore')[0]));
     let wallet = jswallet.fromV3(keystore, pwd);
     console.log("Private key " + wallet.getPrivateKey().toString("hex"))
+    process.stderr.write(wallet.getPrivateKey().toString("hex"))
     process.exit(0);
   })
 })

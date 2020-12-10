@@ -3,7 +3,8 @@ pragma solidity ^0.5.16;
 import './TownCrier.sol';
 
 contract Application {
-    event TestApp(bytes4, bytes32[] req_data, uint msg_value, uint tc_fee);
+    // event TestApp(bytes4 callback, bytes32[] req_data, uint msg_value, uint tc_fee);
+    event TestApp(uint msg_value);
     event Request(int64 requestId, address requester, uint dataLength, bytes32[] data); // log for requests
     event Response(int64 requestId, address requester, uint64 error, bytes32[] data); // log for responses
     event Cancel(uint64 requestId, address requester, bool success); // log for cancellations
@@ -102,7 +103,8 @@ contract Application {
     }
 
     function test(bytes32[] memory req) public payable {
-        emit TestApp(TC_CALLBACK_FID, req, msg.value, TC_FEE);
+        // emit TestApp(TC_CALLBACK_FID, req, msg.value, TC_FEE);
+        emit TestApp(msg.value);
     }
 }
 

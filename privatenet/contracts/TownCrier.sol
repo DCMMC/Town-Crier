@@ -16,7 +16,7 @@ contract TownCrier {
     event Cancel(uint64 requestId, address canceller, address requester, uint fee, int flag); // log of cancellations
 
     // (DCMMC) 需要在这里配置好 SGX 钱包的地址
-    address payable public constant SGX_ADDRESS = 0xa6658cC561FF413527F8E55F67DEE808D21b76a7;
+    address payable public constant SGX_ADDRESS = 0x734968449177250683184591756B457321b3D4aa;
 
     // uint public GAS_PRICE = 5 * 10**10;
     // (DCMMC) 用小一点的 gas price

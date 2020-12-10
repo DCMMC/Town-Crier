@@ -112,7 +112,7 @@ int handle_request(int nonce,
                    uint8_t *raw_tx,
                    size_t *raw_tx_len) {
   int ret = 0;
-  printf_sgx("DCMMC: In handle req");
+  printf_sgx("DCMMC: In handle req\n");
   try {
     string tc_address = getContractAddress();
     LL_DEBUG("serving tc address: %s", tc_address.c_str());
@@ -341,7 +341,7 @@ int do_handle_request(int nonce,
           error_flag = TC_INPUT_ERROR;
           break;
         case NO_ERROR:
-          LL_INFO("SQLScraper returned: %s\n", result.c_str());
+          LL_INFO("(DCMMC) SQLScraper returned: %s\n", result.c_str());
           resp_data.insert(resp_data.end(), result.begin(), result.end());
           break;
         default:
@@ -393,5 +393,8 @@ int do_handle_request(int nonce,
     error_flag = TC_ERR_FLAG_INVALID_INPUT;
   }
 
-  return form_transaction(nonce, id, type, data, data_len, error_flag, resp_data, raw_tx, raw_tx_len);
+  return form_transaction(nonce, id, type, data, data_len, error_flag, resp_data,
+          raw_tx, raw_tx_len,
+          // sign = true
+          true);
 }

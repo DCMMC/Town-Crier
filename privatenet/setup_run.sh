@@ -1,0 +1,117 @@
+#!/bin/bash
+echo 'Removing old accounts'
+sudo pkill geth
+sudo rm -rf node0{1,2,3}
+
+echo 'Generate and initialize new accounts'
+mkdir node0{1,2,3}
+passwd='97294597'
+geth --datadir node01 account new --password <(echo $passwd)
+geth --datadir node02 account new --password <(echo $passwd)
+geth --datadir node03 account new --password <(echo $passwd)
+
+addr01=`geth account list --datadir node01 2>/dev/null | cut -d ' ' -f 3 | cut -b 2-41`
+addr02=`geth account list --datadir node02 2>/dev/null | cut -d ' ' -f 3 | cut -b 2-41`
+addr03=`geth account list --datadir node03 2>/dev/null | cut -d ' ' -f 3 | cut -b 2-41`
+
+sed -i '15s/\("0x\)[0-9a-fA-F]\{40\}/"0x'${addr01}'/' genesis.json
+sed -i '15s/\("0x\)[0-9a-fA-F]\{40\}/"0x'${addr02}'/' genesis.json
+sed -i '15s/\("0x\)[0-9a-fA-F]\{40\}/"0x'${addr03}'/' genesis.json
+echo 'Modify genesis.json done.'
+
+echo 'init and start runing nodes.'
+geth --datadir node01 init genesis.json
+geth --datadir node02 init genesis.json
+geth --datadir node03 init genesis.json
+echo 'Start running node01, node02, node03'
+nohup geth --identity node01 --rpc --rpcport "8000" --rpccorsdomain '*' --datadir node01 --port "30303" --nodiscover --rpcapi "eth,net,web3,personal,miner,admin,debug" --networkid 1900 --nat "any" --allow-insecure-unlock --ethstats node01:s3cr3t@localhost:3000 >node01.log 2>&1 &
+nohup geth --identity node02 --rpc --rpcport "8001" --rpccorsdomain '*' --datadir node02 --port "30313" --nodiscover --rpcapi "eth,net,web3,personal,miner,admin,debug" --networkid 1900 --nat "any" --allow-insecure-unlock --ethstats node02:s3cr3t@localhost:3000 >node02.log 2>&1 &
+nohup geth --identity node03 --rpc --rpcport "8002" --rpccorsdomain '*' --datadir node03 --port "30323" --nodiscover --rpcapi "eth,net,web3,personal,miner,admin,debug" --vmdebug --networkid 1900 --nat "any" --allow-insecure-unlock --ethstats node03:s3cr3t@localhost:3000 >node03.log 2>&1 &
+echo 'unlock accounts.'
+sleep 2s
+geth attach http://localhost:8000 --exec 'personal.unlockAccount(eth.accounts[0], "97294597", 36000)'
+geth attach http://localhost:8001 --exec 'personal.unlockAccount(eth.accounts[0], "97294597", 36000)'
+geth attach http://localhost:8002 --exec 'personal.unlockAccount(eth.accounts[0], "97294597", 36000)'
+echo 'add peers.'
+adminNode=`geth attach http://localhost:8000 --exec 'admin.nodeInfo.enode'`
+geth attach http://localhost:8001 --exec "admin.addPeer("${adminNode}")"
+geth attach http://localhost:8002 --exec "admin.addPeer("${adminNode}")"
+echo 'Nodes done.'
+
+capture () {
+  # https://stackoverflow.com/a/59829273
+  if [ "$#" -lt 2 ]; then
+      echo "Usage: capture varname command [arg ...]"
+      return 1
+  fi
+  typeset var captured; captured="$1"; shift
+  { read $captured <<<$( { { "$@" ; } 1>&3 ; } 2>&1); } 3>&1
+}
+
+get_secret_key () {
+  printf 'node01\n'${passwd}'\n' | node get_secret_key_from_keystore.js
+}
+
+capture sgx_wallet get_secret_key
+sed -i '102s/"[0-9a-fA-F]\{64\}/"'${sgx_wallet}'/' ../src/Enclave/eth_ecdsa.cpp
+echo 'Updated source code of TC to new sgx_wallet: '${sgx_wallet}
+
+echo 'start miner'
+geth attach http://localhost:8000 --exec "miner.start(4)"
+sleep 6s
+
+echo 'Deploy and run App and TC contracts.'
+add_sgx=`geth attach http://localhost:8000 --exec "web3.toChecksumAddress(eth.accounts[0])"`
+# remove quota
+add_sgx=${add_sgx:1:42}
+echo 'Address of SGX wallet: '${add_sgx}
+echo 'Address of SGX wallet: '${add_sgx} > address_info.txt
+sed -i '19s/0x.\{40\};/'${add_sgx}';/' ./contracts/TownCrier.sol
+test_tc_res=`python test_tc.py`
+echo ${test_tc_res}
+add_tc=`echo ${test_tc_res} | cut -d ' ' -f 2`
+add_app=`echo ${test_tc_res} | cut -d ' ' -f 4`
+echo 'Address of TC: '${add_tc}
+echo 'Address of TC: '${add_tc} >> address_info.txt
+echo 'Address of APP: '${add_app}
+echo 'Address of APP: '${add_app} >> address_info.txt
+sed -i '2s/tc_address = .\{42\}$/tc_address = '${add_tc}'/' config-privatenet-sim
+echo 'Modify tc_address in config-privatenet-sim'
+
+echo 'Enter sgx env and run TC server'
+ROOTDIR=$( cd "$( dirname "${BASH_SOURCE[0]}")/.." && pwd )
+# Start SGX Rust Docker container.
+# (DCMMC) 进入一个有 SGX SDL 和 SGX SSL 的环境，方便编译
+docker stop tc-devel
+docker rm tc-devel
+docker run --rm -td \
+  --name "tc-devel" \
+  -v ${ROOTDIR}:/code \
+  -e "SGX_SDK=/opt/intel/sgxsdk" \
+  -p 8123:8123 \
+  -w /build \
+  bl4ck5un/tc-sgx-sdk:latest \
+  /usr/bin/env bash
+sleep 2s
+docker exec -it tc-devel \
+  bash -c 'source /opt/intel/sgxsdk/environment && /code/privatenet/fix_deps_enter_sgx.sh'
+docker exec -td tc-devel \
+  bash -c 'source /opt/intel/sgxsdk/environment && /tc/bin/tc -c /code/privatenet/config-privatenet-sim > /code/privatenet/tc_server.log 2>&1'
+
+echo 'New config file stored in privatenet/config-privatenet-sim'
+echo 'TC server log stored in privatenet/tc_server.log'
+sleep 2s
+cat tc_server.log
+
+IFS=$'\n'
+for i in `ps aux | egrep relay`; do
+  kill `echo $i | awk '{print $2}'` 2>/dev/null
+done
+rm -vf tc.log.bin
+python ../python-relay/relay.py --db tc.log.bin --sgx_wallet ${add_sgx} --tc_contract ${add_tc} > relay.log 2>&1 &
+sleep 3s
+cat relay.log
+
+echo 'All done. address info stored in privatenet/address_info.txt.'
+
+echo "You can now use Deploy(add_tc='"${add_tc}"', add_app='"${add_app}"') to debug."

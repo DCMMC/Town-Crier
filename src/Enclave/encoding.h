@@ -113,6 +113,8 @@ class bytes : public std::vector<uint8_t> {
     std::vector<uint8_t>::insert(std::vector<uint8_t>::end(), a.begin(), a.end());
     std::vector<uint8_t>::insert(std::vector<uint8_t>::end(), b.begin(), b.end());
   }
+  ~bytes() {
+  }
   explicit bytes(size_t len) : std::vector<uint8_t>(len, static_cast<uint8_t>(0)) {}
   explicit bytes(const std::vector<uint8_t> &data) : std::vector<uint8_t>(data) {}
   void replace(const bytes &);
@@ -153,6 +155,8 @@ class bytes32 : public bytes {
     vector<uint8_t>::resize(SIZE);
     memset(vector<uint8_t>::data(), 0, SIZE);
   };
+
+  ~bytes32() {}
 
   bytes32(const uint8_t *data, size_t len) {
     if (len != SIZE) {

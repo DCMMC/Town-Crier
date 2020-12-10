@@ -16,5 +16,7 @@ echo 'add peers.'
 adminNode=`geth attach http://localhost:8000 --exec 'admin.nodeInfo.enode'`
 geth attach http://localhost:8001 --exec "admin.addPeer("${adminNode}")"
 geth attach http://localhost:8002 --exec "admin.addPeer("${adminNode}")"
+echo 'start miner'
+geth attach http://localhost:8000 --exec "miner.start(4)"
 
 echo 'Done.'
