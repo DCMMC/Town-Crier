@@ -5,19 +5,20 @@ import './TownCrier.sol';
 contract Application {
     // event TestApp(bytes4 callback, bytes32[] req_data, uint msg_value, uint tc_fee);
     event TestApp(uint msg_value);
+    event DebugApp(string msg);
     event Request(int64 requestId, address requester, uint dataLength, bytes32[] data); // log for requests
-    event Response(int64 requestId, address requester, uint64 error, bytes32[] data); // log for responses
+    // event Response(int64 requestId, address requester, uint64 error, bytes32[] data); // log for responses
+    event Response(int64 requestId, address requester, uint64 error, bytes32 data); // log for responses
     event Cancel(uint64 requestId, address requester, bool success); // log for cancellations
 
     uint constant MIN_GAS = 30000 + 20000; // minimum gas required for a query
-    // (DCMMC) 用小一点的 gas price
-    // uint constant GAS_PRICE = 5 * 10 ** 10;
-    uint constant GAS_PRICE = 5 * 10 ** 5;
+    uint constant GAS_PRICE = 5 * 10 ** 10;
     uint constant TC_FEE = MIN_GAS * GAS_PRICE;
     uint constant CANCELLATION_FEE = 25000 * GAS_PRICE;
 
     // (DCMMC) response 函数的签名，i.e., 0x91ba4ee0
-    bytes4 constant TC_CALLBACK_FID = bytes4(keccak256("response(uint64,uint64,bytes32[])"));
+    // bytes4 constant TC_CALLBACK_FID = bytes4(keccak256("response(uint64,uint64,bytes32[])"));
+    bytes4 constant TC_CALLBACK_FID = bytes4(keccak256("response(uint64,uint64,bytes32)"));
 
     TownCrier public TC_CONTRACT;
     address owner; // creator of this contract
@@ -58,11 +59,14 @@ contract Application {
         emit Request(int64(requestId), msg.sender, requestData.length, requestData);
     }
 
-    function response(uint64 requestId, uint64 error, bytes32[] memory respData) public {
+    // function response(uint64 requestId, uint64 error, bytes32[] memory respData) public {
+    function response(uint64 requestId, uint64 error, bytes32 respData) public {
+        /* emit DebugApp("enter response"); */
         if (msg.sender != address(TC_CONTRACT)) {
             // If the message sender is not the TownCrier Contract,
             // discard the response.
-            bytes32[] memory empty;
+            // bytes32[] memory empty;
+            bytes32 empty = 0;
             emit Response(-1, msg.sender, 0, empty);
             return;
         }
@@ -75,9 +79,11 @@ contract Application {
         } else {
             (bool ret,) = requester.call.value(fee[requestId])(""); // refund the requester if error exists in TC
             assert(ret);
-            bytes32[] memory empty;
+            // bytes32[] memory empty;
+            bytes32 empty = 0;
             emit Response(int64(requestId), msg.sender, error, empty);
         }
+        /* emit DebugApp("response done"); */
     }
 
     function cancel(uint64 requestId) public {

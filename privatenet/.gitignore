@@ -4,3 +4,9 @@ node03
 node_modules
 pkgs
 __pycache__
+node01.log
+node02.log
+node03.log
+relay.log
+tc_server.log
+address_info.txt

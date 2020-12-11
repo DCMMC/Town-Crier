@@ -1,4 +1,20 @@
 #!/bin/bash
+# (DCMMC) This script is highly experimental!
+# Errors will happen during executing. If you encouter error,
+# please carefully check all `sed ...` statements.
+cat << EOF
+This script is highly experimental!
+Errors will happen during executing.
+If you encouter error, please carefully check all 'sed ...' statements.
+EOF
+read -p "Do you want to continue? (Y/N)" -n 1 -r
+echo
+if [[ ! $REPLY =~ ^[Yy]$ ]]
+then
+    echo 'Goodbye~'
+    exit 0
+fi
+
 echo 'Removing old accounts'
 sudo pkill geth
 sudo rm -rf node0{1,2,3}
@@ -66,7 +82,7 @@ add_sgx=`geth attach http://localhost:8000 --exec "web3.toChecksumAddress(eth.ac
 add_sgx=${add_sgx:1:42}
 echo 'Address of SGX wallet: '${add_sgx}
 echo 'Address of SGX wallet: '${add_sgx} > address_info.txt
-sed -i '19s/0x.\{40\};/'${add_sgx}';/' ./contracts/TownCrier.sol
+sed -i '21s/0x.\{40\};/'${add_sgx}';/' ./contracts/TownCrier.sol
 test_tc_res=`python test_tc.py`
 echo ${test_tc_res}
 add_tc=`echo ${test_tc_res} | cut -d ' ' -f 2`
@@ -112,6 +128,14 @@ python ../python-relay/relay.py --db tc.log.bin --sgx_wallet ${add_sgx} --tc_con
 sleep 3s
 cat relay.log
 
-echo 'All done. address info stored in privatenet/address_info.txt.'
-
-echo "You can now use Deploy(add_tc='"${add_tc}"', add_app='"${add_app}"') to debug."
+printf '\n\nAll done. address info stored in privatenet/address_info.txt.\n'
+deploy="Deploy(add_tc='"${add_tc}"', add_app='"${add_app}"')"
+read -p "Do you want to start a test request? (Y/N)" -n 1 -r
+echo
+if [[ $REPLY =~ ^[Yy]$ ]]
+then
+    python3 -c 'from test_tc import *; d = '${deploy}'; d.submit_request(); d.wait_response();'
+    echo
+fi
+echo "You can now use "${deploy}" to test."
+exit 0

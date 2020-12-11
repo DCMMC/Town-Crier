@@ -4,6 +4,7 @@ import web3
 from web3 import Web3, HTTPProvider
 from solc import compile_standard
 from math import ceil
+import time
 
 
 class Deploy():
@@ -42,29 +43,33 @@ class Deploy():
         return [bytes(a, 'utf-8') for a in arr]
 
 
-    def submit_request(self, req_type=0,
+    def submit_request(self, gas=20 * 10 ** 4, req_type=0,
                        req_data='{'+ '"test sql": "SELECT AVG(Price) FROM Products;", ' * 3 + '}'):
         gas_estimate = self.ins_app.functions.request(
             req_type,
             self.string_to_bytes32_array(req_data)).estimateGas()
         print(f"Sending transaction with gas_estimate={gas_estimate}\n")
+        gas_price = 5 * 10 ** 10
         tx_hash = self.ins_app.functions.request(
             req_type,
             self.string_to_bytes32_array(req_data)
         ).transact({
             'from': self.w3.eth.accounts[0],
-            'value': 25000000000, 'gas': 500000})
+            'value': gas * gas_price , 'gas': gas, 'gasPrice': gas_price})
         receipt = self.w3.eth.waitForTransactionReceipt(tx_hash)
         print("Transaction receipt mined:")
-        pprint.pprint(dict(receipt))
+        # pprint.pprint(dict(receipt))
         logs0 = self.ins_app.events.Request().processLog(receipt['logs'][-1])
-        if len(receipt['logs']) == 1:
+        if len(receipt['logs']) == 0:
+            print('Internal error encountered, logs are empty!')
+        elif len(receipt['logs']) == 1:
             print('Encouter error when call request in Application:')
             pprint.pprint(logs0)
         else:
             print('Success request, RequestInfo in TownCrier:')
             logs1 = self.ins_tc.events.RequestInfo().processLog(receipt['logs'][-2])
             pprint.pprint(logs1)
+            print()
 
 
     def get_tc_req_events(self):
@@ -90,6 +95,36 @@ class Deploy():
             self.w3.eth.getTransactionReceipt(
                 e['transactionHash'])) for e in events]
         return events
+
+
+    @staticmethod
+    def parse_response(event):
+        reqId = event['args']['requestId']
+        error = event['args']['error']
+        data = event['args']['data']
+        return reqId, error, data
+
+
+    def wait_response(self):
+        max_wait = 100
+        for i in range(max_wait):
+            time.sleep(2)
+            lines = list(open('relay.log').readlines())
+            for idx in range(len(lines)):
+                if 'response sent 0x' in lines[-idx]:
+                    result_tx = lines[-idx].strip().split()[-1]
+                    receipt = self.w3.eth.getTransactionReceipt(result_tx)
+                    # print(receipt)
+                    deliver = self.ins_tc.events.DeliverInfo().processReceipt(
+                        receipt)
+                    print(f'DeliverInfo event in TownCrier:\n{deliver}')
+                    response = self.ins_app.events.Response().processReceipt(
+                        receipt)
+                    print(f'Final Response event in Application:\n{response}')
+                    reqId, error, data = self.parse_response(response[0])
+                    print(f'\n{"#"*60}\nerror: {error}\ndata:\n{data}\n{"#"*60}')
+                    return
+            print('wait for 2s.')
 
 
     def import_instance(self, tc, app):
