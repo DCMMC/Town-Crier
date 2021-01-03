@@ -1,6 +1,8 @@
 enclave {
     include "mbedtls/net_v.h"
     include "mbedtls/timing_v.h"
+    include "sys/types.h"
+
 
     trusted {
         public void dummy(void);
@@ -23,5 +25,12 @@ enclave {
 
         // printf
         int ocall_print_string([in, string] const char *str);
+
+        // (DCMMC) untrusted functions for sqlight
+        int     ocall_connect([user_check] int *s, unsigned port, [user_check] char *host);
+        int          ocall_close(int fp);
+        ssize_t ocall_recv(int socket, [user_check] char *buffer, size_t length, int flags);
+        int ocall_select( [user_check] int *sockfd, double timeout );
+        ssize_t ocall_send(int socket, [user_check] char *message, size_t length, int flags);
     };
 };

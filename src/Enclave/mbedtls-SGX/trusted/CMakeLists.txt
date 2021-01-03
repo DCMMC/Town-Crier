@@ -1,5 +1,6 @@
 FILE(GLOB MBEDTLS_SGX_SRC_FILES mbedtls-2.2.1/library/*.c)
 
+// (DCMMC) mbedtls_sgx_t.c is automatically generated.
 add_custom_command(
     OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}_t.c
     COMMAND ${SGX_EDGER8R} --trusted ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}.edl

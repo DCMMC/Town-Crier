@@ -73,6 +73,9 @@
 #include "hybrid_cipher.h"
 #include "env.h"
 
+// (DCMMC) test for sqlight
+#include "external/sqlight.hpp"
+
 // (DCMMC) debug
 // int ocall_print_string_debug(const char *str) {
 //   int ret = printf("%s", str);
@@ -111,8 +114,12 @@ int handle_request(int nonce,
                    size_t data_len,
                    uint8_t *raw_tx,
                    size_t *raw_tx_len) {
+  // (DCMMC) test sqlight
+  LL_DEBUG("DCMMC: test sqlight");
+  sq::light sql;
+  if (!sql.connect("127.0.0.1", 3306, "root", "97294597"))
+      LL_DEBUG("DCMMC: connection to database failed");
   int ret = 0;
-  printf_sgx("DCMMC: In handle req\n");
   try {
     string tc_address = getContractAddress();
     LL_DEBUG("serving tc address: %s", tc_address.c_str());

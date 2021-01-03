@@ -8,11 +8,13 @@ add_definitions(-DIN_ENCLAVE)
 
 set(LIB_MBEDTLS_PATH "${CMAKE_CURRENT_SOURCE_DIR}/mbedtls-SGX/lib/libmbedtls_sgx_t.a")
 
+# (DCMMC) add sqlight
 set(EXTERNAL_SRC_FILES
         external/keccak.c
         external/csv_parser.cpp
         external/slre.c
         external/gmtime.cpp
+        external/sqlight.cpp
         external/http_parser.c)
 
 set(TC_SOURCE_FILES
@@ -34,7 +36,6 @@ set(TC_SOURCE_FILES
 
 FILE(GLOB TEST_SRC_FILES test/*.cpp)
 FILE(GLOB SCRAPERS_SRC_FILES scrapers/*.cpp)
-
 
 set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "Enclave_t.c; Enclave_t.h")
 
