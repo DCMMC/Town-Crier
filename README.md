@@ -5,6 +5,10 @@
 * Linux (macOS might work)
 * Docker
 * CPU with SGX support
+* pip: py-solc, web3
+* nodejs: ethereumjs-wallet
+* solc compiler 0.5.16 (build from source)
+* geth
 
 ## Build and run instructions
 

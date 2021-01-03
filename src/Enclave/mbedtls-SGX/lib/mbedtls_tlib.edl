@@ -22,8 +22,15 @@ enclave {
 
         // entropy
         // int ocall_mbedtls_hardware_poll([out,size=len] unsigned char *output, size_t len, [in,out] size_t *olen );
-        
+
         // printf
         int ocall_print_string([in, string] const char *str);
+
+        // (DCMMC) untrusted functions for sqlight
+        int     ocall_connect([user_check] int *s, unsigned port, [user_check] char *host);
+        int          ocall_close(int fp);
+        ssize_t ocall_recv(int socket, [user_check] char *buffer, size_t length, int flags);
+        int ocall_select( [user_check] int *sockfd, double timeout );
+        ssize_t ocall_send(int socket, [user_check] char *message, size_t length, int flags);
     };
 };

@@ -1,4 +1,6 @@
-pragma solidity ^0.5.16;
+// (DCMMC) although I remove this restriction for convenience,
+// solc compiler must be 0.5.16
+// pragma solidity ^0.5.16;
 
 contract TownCrier {
     struct Request { // the data structure for each request
@@ -18,7 +20,7 @@ contract TownCrier {
     event Cancel(uint64 requestId, address canceller, address requester, uint fee, int flag); // log of cancellations
 
     // (DCMMC) 需要在这里配置好 SGX 钱包的地址
-    address payable public constant SGX_ADDRESS = 0xb475Ca490A9818C9E6d9dE7bDDBd833328C7D4c7;
+    address payable public constant SGX_ADDRESS = 0x38b4876C8244560Ff1c2D994e2a0FE4e40e6F3F5;
 
     uint public GAS_PRICE = 5 * 10**10;
     uint public MIN_FEE = 30000 * GAS_PRICE; // minimum fee required for the requester to pay such that SGX could call deliver() to send a response

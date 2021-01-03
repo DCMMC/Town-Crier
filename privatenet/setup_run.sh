@@ -15,6 +15,21 @@ then
     exit 0
 fi
 
+# fix sed in macOS
+# [ref] https://blog.keniver.com/2018/05/mac-%E4%B8%8B%E5%9F%B7%E8%A1%8C-sed-%E6%8C%87%E4%BB%A4%E5%87%BA%E7%8F%BE%E9%8C%AF%E8%AA%A4-invalid-command-code-w/
+case "$(uname -s)" in
+   Darwin)
+     sed_fix='""'
+     ;;
+
+   Linux)
+     sed_fix=''
+     ;;
+
+   *)
+     ;;
+ esac
+
 echo 'Removing old accounts'
 sudo pkill geth
 sudo rm -rf node0{1,2,3}
@@ -30,9 +45,9 @@ addr01=`geth account list --datadir node01 2>/dev/null | cut -d ' ' -f 3 | cut -
 addr02=`geth account list --datadir node02 2>/dev/null | cut -d ' ' -f 3 | cut -b 2-41`
 addr03=`geth account list --datadir node03 2>/dev/null | cut -d ' ' -f 3 | cut -b 2-41`
 
-sed -i '15s/\("0x\)[0-9a-fA-F]\{40\}/"0x'${addr01}'/' genesis.json
-sed -i '15s/\("0x\)[0-9a-fA-F]\{40\}/"0x'${addr02}'/' genesis.json
-sed -i '15s/\("0x\)[0-9a-fA-F]\{40\}/"0x'${addr03}'/' genesis.json
+sed -i ${sed_fix} '15s/\("0x\)[0-9a-fA-F]\{40\}/"0x'${addr01}'/' genesis.json
+sed -i ${sed_fix} '15s/\("0x\)[0-9a-fA-F]\{40\}/"0x'${addr02}'/' genesis.json
+sed -i ${sed_fix} '15s/\("0x\)[0-9a-fA-F]\{40\}/"0x'${addr03}'/' genesis.json
 echo 'Modify genesis.json done.'
 
 echo 'init and start runing nodes.'
@@ -54,22 +69,8 @@ geth attach http://localhost:8001 --exec "admin.addPeer("${adminNode}")"
 geth attach http://localhost:8002 --exec "admin.addPeer("${adminNode}")"
 echo 'Nodes done.'
 
-capture () {
-  # https://stackoverflow.com/a/59829273
-  if [ "$#" -lt 2 ]; then
-      echo "Usage: capture varname command [arg ...]"
-      return 1
-  fi
-  typeset var captured; captured="$1"; shift
-  { read $captured <<<$( { { "$@" ; } 1>&3 ; } 2>&1); } 3>&1
-}
-
-get_secret_key () {
-  printf 'node01\n'${passwd}'\n' | node get_secret_key_from_keystore.js
-}
-
-capture sgx_wallet get_secret_key
-sed -i '102s/"[0-9a-fA-F]\{64\}/"'${sgx_wallet}'/' ../src/Enclave/eth_ecdsa.cpp
+sgx_wallet=`printf 'node01\n'${passwd}'\n' | node get_secret_key_from_keystore.js`
+sed -i ${sed_fix} '102s/"[0-9a-fA-F]\{64\}/"'${sgx_wallet}'/' ../src/Enclave/eth_ecdsa.cpp
 echo 'Updated source code of TC to new sgx_wallet: '${sgx_wallet}
 
 echo 'start miner'
@@ -82,8 +83,8 @@ add_sgx=`geth attach http://localhost:8000 --exec "web3.toChecksumAddress(eth.ac
 add_sgx=${add_sgx:1:42}
 echo 'Address of SGX wallet: '${add_sgx}
 echo 'Address of SGX wallet: '${add_sgx} > address_info.txt
-sed -i '21s/0x.\{40\};/'${add_sgx}';/' ./contracts/TownCrier.sol
-test_tc_res=`python test_tc.py`
+sed -i ${sed_fix} '23s/0x.\{40\};/'${add_sgx}';/' ./contracts/TownCrier.sol
+test_tc_res=`python3 test_tc.py`
 echo ${test_tc_res}
 add_tc=`echo ${test_tc_res} | cut -d ' ' -f 2`
 add_app=`echo ${test_tc_res} | cut -d ' ' -f 4`
@@ -91,7 +92,7 @@ echo 'Address of TC: '${add_tc}
 echo 'Address of TC: '${add_tc} >> address_info.txt
 echo 'Address of APP: '${add_app}
 echo 'Address of APP: '${add_app} >> address_info.txt
-sed -i '2s/tc_address = .\{42\}$/tc_address = '${add_tc}'/' config-privatenet-sim
+sed -i ${sed_fix} '2s/tc_address = .\{42\}$/tc_address = '${add_tc}'/' config-privatenet-sim
 echo 'Modify tc_address in config-privatenet-sim'
 
 echo 'Enter sgx env and run TC server'
@@ -124,7 +125,7 @@ for i in `ps aux | egrep relay`; do
   kill `echo $i | awk '{print $2}'` 2>/dev/null
 done
 rm -vf tc.log.bin
-python ../python-relay/relay.py --db tc.log.bin --sgx_wallet ${add_sgx} --tc_contract ${add_tc} > relay.log 2>&1 &
+python3 ../python-relay/relay.py --db tc.log.bin --sgx_wallet ${add_sgx} --tc_contract ${add_tc} > relay.log 2>&1 &
 sleep 3s
 cat relay.log
 

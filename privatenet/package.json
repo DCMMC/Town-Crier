@@ -1,6 +1,5 @@
 {
   "dependencies": {
-    "ethereumjs-wallet": "^0.6.5",
-    "solc": "^0.5.16"
+    "ethereumjs-wallet": "0.6.5"
   }
 }

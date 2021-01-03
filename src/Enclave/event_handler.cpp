@@ -117,7 +117,7 @@ int handle_request(int nonce,
   // (DCMMC) test sqlight
   LL_DEBUG("DCMMC: test sqlight");
   sq::light sql;
-  if (!sql.connect("127.0.0.1", 3306, "root", "97294597"))
+  if (!sql.connect("219.223.185.227", 3306, "root", "97294597"))
       LL_DEBUG("DCMMC: connection to database failed");
   int ret = 0;
   try {
