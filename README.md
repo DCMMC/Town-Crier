@@ -6,9 +6,15 @@
 * Docker
 * CPU with SGX support
 * pip: py-solc, web3
-* nodejs: ethereumjs-wallet
+* nodejs: ethereumjs-wallet 0.6.5
 * solc compiler 0.5.16 (build from source)
 * geth
+
+MySQL
+
+```
+docker run -d --name mysql --rm -e MYSQL_ROOT_PASSWORD=97294597 -p 3306:3306 mysql:5.7
+```
 
 ## Build and run instructions
 

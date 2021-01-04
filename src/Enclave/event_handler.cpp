@@ -119,6 +119,16 @@ int handle_request(int nonce,
   sq::light sql;
   if (!sql.connect("219.223.185.227", 3306, "root", "97294597"))
       LL_DEBUG("DCMMC: connection to database failed");
+  else
+  {
+      std::string input = "show databases;";
+      std::string result;
+      bool ret = sql.json(input, result);
+      if (ret)
+        LL_DEBUG("DCMMC: sqlight return=%s", result.c_str());
+      else
+        LL_DEBUG("DCMMC: sqlight exec failed.");
+  }
   int ret = 0;
   try {
     string tc_address = getContractAddress();

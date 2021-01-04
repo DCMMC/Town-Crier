@@ -20,7 +20,7 @@ contract TownCrier {
     event Cancel(uint64 requestId, address canceller, address requester, uint fee, int flag); // log of cancellations
 
     // (DCMMC) 需要在这里配置好 SGX 钱包的地址
-    address payable public constant SGX_ADDRESS = 0x38b4876C8244560Ff1c2D994e2a0FE4e40e6F3F5;
+    address payable public constant SGX_ADDRESS = 0xb88BE9F657e939FC96e659B857162778C6748479;
 
     uint public GAS_PRICE = 5 * 10**10;
     uint public MIN_FEE = 30000 * GAS_PRICE; // minimum fee required for the requester to pay such that SGX could call deliver() to send a response
