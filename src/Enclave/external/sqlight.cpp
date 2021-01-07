@@ -8,7 +8,6 @@
 #include <errno.h>
 
 #include <algorithm>
-// #include <deque>
 #include <map>
 // #include <mutex>
 #include <string>
@@ -19,7 +18,6 @@
 #define MSG_DONTWAIT	0x40	/* Nonblocking io		 */
 #define MSG_NOSIGNAL	0x4000	/* Do not generate SIGPIPE */
 
-// #include <iostream>
 // (DCMMC debug)
 #include "../log.h"
 
@@ -383,26 +381,26 @@ void sq::light::disconnect() {
     connected = false;
 }
 
-bool sq::light::is_connected() {
-  char buf;
-
-  if (!connected)
-    return false;
-
-  int res = recvfixed(s, &buf, 1, MSG_PEEK | $windows(0) $welse(MSG_DONTWAIT));
-  if (res<0)
-    {
-      // Maybe disconnected or maybe not...
-      if (errno != EAGAIN && errno != EWOULDBLOCK)
-    connected = false;
-    }
-  else if (res==0)
-    {
-      connected = false;
-    }
-
-  return connected;
-}
+// bool sq::light::is_connected() {
+//   char buf;
+//
+//   if (!connected)
+//     return false;
+//
+//   int res = recvfixed(s, &buf, 1, MSG_PEEK | $windows(0) $welse(MSG_DONTWAIT));
+//   if (res<0)
+//     {
+//       // Maybe disconnected or maybe not...
+//       if (errno != EAGAIN && errno != EWOULDBLOCK)
+//     connected = false;
+//     }
+//   else if (res==0)
+//     {
+//       connected = false;
+//     }
+//
+//   return connected;
+// }
 
 bool sq::light::fail( const char *error, const char *title )
 {
@@ -423,6 +421,7 @@ bool sq::light::open()
 
         ocall_recv((ssize_t *)&i, s, b, 1<<24, 0);
 
+        // b: Protocol::HandshakeV10
         if (b[4] < 10 ) return fail(b+5,"Need MySql > 4.1");
 
         // Read server auth challenge and calc response by making SHA1 hashes from it and password
@@ -431,37 +430,93 @@ bool sq::light::open()
         std::vector<unsigned char> hash;
 
         {
+            // salt: data start from auth-plugin-data-part-1
             byte *salt = (byte*)b+strlen(b+5)+10;
             memcpy(salt+8,salt+27,13);
             hash = get_mysql_hash( pass, salt );
         }
+        // (lower 2 bytes)
+        int capability_flag_1 = 0;
+        capability_flag_1 += (int)(*((byte *)b + strlen(b + 5) + 19));
+        capability_flag_1 += ((int)(*((byte *)b + strlen(b + 5) + 20))) << 8;
 
         // Construct client auth response
         // [ref] http://forge.mysql.com/wiki/MySQL_Internals_ClientServer_Protocol#Client_Authentication_Packet
 
-            d = b+4;
+        d = b + 4;
 
-          *(int*)d =
+        // int<4> capability_flags
+        int capability_flags =
             CLIENT_FOUND_ROWS|
             CLIENT_PROTOCOL_41|
             CLIENT_SECURE_CONNECTION|
             CLIENT_LONG_PASSWORD|
             CLIENT_MULTI_RESULTS;        // for stored procedures
-                       d+=4;
+        // (DCMMC) if server support CLIENT_SSL, we use SSL
+        if (capability_flag_1 & CLIENT_SSL)
+        {
+            LL_INFO("MySQL server supports SSL, client will send SSL Request Packet.");
+            init_tls();
+            use_tls = true;
+            connect_tls(host, port);
+            // [ref] https://dev.mysql.com/doc/internals/en/connection-phase-packets.html#packet-Protocol::SSLRequest
+            capability_flags |= CLIENT_SSL;
+            char ssl_req[36] = {0};
+            // header
+            // payload length: 32, sequence id: 1
+            *(int *) ssl_req = 32 | (1 << 24);
+            // capability flags, CLIENT_SSL always set
+            *(int *) (ssl_req + 4) = capability_flags;
+            // max-packet size: 16M
+            *(int *) (ssl_req + 8) = 1 << 24;
+            // character set: utf-8
+            *(int *) (ssl_req + 12) = 8;
+            // 23 bytes reserved (all [0])
+            ocall_send((ssize_t *)&ret, s, ssl_req, 36, 0);
+        }
+        else
+        {
+            LL_CRITICAL("MySQL server does not support SSL!");
+        }
+        *(int*)d = capability_flags;
+        d+=4;
 
-          *(int*)d = 1<<24;             d+=4;      // max packet size = 16Mb
-               * d = 8;                 d+=24;     // utf8 charset
-          memcpy(d, user.c_str(), user.size() + 1);
-          d+=1 + user.size();
-               * d = 20;                d+=1;  for(i=0;i<20;i++)
-              d[i] = hash[i]^0;         d+=22;     // XOR encrypt response
-          *(int*)b = d-b-4 | 1<<24;                // calc final packet size and id
+        *(int*)d = 1<<24;
+        d += 4;      // max packet size = 16Mb
+        // utf8 charset
+        *d = 8;
+        d += 1;
+        memset(d, 0, 23);
+        // 23 reversed (all 0)
+        d += 23;
+        memcpy(d, user.c_str(), user.size() + 1);
+        d += 1 + user.size();
+        // CLIENT_SECURE_CONNECTION, not CLIENT_PLUGIN_AUTH_LENENC_CLIENT_DATA
+        *d = 20;
+        d += 1;
+        // 20 bytes auth-response
+        for (i=0; i < 20; i++)
+            d[i] = hash[i]^0;
+        d += 22;     // XOR encrypt response
+        // 4 bytes header of MySQL Packet
+        // [ref] https://dev.mysql.com/doc/internals/en/mysql-packet.html
+        // sequence id: 2
+        *(int*)b = d-b-4 | 2<<24;                // calc final packet size and id
 
-          ocall_send((ssize_t *)&ret, s, b, d-b, 0);
+        if (use_tls)
+            ret = send_tls(b, d - b);
+        else
+            ocall_send((ssize_t *)&ret, s, b, d - b, 0);
 
-          ocall_recv((ssize_t *)&ret, s, (char *) &no, 4, 0);
-          no &= (1<<24)-1;   // in case of login failure server sends us an error text
-        ocall_recv((ssize_t *)&i, s, b, no, 0);
+        if (use_tls)
+            ret = recv_tls((char *) &no, 4);
+        else
+            ocall_recv((ssize_t *)&ret, s, (char *) &no, 4, 0);
+        no &= (1<<24)-1;   // in case of login failure server sends us an error text
+        if (use_tls)
+            ret = recv_tls(b, no);
+        else
+            ocall_recv((ssize_t *)&i, s, b, no, 0);
         if (i == -1 || *b)
             return fail(i==-1?"Timeout":b+3,"Login Failed");
     }
@@ -473,11 +528,15 @@ bool sq::light::sends( const std::string &query )
 {
     // Send sql query
     // Details at: http://forge.mysql.com/wiki/MySQL_Internals_ClientServer_Protocol#Command_Packet
+    // [ref] https://dev.mysql.com/doc/internals/en/com-query.html
 
     d[4]=0x3;
     memcpy(d + 5, const_cast<char*>(query.c_str()), query.size() + 1);
     *(int*)d=strlen(d+5)+1;
-    ocall_send((ssize_t *)&i, s, d, 4 + *((int *) d), $windows(0) $welse(MSG_NOSIGNAL));
+    if (use_tls)
+        i = send_tls(d, 4 + *((int *) d));
+    else
+        ocall_send((ssize_t *)&i, s, d, 4 + *((int *) d), $windows(0) $welse(MSG_NOSIGNAL));
     if (i<0)
         return false;
     return true;
@@ -502,16 +561,26 @@ bool sq::light::recvs( void *userdata, void* onvalue, void* onfield, void *onsep
 
     while (1) {
                rc = 0;
+               if (use_tls)
+               {
+                    i = recv_tls((char *)&no, 4);
+               }
+               else
+               {
                i= recvfixed(s, (char*)&no, 4, 0);
                // i=RECV(s,(char*)&no,4,0);
                no&=0xffffff; // This is a bug. server sometimes don't send those 4 bytes together. will fix it (recvfixed fix the bug)
                // this also helps to skip packet sequence number: http://mysql.timesoft.cc/doc/internals/en/the-packet-header.html
-               if (i<0)
+               }
+              if (i<0)
                    return fail("connection lost");
 
         while (rc < no)
         {
-            ocall_recv((ssize_t *)&i, s, b + rc, no - rc, 0);
+            if (use_tls)
+                i = recv_tls(b + rc, no - rc);
+            else
+                ocall_recv((ssize_t *)&i, s, b + rc, no - rc, 0);
             if (i > 0)
                 rc += i;
             else
@@ -521,13 +590,16 @@ bool sq::light::recvs( void *userdata, void* onvalue, void* onfield, void *onsep
         if(i<1) return fail("connection lost"); // Connection lost
 
         // 0. For non query sql commands we get just single success or failure response
+        // OK_Packet
         if(*       b==0x00&&!exit)                                      break;   // success
+        // ERR_Packet
         if(*(byte*)b==0xff&&!exit)  { b[*(short*)(b+1)+3]=0; return fail(b+3); } // failure: show server error text
 
         // 1. first thing we receive is number of fields
         if(!fields ) { memcpy(&fields,b,no); field=fields; continue; }
 
         // 3. 5. after receiving last field info or row we get this EOF marker or more results exist
+        // OK_Packet with EOF
         if (*(byte*)b==0xfe && no < 9)
         {
             if( no == 5 )

@@ -133,7 +133,7 @@ class HttpResponse {
 class ReceivingBuffer {
  public:
   unsigned char *buf;
-  const static size_t cap = 2 * 1024 * 1024; // 2MB
+  const static size_t cap = 16 * 1024 * 1024; // 16MB
   size_t length;
 
   ReceivingBuffer() {

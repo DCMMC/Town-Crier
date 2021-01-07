@@ -4083,6 +4083,28 @@
 "3U1fJAuwACEl74+nBCZx4nxp5V2a+EEfOzmTk51V6s2N8fvB\r\n"\
 "-----END CERTIFICATE-----\r\n"\
 "\r\n"\
+"MySQL localhost DCMMC\r\n"\
+"====================\r\n"\
+"-----BEGIN CERTIFICATE-----\r\n"\
+"MIIDAzCCAeugAwIBAgIBATANBgkqhkiG9w0BAQsFADA8MTowOAYDVQQDDDFNeVNR\r\n"\
+"TF9TZXJ2ZXJfNS43LjMyX0F1dG9fR2VuZXJhdGVkX0NBX0NlcnRpZmljYXRlMB4X\r\n"\
+"DTIxMDEwNzEzNDUyMVoXDTMxMDEwNTEzNDUyMVowPDE6MDgGA1UEAwwxTXlTUUxf\r\n"\
+"U2VydmVyXzUuNy4zMl9BdXRvX0dlbmVyYXRlZF9DQV9DZXJ0aWZpY2F0ZTCCASIw\r\n"\
+"DQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAJq9lKBhvFXPX0U5cy25aY5FKCHB\r\n"\
+"fVaW/z3RQjetaIIJkqdtg4/jnwll4osRoyKcZLcLCbf3kynbiaw/S8zQ596VrRO0\r\n"\
+"X67eRU3WqjYFwcTP/X3whQ/87ApvNWgDNLQtz+TKOJ2q+Sbym5Li9sAG2Q0BqkrV\r\n"\
+"W7k9NSzMNacMJVE/QUnknuRTEQzhRu0Dxk0KHlDRQLN2e8T1ODtXam1NTZ08nniU\r\n"\
+"4G3s3BLv4FwmCeq479pahCHb5thD4uZeTyxHs4jAVrVKeykMxFTbA0p2CK0B9ytb\r\n"\
+"wwtCI5LTlJU5V/d6EuDy/bgeIWJ45D5OrKzHX+VtGjVp/yVrmMzexNguZVkCAwEA\r\n"\
+"AaMQMA4wDAYDVR0TBAUwAwEB/zANBgkqhkiG9w0BAQsFAAOCAQEAgBrSBEorzYfG\r\n"\
+"aeAVw1S5FlebnBSx/ricKJuZ3qglaa+bk0E9fzGt/VhYLrr1l3jyolKtdNa0TGS/\r\n"\
+"FNYJETjVsrPSDRUIYrq6jk8j/6Lh5NJnTMDpsLhhtAI5lCWSJOHKCukoSlTAI0oo\r\n"\
+"sWYjAfm7lpGgZuEth+x6h6KBcaqS0GKzNe9IlyIpzZVK5QRdRzDQGp2HJ3g9kcax\r\n"\
+"aoorLcADGO7zT+8goeCnGar45XdQqRgPEu+qtocq1/7nR/599tjSNEbYQ0OkmKM1\r\n"\
+"2S0Ck7K4iu7/RhdhRVVpMPHHU7gC612OPcXmEPBdsemcP+i+36bedUxpAcAUDY+1\r\n"\
+"d4i3AZFQig==\r\n"\
+"-----END CERTIFICATE-----\r\n"\
+"\r\n"\
 "ISRG Root X1\r\n"\
 "============\r\n"\
 "-----BEGIN CERTIFICATE-----\r\n"\

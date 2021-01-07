@@ -13,8 +13,10 @@
 MySQL
 
 ```
-docker run -d --name mysql --rm -e MYSQL_ROOT_PASSWORD=97294597 -p 3306:3306 mysql:5.7
+docker run -d --name mysql --rm -e MYSQL_ROOT_PASSWORD=97294597 -v `pwd`/privatenet/mysql_keys/conf:/etc/mysql/conf.d -v `pwd`/privatenet/mysql_keys/cert:/etc/mysql/cert -p 3306:3306 mysql:5.7
 ```
+
+SSL 密钥文件可以由 mysql 容器中的 `mysql_ssl_rsa_setup --datadir mysql_keys` 生成
 
 ## Build and run instructions
 
