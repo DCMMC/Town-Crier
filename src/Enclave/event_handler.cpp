@@ -117,26 +117,27 @@ int debug_mysql(const char *host, unsigned int port,
         else
             LL_DEBUG("DCMMC: sqlight exec failed.");
 
-	std::string sql1 = "CREATE DATABASE test_db;";
+	std::string sql1 = "CREATE DATABASE IF NOT EXISTS test_db;";
 	std::string sql2 = "USE test_db;";
-        std::string sql3 = "CREATE TABLE tb_courses (course_id INT NOT NULL AUTO_INCREMENT, course_name CHAR(40) NOT NULL, course_grade FLOAT NOT NULL, course_info CHAR(100) NULL, PRIMARY KEY(course_id));";
-        std::string sql4 = "SELECT * FROM tb_courses;";
-        std::string sql5 = "INSERT INTO tb_courses (course_id,course_name,course_grade,course_info) VALUES(1,'Network',3,'Computer Network');";
-        std::string sql6 = "SELECT * FROM tb_courses;";
-	/*
+	std::string sql3 = "DROP TABLE IF EXISTS tb_courses;";
+        std::string sql4 = "CREATE TABLE tb_courses (course_id INT NOT NULL AUTO_INCREMENT, course_name CHAR(40) NOT NULL, course_grade FLOAT NOT NULL, course_info CHAR(100) NULL, PRIMARY KEY(course_id));";
+        std::string sql5 = "SELECT * FROM tb_courses;";
+        std::string sql6 = "INSERT INTO tb_courses (course_id,course_name,course_grade,course_info) VALUES(1,'Network',3,'Computer Network');";
+        std::string sql7 = "SELECT * FROM tb_courses;";
         ret = sql.json(sql1, result);
-        LL_INFO("(DCMMC) result of sql1:\n%s\n", result);
+        LL_INFO("(DCMMC) result of sql1:\n%s\n", result.c_str());
         ret = sql.json(sql2, result);
-        LL_INFO("(DCMMC) result of sql2:\n%s\n", result);
+        LL_INFO("(DCMMC) result of sql2:\n%s\n", result.c_str());
         ret = sql.json(sql3, result);
-        LL_INFO("(DCMMC) result of sql3:\n%s\n", result);
+        LL_INFO("(DCMMC) result of sql3:\n%s\n", result.c_str());
         ret = sql.json(sql4, result);
-        LL_INFO("(DCMMC) result of sql4:\n%s\n", result);
+        LL_INFO("(DCMMC) result of sql4:\n%s\n", result.c_str());
         ret = sql.json(sql5, result);
-        LL_INFO("(DCMMC) result of sql5:\n%s\n", result);
-	*/
+        LL_INFO("(DCMMC) result of sql5:\n%s\n", result.c_str());
         ret = sql.json(sql6, result);
-        LL_INFO("(DCMMC) result of sql6:\n%s\n", result);
+        LL_INFO("(DCMMC) result of sql6:\n%s\n", result.c_str());
+        ret = sql.json(sql7, result);
+        LL_INFO("(DCMMC) result of sql7:\n%s\n", result.c_str());
     }
     return ret == false ? 0 : -1;
 }

@@ -847,9 +847,11 @@ bool sq::light::recvs( void *userdata, void* onvalue, void* onfield, void *onsep
 namespace
 {
     char *strdup(char *txt)
-    {
+    { 
+	// (DCMMC) WARN: Memory Leak!
         char *txt_copy = (char *)malloc(strlen(txt) + 1);
         memcpy(txt_copy, txt, strlen(txt) + 1);
+	txt_copy[strlen(txt)] = 0;
         return txt_copy;
     }
 
@@ -857,8 +859,6 @@ namespace
         int x, y;
         // map
         std::vector< char * > data;
-        // (DCMMC) useless
-        // std::vector< char * > head;
 
         local() : x(0),y(0) {
         }
@@ -866,29 +866,16 @@ namespace
         ~local() {
             for( unsigned i = 0, end = data.size(); i < end; ++i )
                 if( data[i] ) free( data[i] ), data[i] = 0;
-            // for( unsigned i = 0, end = head.size(); i < end; ++i )
-            //     if( head[i] ) free( head[i] ), head[i] = 0;
         }
     };
 
-    // void GetText2f( void *userdata, char* txt ) {
-    //     local *l = (local *)userdata;
-    //     l->head.push_back( txt ? strdup(txt) : strdup("") );
-    // }
-    // void GetText2v( void *userdata, char* txt ) {
-    //     local *l = (local *)userdata;
-    //     l->data.push_back( txt ? strdup(txt) : strdup("") );
-    // }
-
     void GetText3f( void *userdata, char* txt ) {
-        LL_INFO("(DCMMC) GetText2f，aka field=%s", txt);
         local *l = (local *)userdata;
         l->x++;
         l->y++;
         l->data.push_back( txt ? strdup(txt) : strdup("") );
     }
     void GetText3v( void *userdata, char* txt ) {
-        LL_INFO("(DCMMC) GetText3v, aka value=%s", txt);
         local *l = (local *)userdata;
         l->y++;
         l->data.push_back( txt ? strdup(txt) : strdup("") );
@@ -914,7 +901,7 @@ bool sq::light::test( const std::string &query )
     return false;
 }
 
-bool sq::light::exec( const std::string &query, sq::light::callback3 cb3, void *userdata )
+bool sq::light::exec( const std::string &query, sq::light::callback3 cb3, std::string &userdata )
 {
     if( !connected )
         return false;
@@ -955,31 +942,29 @@ namespace {
         }
         return out;
     }
-    void OnJSONCb( void *userdata, int w, int h, const char **map ) {
-        LL_INFO("(DCMMC) OnJSONCb, w=%d, h=%d", w, h);
+
+    // (DCMMC) TODO refactor all these shits...
+    void OnJSONCb( std::string &userdata, int w, int h, const char **map ) {
         // userdata is the result string of the sql statement
-        std::string &array = *((std::string*)userdata);
+	userdata.clear();
         const char **field = &map[0];
         const char **value = &map[w];
         for( int y = 1; y < h; ++y ) {
-            array += "{\n";
+            userdata += "{\n";
             for( int x = 0; x < w; ++x ) {
-                array += "\"" + escape(std::string(*field++)) + "\": ";
-                array += "\"" + escape(std::string(*value++)) + "\",\n";
+                userdata += "\"" + escape(std::string(*field++)) + "\": ";
+                userdata += "\"" + escape(std::string(*value++)) + "\",\n";
             }
-            if( w > 0 ) array[array.size()-2] = ' ';
-            array += "},\n";
+            userdata += "},\n";
 
             field = map;
         }
-        if( h > 0 && array.size() >= 2 ) array[array.size()-2] = ' ';
-        array = "[\n" + array + "]\n";
+        userdata = std::string(("[\n" + userdata + "]\n").c_str());
     }
 }
 
 bool sq::light::json( const std::string &query, std::string &result ) {
-    result = std::string();
-    bool ok = exec(query,OnJSONCb,(void *)&result);
+    bool ok = exec(query, OnJSONCb, result);
     if( !ok )
         result = std::string();
     return ok;

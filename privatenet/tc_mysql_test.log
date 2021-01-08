@@ -1,12 +1,12 @@
-2021-01-08 16:54:08,112 [tc.cpp:98] INFO  - config:
+2021-01-08 19:23:37,441 [tc.cpp:98] INFO  - config:
 Using config file: /code/privatenet/config-privatenet-sim
 + using enclave image: /tc/enclave/enclave.debug.so
 + listening for TC relay at port: 8123
 + serving contract at: 0x3c545137065cD4Bc238E23d8A42A345716a00b62
-2021-01-08 16:54:08,238 [tc.cpp:109] INFO  - Enclave 146149147148290 created
-2021-01-08 16:54:08,249 [tc.cpp:125] INFO  - using wallet address at 0xE0E94783B5FDA919AAA6FEE67B6E03D555731C2D
-2021-01-08 16:54:08,249 [tc.cpp:126] INFO  - using hybrid pubkey: BLtIrjcmxXNzRKVLNGP+xJnLEIp9EboTe6PH0EO9bX4UmU9gRio/kVUHSbsq5UEfIrf5vueZVqRjwwitUI81V98=
-2021-01-08 16:54:08,249 [tc.cpp:139] INFO  - (DCMMC) debug mysql
+2021-01-08 19:23:37,569 [tc.cpp:109] INFO  - Enclave 99097780420610 created
+2021-01-08 19:23:37,580 [tc.cpp:125] INFO  - using wallet address at 0xE0E94783B5FDA919AAA6FEE67B6E03D555731C2D
+2021-01-08 19:23:37,580 [tc.cpp:126] INFO  - using hybrid pubkey: BLtIrjcmxXNzRKVLNGP+xJnLEIp9EboTe6PH0EO9bX4UmU9gRio/kVUHSbsq5UEfIrf5vueZVqRjwwitUI81V98=
+2021-01-08 19:23:37,580 [tc.cpp:140] INFO  - (DCMMC) debug mysql
 [DEBG] (event_handler.cpp:104) DCMMC: test sqlight
 [NOTI] (sqlight.hpp:121) (DCMMC) begin init_tls
 [ LOG] (sqlight.hpp:166) connecting over TCP: 219.223.189.199:3306...
@@ -14,9 +14,9 @@ Using config file: /code/privatenet/config-privatenet-sim
 [NOTI] (sqlight.hpp:180) (DCMMC) finish init_tls
 [NOTI] (sqlight.cpp:440) (DCMMC) MySQL capability flag of server: 0xffff
 HandshakeV10
-0x0000:   4A 00 00 00 0A 35 2E 37   2E 33 32 00 3B 00 00 00    J....5.7.32.;...
-0x0010:   47 08 61 1A 1F 2B 56 70   00 FF FF 08 02 00 FF C1    G.a..+Vp........
-0x0020:   15 00 00 00 00 00 00 00   00 00 00 51 11 0A 58 20    ...........Q..X 
+0x0000:   4A 00 00 00 0A 35 2E 37   2E 33 32 00 55 00 00 00    J....5.7.32.U...
+0x0010:   5D 6D 0E 69 4D 2D 7F 07   00 FF FF 08 02 00 FF C1    ]m.iM-..........
+0x0020:   15 00 00 00 00 00 00 00   00 00 00 42 74 78 40 62    ...........Btx@b
 [NOTI] (sqlight.cpp:456) MySQL server supports SSL, client will send SSL Request Packet.
 [NOTI] (sqlight.cpp:472) (DCMMC) SSL request packet sent.
 [ LOG] (sqlight.hpp:194) Setting up the SSL/TLS structure...
@@ -195,7 +195,7 @@ ssl_tls.c:2403: |2| in_left: 5, nb_want: 70
 ssl_tls.c:2416: |2| <= fetch input
 ssl_tls.c:3100: |3| handshake message: msglen = 65, type = 2, hslen = 65
 ssl_tls.c:3976: |2| <= read record
-ssl_cli.c:1495: |3| server hello, current time: 440239074
+ssl_cli.c:1495: |3| server hello, current time: 2283785683
 ssl_cli.c:1572: |3| server hello, session id len.: 0
 ssl_cli.c:1609: |3| no session has been resumed
 ssl_cli.c:1611: |3| server hello, chosen ciphersuite: c030
@@ -458,7 +458,7 @@ ssl_tls.c:6721: |2| <= read
 HandshakeResponse41
 0x0000:   00 00 00 02 00 00 00 00   00 00 00 01 08 00 00 00    ................
 0x0010:   00 00 00 00 00 00 00 00   00 00 00 00 00 00 00 00    ................
-0x0020:   00 00 00 00 72 6F 6F 74   00 14 7C FC 0B 88 79 23    ....root..|...y#
+0x0020:   00 00 00 00 72 6F 6F 74   00 14 DB E4 F6 5F AC F2    ....root....._..
 [NOTI] (sqlight.cpp:543) (DCMMC) sends query=SHOW DATABASES
 ssl_tls.c:6822: |2| => write
 ssl_tls.c:2714: |2| => write record
@@ -479,17 +479,17 @@ ssl_tls.c:2221: |2| => fetch input
 ssl_tls.c:2379: |2| in_left: 0, nb_want: 5
 ssl_tls.c:2403: |2| in_left: 0, nb_want: 5
 ssl_tls.c:2416: |2| <= fetch input
-ssl_tls.c:3495: |3| input record: msgtype = 23, version = [3:3], msglen = 190
+ssl_tls.c:3495: |3| input record: msgtype = 23, version = [3:3], msglen = 202
 ssl_tls.c:2221: |2| => fetch input
-ssl_tls.c:2379: |2| in_left: 5, nb_want: 195
-ssl_tls.c:2403: |2| in_left: 5, nb_want: 195
+ssl_tls.c:2379: |2| in_left: 5, nb_want: 207
+ssl_tls.c:2403: |2| in_left: 5, nb_want: 207
 ssl_tls.c:2416: |2| <= fetch input
 ssl_tls.c:1589: |2| => decrypt buf
 ssl_tls.c:2064: |2| <= decrypt buf
 ssl_tls.c:3976: |2| <= read record
 ssl_tls.c:6721: |2| <= read
-[ LOG] (sqlight.hpp:323) mbedtls_ssl_read returns 166
-[NOTI] (sqlight.cpp:590) (DCMMC) tls ret(length)=166
+[ LOG] (sqlight.hpp:323) mbedtls_ssl_read returns 178
+[NOTI] (sqlight.cpp:590) (DCMMC) tls ret(length)=178
 (DCMMC) Whole data received from tls
 0x0000:   01 00 00 01 01 4B 00 00   02 03 64 65 66 12 69 6E    .....K....def.in
 0x0010:   66 6F 72 6D 61 74 69 6F   6E 5F 73 63 68 65 6D 61    formation_schema
@@ -500,8 +500,9 @@ ssl_tls.c:6721: |2| <= read
 0x0060:   04 12 69 6E 66 6F 72 6D   61 74 69 6F 6E 5F 73 63    ..information_sc
 0x0070:   68 65 6D 61 06 00 00 05   05 6D 79 73 71 6C 13 00    hema.....mysql..
 0x0080:   00 06 12 70 65 72 66 6F   72 6D 61 6E 63 65 5F 73    ...performance_s
-0x0090:   63 68 65 6D 61 04 00 00   07 03 73 79 73 05 00 00    chema.....sys...
-0x00A0:   08 FE 00 00 22 00                                    ....".          
+0x0090:   63 68 65 6D 61 04 00 00   07 03 73 79 73 08 00 00    chema.....sys...
+0x00A0:   08 07 74 65 73 74 5F 64   62 05 00 00 09 FE 00 00    ..test_db.......
+0x00B0:   22 00                                                ".              
 [NOTI] (sqlight.cpp:597) (DCMMC) new packet with no=1
 Current processing Packet
 0x0000:   01 00 00 01 01                                       .....           
@@ -513,6 +514,7 @@ Current processing Packet
 0x0020:   4D 41 54 41 08 53 43 48   45 4D 41 54 41 08 44 61    MATA.SCHEMATA.Da
 0x0030:   74 61 62 61 73 65 0B 53   43 48 45 4D 41 5F 4E 41    tabase.SCHEMA_NA
 0x0040:   4D 45 0C 08 00 40 00 00   00 FD 01 00 00 00 00       ME...@......... 
+[NOTI] (sqlight.cpp:837) (DCMMC) name=Database
 [NOTI] (sqlight.cpp:597) (DCMMC) new packet with no=5
 Current processing Packet
 0x0000:   05 00 00 03 FE 00 00 22   00                         .......".       
@@ -541,12 +543,18 @@ Current processing Packet
 0x0000:   04 00 00 07 03 73 79 73                              .....sys        
 [NOTI] (sqlight.cpp:727) (DCMMC) lenenc=3, type=0
 [NOTI] (sqlight.cpp:762) (DCMMC) ResultsetRow=sys
+[NOTI] (sqlight.cpp:597) (DCMMC) new packet with no=8
+Current processing Packet
+0x0000:   08 00 00 08 07 74 65 73   74 5F 64 62                .....test_db    
+[NOTI] (sqlight.cpp:727) (DCMMC) lenenc=7, type=0
+[NOTI] (sqlight.cpp:762) (DCMMC) ResultsetRow=test_db
 [NOTI] (sqlight.cpp:597) (DCMMC) new packet with no=5
 Current processing Packet
-0x0000:   05 00 00 08 FE 00 00 22   00                         .......".       
+0x0000:   05 00 00 09 FE 00 00 22   00                         .......".       
 [NOTI] (sqlight.cpp:678) (DCMMC) EOF Packet
 [NOTI] (sqlight.cpp:681) (DCMMC) status flags=34
 [NOTI] (sqlight.cpp:694) (DCMMC) EOF
+[NOTI] (event_handler.cpp:112) (DCMMC) test mysql query: show variables like '%%ssl%%';
 [NOTI] (sqlight.cpp:543) (DCMMC) sends query=show variables like '%%ssl%%';
 ssl_tls.c:6822: |2| => write
 ssl_tls.c:2714: |2| => write record
@@ -617,6 +625,7 @@ Current processing Packet
 0x0030:   72 69 61 62 6C 65 5F 6E   61 6D 65 0D 56 61 72 69    riable_name.Vari
 0x0040:   61 62 6C 65 5F 6E 61 6D   65 0C 08 00 40 00 00 00    able_name...@...
 0x0050:   FD 01 10 00 00 00                                    ......          
+[NOTI] (sqlight.cpp:837) (DCMMC) name=Variable_name
 [NOTI] (sqlight.cpp:597) (DCMMC) new packet with no=66
 Current processing Packet
 0x0000:   42 00 00 03 03 64 65 66   00 11 73 65 73 73 69 6F    B....def..sessio
@@ -624,6 +633,7 @@ Current processing Packet
 0x0020:   69 6F 6E 5F 76 61 72 69   61 62 6C 65 73 05 56 61    ion_variables.Va
 0x0030:   6C 75 65 05 56 61 6C 75   65 0C 08 00 00 04 00 00    lue.Value.......
 0x0040:   FD 00 00 00 00 00                                    ......          
+[NOTI] (sqlight.cpp:837) (DCMMC) name=Value
 [NOTI] (sqlight.cpp:597) (DCMMC) new packet with no=5
 Current processing Packet
 0x0000:   05 00 00 04 FE 00 00 22   00                         .......".       
@@ -708,44 +718,631 @@ Current processing Packet
 [NOTI] (sqlight.cpp:678) (DCMMC) EOF Packet
 [NOTI] (sqlight.cpp:681) (DCMMC) status flags=34
 [NOTI] (sqlight.cpp:694) (DCMMC) EOF
-[DEBG] (event_handler.cpp:115) DCMMC: sqlight return=[
+[DEBG] (event_handler.cpp:116) DCMMC: sqlight return=[
 {
 "Variable_name": "have_openssl",
-"Value": "YES" 
+"Value": "YES",
 },
 {
 "Variable_name": "have_ssl",
-"Value": "YES" 
+"Value": "YES",
 },
 {
 "Variable_name": "ssl_ca",
-"Value": "/etc/mysql/cert/ca.pem" 
+"Value": "/etc/mysql/cert/ca.pem",
 },
 {
 "Variable_name": "ssl_capath",
-"Value": "" 
+"Value": "",
 },
 {
 "Variable_name": "ssl_cert",
-"Value": "/etc/mysql/cert/server-cert.pem" 
+"Value": "/etc/mysql/cert/server-cert.pem",
 },
 {
 "Variable_name": "ssl_cipher",
-"Value": "" 
+"Value": "",
 },
 {
 "Variable_name": "ssl_crl",
-"Value": "" 
+"Value": "",
 },
 {
 "Variable_name": "ssl_crlpath",
-"Value": "" 
+"Value": "",
 },
 {
 "Variable_name": "ssl_key",
-"Value": "/etc/mysql/cert/server-key.pem" 
-} 
+"Value": "/etc/mysql/cert/server-key.pem",
+},
 ]
 
-2021-01-08 16:54:08,737 [tc.cpp:147] INFO  - (DCMMC) ecall succeeds
-2021-01-08 16:54:08,737 [tc.cpp:154] INFO  - RPC server started at 8123
+[NOTI] (sqlight.cpp:543) (DCMMC) sends query=CREATE DATABASE IF NOT EXISTS test_db;
+ssl_tls.c:6822: |2| => write
+ssl_tls.c:2714: |2| => write record
+ssl_tls.c:1259: |2| => encrypt buf
+ssl_tls.c:1413: |3| before encrypt: msglen = 51, including 0 bytes of padding
+ssl_tls.c:1573: |2| <= encrypt buf
+ssl_tls.c:2849: |3| output record: msgtype = 23, version = [3:3], msglen = 67
+ssl_tls.c:2429: |2| => flush output
+ssl_tls.c:2448: |2| message length: 72, out_left: 72
+ssl_tls.c:2473: |2| <= flush output
+ssl_tls.c:2861: |2| <= write record
+ssl_tls.c:6850: |2| <= write
+[NOTI] (sqlight.cpp:551) (DCMMC) sends return=43
+[NOTI] (sqlight.cpp:587) (DCMMC) received data are empty or run out.
+ssl_tls.c:6481: |2| => read
+ssl_tls.c:3739: |2| => read record
+ssl_tls.c:2221: |2| => fetch input
+ssl_tls.c:2379: |2| in_left: 0, nb_want: 5
+ssl_tls.c:2403: |2| in_left: 0, nb_want: 5
+ssl_tls.c:2416: |2| <= fetch input
+ssl_tls.c:3495: |3| input record: msgtype = 23, version = [3:3], msglen = 35
+ssl_tls.c:2221: |2| => fetch input
+ssl_tls.c:2379: |2| in_left: 5, nb_want: 40
+ssl_tls.c:2403: |2| in_left: 5, nb_want: 40
+ssl_tls.c:2416: |2| <= fetch input
+ssl_tls.c:1589: |2| => decrypt buf
+ssl_tls.c:2064: |2| <= decrypt buf
+ssl_tls.c:3976: |2| <= read record
+ssl_tls.c:6721: |2| <= read
+[ LOG] (sqlight.hpp:323) mbedtls_ssl_read returns 11
+[NOTI] (sqlight.cpp:590) (DCMMC) tls ret(length)=11
+(DCMMC) Whole data received from tls
+0x0000:   07 00 00 01 00 01 00 02   00 01 00                   ...........     
+[NOTI] (sqlight.cpp:597) (DCMMC) new packet with no=7
+Current processing Packet
+0x0000:   07 00 00 01 00 01 00 02   00 01 00                   ...........     
+[DEBG] (sqlight.cpp:641) OK Packet (indicates non query sql commands we get just single success)
+[NOTI] (event_handler.cpp:128) (DCMMC) result of sql1:
+[
+{
+"Variable_name": "have_openssl",
+"Value": "YES",
+},
+{
+"Variable_name": "have_ssl",
+"Value": "YES",
+},
+{
+"Variable_name": "ssl_ca",
+"Value": "/etc/mysql/cert/ca.pem",
+},
+{
+"Variable_name": "ssl_capath",
+"Value": "",
+},
+{
+"Variable_name": "ssl_cert",
+"Value": "/etc/mysql/cert/server-cert.pem",
+},
+{
+"Variable_name": "ssl_cipher",
+"Value": "",
+},
+{
+"Variable_name": "ssl_crl",
+"Value": "",
+},
+{
+"Variable_name": "ssl_crlpath",
+"Value": "",
+},
+{
+"Variable_name": "ssl_key",
+"Value": "/etc/mysql/cert/server-key.pem",
+},
+]
+
+
+[NOTI] (sqlight.cpp:543) (DCMMC) sends query=USE test_db;
+ssl_tls.c:6822: |2| => write
+ssl_tls.c:2714: |2| => write record
+ssl_tls.c:1259: |2| => encrypt buf
+ssl_tls.c:1413: |3| before encrypt: msglen = 25, including 0 bytes of padding
+ssl_tls.c:1573: |2| <= encrypt buf
+ssl_tls.c:2849: |3| output record: msgtype = 23, version = [3:3], msglen = 41
+ssl_tls.c:2429: |2| => flush output
+ssl_tls.c:2448: |2| message length: 46, out_left: 46
+ssl_tls.c:2473: |2| <= flush output
+ssl_tls.c:2861: |2| <= write record
+ssl_tls.c:6850: |2| <= write
+[NOTI] (sqlight.cpp:551) (DCMMC) sends return=17
+[NOTI] (sqlight.cpp:587) (DCMMC) received data are empty or run out.
+ssl_tls.c:6481: |2| => read
+ssl_tls.c:3739: |2| => read record
+ssl_tls.c:2221: |2| => fetch input
+ssl_tls.c:2379: |2| in_left: 0, nb_want: 5
+ssl_tls.c:2403: |2| in_left: 0, nb_want: 5
+ssl_tls.c:2416: |2| <= fetch input
+ssl_tls.c:3495: |3| input record: msgtype = 23, version = [3:3], msglen = 35
+ssl_tls.c:2221: |2| => fetch input
+ssl_tls.c:2379: |2| in_left: 5, nb_want: 40
+ssl_tls.c:2403: |2| in_left: 5, nb_want: 40
+ssl_tls.c:2416: |2| <= fetch input
+ssl_tls.c:1589: |2| => decrypt buf
+ssl_tls.c:2064: |2| <= decrypt buf
+ssl_tls.c:3976: |2| <= read record
+ssl_tls.c:6721: |2| <= read
+[ LOG] (sqlight.hpp:323) mbedtls_ssl_read returns 11
+[NOTI] (sqlight.cpp:590) (DCMMC) tls ret(length)=11
+(DCMMC) Whole data received from tls
+0x0000:   07 00 00 01 00 00 00 02   00 00 00                   ...........     
+[NOTI] (sqlight.cpp:597) (DCMMC) new packet with no=7
+Current processing Packet
+0x0000:   07 00 00 01 00 00 00 02   00 00 00                   ...........     
+[DEBG] (sqlight.cpp:641) OK Packet (indicates non query sql commands we get just single success)
+[NOTI] (event_handler.cpp:130) (DCMMC) result of sql2:
+[
+{
+"Variable_name": "have_openssl",
+"Value": "YES",
+},
+{
+"Variable_name": "have_ssl",
+"Value": "YES",
+},
+{
+"Variable_name": "ssl_ca",
+"Value": "/etc/mysql/cert/ca.pem",
+},
+{
+"Variable_name": "ssl_capath",
+"Value": "",
+},
+{
+"Variable_name": "ssl_cert",
+"Value": "/etc/mysql/cert/server-cert.pem",
+},
+{
+"Variable_name": "ssl_cipher",
+"Value": "",
+},
+{
+"Variable_name": "ssl_crl",
+"Value": "",
+},
+{
+"Variable_name": "ssl_crlpath",
+"Value": "",
+},
+{
+"Variable_name": "ssl_key",
+"Value": "/etc/mysql/cert/server-key.pem",
+},
+]
+
+
+[NOTI] (sqlight.cpp:543) (DCMMC) sends query=DROP TABLE IF EXISTS tb_courses;
+ssl_tls.c:6822: |2| => write
+ssl_tls.c:2714: |2| => write record
+ssl_tls.c:1259: |2| => encrypt buf
+ssl_tls.c:1413: |3| before encrypt: msglen = 45, including 0 bytes of padding
+ssl_tls.c:1573: |2| <= encrypt buf
+ssl_tls.c:2849: |3| output record: msgtype = 23, version = [3:3], msglen = 61
+ssl_tls.c:2429: |2| => flush output
+ssl_tls.c:2448: |2| message length: 66, out_left: 66
+ssl_tls.c:2473: |2| <= flush output
+ssl_tls.c:2861: |2| <= write record
+ssl_tls.c:6850: |2| <= write
+[NOTI] (sqlight.cpp:551) (DCMMC) sends return=37
+[NOTI] (sqlight.cpp:587) (DCMMC) received data are empty or run out.
+ssl_tls.c:6481: |2| => read
+ssl_tls.c:3739: |2| => read record
+ssl_tls.c:2221: |2| => fetch input
+ssl_tls.c:2379: |2| in_left: 0, nb_want: 5
+ssl_tls.c:2403: |2| in_left: 0, nb_want: 5
+ssl_tls.c:2416: |2| <= fetch input
+ssl_tls.c:3495: |3| input record: msgtype = 23, version = [3:3], msglen = 35
+ssl_tls.c:2221: |2| => fetch input
+ssl_tls.c:2379: |2| in_left: 5, nb_want: 40
+ssl_tls.c:2403: |2| in_left: 5, nb_want: 40
+ssl_tls.c:2416: |2| <= fetch input
+ssl_tls.c:1589: |2| => decrypt buf
+ssl_tls.c:2064: |2| <= decrypt buf
+ssl_tls.c:3976: |2| <= read record
+ssl_tls.c:6721: |2| <= read
+[ LOG] (sqlight.hpp:323) mbedtls_ssl_read returns 11
+[NOTI] (sqlight.cpp:590) (DCMMC) tls ret(length)=11
+(DCMMC) Whole data received from tls
+0x0000:   07 00 00 01 00 00 00 02   00 00 00                   ...........     
+[NOTI] (sqlight.cpp:597) (DCMMC) new packet with no=7
+Current processing Packet
+0x0000:   07 00 00 01 00 00 00 02   00 00 00                   ...........     
+[DEBG] (sqlight.cpp:641) OK Packet (indicates non query sql commands we get just single success)
+[NOTI] (event_handler.cpp:132) (DCMMC) result of sql3:
+[
+{
+"Variable_name": "have_openssl",
+"Value": "YES",
+},
+{
+"Variable_name": "have_ssl",
+"Value": "YES",
+},
+{
+"Variable_name": "ssl_ca",
+"Value": "/etc/mysql/cert/ca.pem",
+},
+{
+"Variable_name": "ssl_capath",
+"Value": "",
+},
+{
+"Variable_name": "ssl_cert",
+"Value": "/etc/mysql/cert/server-cert.pem",
+},
+{
+"Variable_name": "ssl_cipher",
+"Value": "",
+},
+{
+"Variable_name": "ssl_crl",
+"Value": "",
+},
+{
+"Variable_name": "ssl_crlpath",
+"Value": "",
+},
+{
+"Variable_name": "ssl_key",
+"Value": "/etc/mysql/cert/server-key.pem",
+},
+]
+
+
+[NOTI] (sqlight.cpp:543) (DCMMC) sends query=CREATE TABLE tb_courses (course_id INT NOT NULL AUTO_INCREMENT, course_name CHAR(40) NOT NULL, course_grade FLOAT NOT NULL, course_info CHAR(100) NULL, PRIMARY KEY(course_id));
+ssl_tls.c:6822: |2| => write
+ssl_tls.c:2714: |2| => write record
+ssl_tls.c:1259: |2| => encrypt buf
+ssl_tls.c:1413: |3| before encrypt: msglen = 189, including 0 bytes of padding
+ssl_tls.c:1573: |2| <= encrypt buf
+ssl_tls.c:2849: |3| output record: msgtype = 23, version = [3:3], msglen = 205
+ssl_tls.c:2429: |2| => flush output
+ssl_tls.c:2448: |2| message length: 210, out_left: 210
+ssl_tls.c:2473: |2| <= flush output
+ssl_tls.c:2861: |2| <= write record
+ssl_tls.c:6850: |2| <= write
+[NOTI] (sqlight.cpp:551) (DCMMC) sends return=181
+[NOTI] (sqlight.cpp:587) (DCMMC) received data are empty or run out.
+ssl_tls.c:6481: |2| => read
+ssl_tls.c:3739: |2| => read record
+ssl_tls.c:2221: |2| => fetch input
+ssl_tls.c:2379: |2| in_left: 0, nb_want: 5
+ssl_tls.c:2403: |2| in_left: 0, nb_want: 5
+ssl_tls.c:2416: |2| <= fetch input
+ssl_tls.c:3495: |3| input record: msgtype = 23, version = [3:3], msglen = 35
+ssl_tls.c:2221: |2| => fetch input
+ssl_tls.c:2379: |2| in_left: 5, nb_want: 40
+ssl_tls.c:2403: |2| in_left: 5, nb_want: 40
+ssl_tls.c:2416: |2| <= fetch input
+ssl_tls.c:1589: |2| => decrypt buf
+ssl_tls.c:2064: |2| <= decrypt buf
+ssl_tls.c:3976: |2| <= read record
+ssl_tls.c:6721: |2| <= read
+[ LOG] (sqlight.hpp:323) mbedtls_ssl_read returns 11
+[NOTI] (sqlight.cpp:590) (DCMMC) tls ret(length)=11
+(DCMMC) Whole data received from tls
+0x0000:   07 00 00 01 00 00 00 02   00 00 00                   ...........     
+[NOTI] (sqlight.cpp:597) (DCMMC) new packet with no=7
+Current processing Packet
+0x0000:   07 00 00 01 00 00 00 02   00 00 00                   ...........     
+[DEBG] (sqlight.cpp:641) OK Packet (indicates non query sql commands we get just single success)
+[NOTI] (event_handler.cpp:134) (DCMMC) result of sql4:
+[
+{
+"Variable_name": "have_openssl",
+"Value": "YES",
+},
+{
+"Variable_name": "have_ssl",
+"Value": "YES",
+},
+{
+"Variable_name": "ssl_ca",
+"Value": "/etc/mysql/cert/ca.pem",
+},
+{
+"Variable_name": "ssl_capath",
+"Value": "",
+},
+{
+"Variable_name": "ssl_cert",
+"Value": "/etc/mysql/cert/server-cert.pem",
+},
+{
+"Variable_name": "ssl_cipher",
+"Value": "",
+},
+{
+"Variable_name": "ssl_crl",
+"Value": "",
+},
+{
+"Variable_name": "ssl_crlpath",
+"Value": "",
+},
+{
+"Variable_name": "ssl_key",
+"Value": "/etc/mysql/cert/server-key.pem",
+},
+]
+
+
+[NOTI] (sqlight.cpp:543) (DCMMC) sends query=SELECT * FROM tb_courses;
+ssl_tls.c:6822: |2| => write
+ssl_tls.c:2714: |2| => write record
+ssl_tls.c:1259: |2| => encrypt buf
+ssl_tls.c:1413: |3| before encrypt: msglen = 38, including 0 bytes of padding
+ssl_tls.c:1573: |2| <= encrypt buf
+ssl_tls.c:2849: |3| output record: msgtype = 23, version = [3:3], msglen = 54
+ssl_tls.c:2429: |2| => flush output
+ssl_tls.c:2448: |2| message length: 59, out_left: 59
+ssl_tls.c:2473: |2| <= flush output
+ssl_tls.c:2861: |2| <= write record
+ssl_tls.c:6850: |2| <= write
+[NOTI] (sqlight.cpp:551) (DCMMC) sends return=30
+[NOTI] (sqlight.cpp:587) (DCMMC) received data are empty or run out.
+ssl_tls.c:6481: |2| => read
+ssl_tls.c:3739: |2| => read record
+ssl_tls.c:2221: |2| => fetch input
+ssl_tls.c:2379: |2| in_left: 0, nb_want: 5
+ssl_tls.c:2403: |2| in_left: 0, nb_want: 5
+ssl_tls.c:2416: |2| <= fetch input
+ssl_tls.c:3495: |3| input record: msgtype = 23, version = [3:3], msglen = 345
+ssl_tls.c:2221: |2| => fetch input
+ssl_tls.c:2379: |2| in_left: 5, nb_want: 350
+ssl_tls.c:2403: |2| in_left: 5, nb_want: 350
+ssl_tls.c:2416: |2| <= fetch input
+ssl_tls.c:1589: |2| => decrypt buf
+ssl_tls.c:2064: |2| <= decrypt buf
+ssl_tls.c:3976: |2| <= read record
+ssl_tls.c:6721: |2| <= read
+[ LOG] (sqlight.hpp:323) mbedtls_ssl_read returns 321
+[NOTI] (sqlight.cpp:590) (DCMMC) tls ret(length)=321
+(DCMMC) Whole data received from tls
+0x0000:   01 00 00 01 04 43 00 00   02 03 64 65 66 07 74 65    .....C....def.te
+0x0010:   73 74 5F 64 62 0A 74 62   5F 63 6F 75 72 73 65 73    st_db.tb_courses
+0x0020:   0A 74 62 5F 63 6F 75 72   73 65 73 09 63 6F 75 72    .tb_courses.cour
+0x0030:   73 65 5F 69 64 09 63 6F   75 72 73 65 5F 69 64 0C    se_id.course_id.
+0x0040:   3F 00 0B 00 00 00 03 03   42 00 00 00 47 00 00 03    ?.......B...G...
+0x0050:   03 64 65 66 07 74 65 73   74 5F 64 62 0A 74 62 5F    .def.test_db.tb_
+0x0060:   63 6F 75 72 73 65 73 0A   74 62 5F 63 6F 75 72 73    courses.tb_cours
+0x0070:   65 73 0B 63 6F 75 72 73   65 5F 6E 61 6D 65 0B 63    es.course_name.c
+0x0080:   6F 75 72 73 65 5F 6E 61   6D 65 0C 08 00 28 00 00    ourse_name...(..
+0x0090:   00 FE 01 10 00 00 00 49   00 00 04 03 64 65 66 07    .......I....def.
+0x00A0:   74 65 73 74 5F 64 62 0A   74 62 5F 63 6F 75 72 73    test_db.tb_cours
+0x00B0:   65 73 0A 74 62 5F 63 6F   75 72 73 65 73 0C 63 6F    es.tb_courses.co
+0x00C0:   75 72 73 65 5F 67 72 61   64 65 0C 63 6F 75 72 73    urse_grade.cours
+0x00D0:   65 5F 67 72 61 64 65 0C   3F 00 0C 00 00 00 04 01    e_grade.?.......
+0x00E0:   10 1F 00 00 47 00 00 05   03 64 65 66 07 74 65 73    ....G....def.tes
+0x00F0:   74 5F 64 62 0A 74 62 5F   63 6F 75 72 73 65 73 0A    t_db.tb_courses.
+0x0100:   74 62 5F 63 6F 75 72 73   65 73 0B 63 6F 75 72 73    tb_courses.cours
+0x0110:   65 5F 69 6E 66 6F 0B 63   6F 75 72 73 65 5F 69 6E    e_info.course_in
+0x0120:   66 6F 0C 08 00 64 00 00   00 FE 00 00 00 00 00 05    fo...d..........
+0x0130:   00 00 06 FE 00 00 22 00   05 00 00 07 FE 00 00 22    ......"........"
+0x0140:   00                                                   .               
+[NOTI] (sqlight.cpp:597) (DCMMC) new packet with no=1
+Current processing Packet
+0x0000:   01 00 00 01 04                                       .....           
+[NOTI] (sqlight.cpp:659) (DCMMC) first thing: number of fields=4
+[NOTI] (sqlight.cpp:597) (DCMMC) new packet with no=67
+Current processing Packet
+0x0000:   43 00 00 02 03 64 65 66   07 74 65 73 74 5F 64 62    C....def.test_db
+0x0010:   0A 74 62 5F 63 6F 75 72   73 65 73 0A 74 62 5F 63    .tb_courses.tb_c
+0x0020:   6F 75 72 73 65 73 09 63   6F 75 72 73 65 5F 69 64    ourses.course_id
+0x0030:   09 63 6F 75 72 73 65 5F   69 64 0C 3F 00 0B 00 00    .course_id.?....
+0x0040:   00 03 03 42 00 00 00                                 ...B...         
+[NOTI] (sqlight.cpp:837) (DCMMC) name=course_id
+[NOTI] (sqlight.cpp:597) (DCMMC) new packet with no=71
+Current processing Packet
+0x0000:   47 00 00 03 03 64 65 66   07 74 65 73 74 5F 64 62    G....def.test_db
+0x0010:   0A 74 62 5F 63 6F 75 72   73 65 73 0A 74 62 5F 63    .tb_courses.tb_c
+0x0020:   6F 75 72 73 65 73 0B 63   6F 75 72 73 65 5F 6E 61    ourses.course_na
+0x0030:   6D 65 0B 63 6F 75 72 73   65 5F 6E 61 6D 65 0C 08    me.course_name..
+0x0040:   00 28 00 00 00 FE 01 10   00 00 00                   .(.........     
+[NOTI] (sqlight.cpp:837) (DCMMC) name=course_name
+[NOTI] (sqlight.cpp:597) (DCMMC) new packet with no=73
+Current processing Packet
+0x0000:   49 00 00 04 03 64 65 66   07 74 65 73 74 5F 64 62    I....def.test_db
+0x0010:   0A 74 62 5F 63 6F 75 72   73 65 73 0A 74 62 5F 63    .tb_courses.tb_c
+0x0020:   6F 75 72 73 65 73 0C 63   6F 75 72 73 65 5F 67 72    ourses.course_gr
+0x0030:   61 64 65 0C 63 6F 75 72   73 65 5F 67 72 61 64 65    ade.course_grade
+0x0040:   0C 3F 00 0C 00 00 00 04   01 10 1F 00 00             .?...........   
+[NOTI] (sqlight.cpp:837) (DCMMC) name=course_grade
+[NOTI] (sqlight.cpp:597) (DCMMC) new packet with no=71
+Current processing Packet
+0x0000:   47 00 00 05 03 64 65 66   07 74 65 73 74 5F 64 62    G....def.test_db
+0x0010:   0A 74 62 5F 63 6F 75 72   73 65 73 0A 74 62 5F 63    .tb_courses.tb_c
+0x0020:   6F 75 72 73 65 73 0B 63   6F 75 72 73 65 5F 69 6E    ourses.course_in
+0x0030:   66 6F 0B 63 6F 75 72 73   65 5F 69 6E 66 6F 0C 08    fo.course_info..
+0x0040:   00 64 00 00 00 FE 00 00   00 00 00                   .d.........     
+[NOTI] (sqlight.cpp:837) (DCMMC) name=course_info
+[NOTI] (sqlight.cpp:597) (DCMMC) new packet with no=5
+Current processing Packet
+0x0000:   05 00 00 06 FE 00 00 22   00                         .......".       
+[NOTI] (sqlight.cpp:678) (DCMMC) EOF Packet
+[NOTI] (sqlight.cpp:681) (DCMMC) status flags=34
+[NOTI] (sqlight.cpp:694) (DCMMC) EOF
+[NOTI] (sqlight.cpp:597) (DCMMC) new packet with no=5
+Current processing Packet
+0x0000:   05 00 00 07 FE 00 00 22   00                         .......".       
+[NOTI] (sqlight.cpp:678) (DCMMC) EOF Packet
+[NOTI] (sqlight.cpp:681) (DCMMC) status flags=34
+[NOTI] (sqlight.cpp:694) (DCMMC) EOF
+[NOTI] (event_handler.cpp:136) (DCMMC) result of sql5:
+[
+]
+
+
+[NOTI] (sqlight.cpp:543) (DCMMC) sends query=INSERT INTO tb_courses (course_id,course_name,course_grade,course_info) VALUES(1,'Network',3,'Computer Network');
+ssl_tls.c:6822: |2| => write
+ssl_tls.c:2714: |2| => write record
+ssl_tls.c:1259: |2| => encrypt buf
+ssl_tls.c:1413: |3| before encrypt: msglen = 126, including 0 bytes of padding
+ssl_tls.c:1573: |2| <= encrypt buf
+ssl_tls.c:2849: |3| output record: msgtype = 23, version = [3:3], msglen = 142
+ssl_tls.c:2429: |2| => flush output
+ssl_tls.c:2448: |2| message length: 147, out_left: 147
+ssl_tls.c:2473: |2| <= flush output
+ssl_tls.c:2861: |2| <= write record
+ssl_tls.c:6850: |2| <= write
+[NOTI] (sqlight.cpp:551) (DCMMC) sends return=118
+[NOTI] (sqlight.cpp:587) (DCMMC) received data are empty or run out.
+ssl_tls.c:6481: |2| => read
+ssl_tls.c:3739: |2| => read record
+ssl_tls.c:2221: |2| => fetch input
+ssl_tls.c:2379: |2| in_left: 0, nb_want: 5
+ssl_tls.c:2403: |2| in_left: 0, nb_want: 5
+ssl_tls.c:2416: |2| <= fetch input
+ssl_tls.c:3495: |3| input record: msgtype = 23, version = [3:3], msglen = 35
+ssl_tls.c:2221: |2| => fetch input
+ssl_tls.c:2379: |2| in_left: 5, nb_want: 40
+ssl_tls.c:2403: |2| in_left: 5, nb_want: 40
+ssl_tls.c:2416: |2| <= fetch input
+ssl_tls.c:1589: |2| => decrypt buf
+ssl_tls.c:2064: |2| <= decrypt buf
+ssl_tls.c:3976: |2| <= read record
+ssl_tls.c:6721: |2| <= read
+[ LOG] (sqlight.hpp:323) mbedtls_ssl_read returns 11
+[NOTI] (sqlight.cpp:590) (DCMMC) tls ret(length)=11
+(DCMMC) Whole data received from tls
+0x0000:   07 00 00 01 00 01 01 02   00 00 00                   ...........     
+[NOTI] (sqlight.cpp:597) (DCMMC) new packet with no=7
+Current processing Packet
+0x0000:   07 00 00 01 00 01 01 02   00 00 00                   ...........     
+[DEBG] (sqlight.cpp:641) OK Packet (indicates non query sql commands we get just single success)
+[NOTI] (event_handler.cpp:138) (DCMMC) result of sql6:
+[
+]
+
+
+[NOTI] (sqlight.cpp:543) (DCMMC) sends query=SELECT * FROM tb_courses;
+ssl_tls.c:6822: |2| => write
+ssl_tls.c:2714: |2| => write record
+ssl_tls.c:1259: |2| => encrypt buf
+ssl_tls.c:1413: |3| before encrypt: msglen = 38, including 0 bytes of padding
+ssl_tls.c:1573: |2| <= encrypt buf
+ssl_tls.c:2849: |3| output record: msgtype = 23, version = [3:3], msglen = 54
+ssl_tls.c:2429: |2| => flush output
+ssl_tls.c:2448: |2| message length: 59, out_left: 59
+ssl_tls.c:2473: |2| <= flush output
+ssl_tls.c:2861: |2| <= write record
+ssl_tls.c:6850: |2| <= write
+[NOTI] (sqlight.cpp:551) (DCMMC) sends return=30
+[NOTI] (sqlight.cpp:587) (DCMMC) received data are empty or run out.
+ssl_tls.c:6481: |2| => read
+ssl_tls.c:3739: |2| => read record
+ssl_tls.c:2221: |2| => fetch input
+ssl_tls.c:2379: |2| in_left: 0, nb_want: 5
+ssl_tls.c:2403: |2| in_left: 0, nb_want: 5
+ssl_tls.c:2416: |2| <= fetch input
+ssl_tls.c:3495: |3| input record: msgtype = 23, version = [3:3], msglen = 378
+ssl_tls.c:2221: |2| => fetch input
+ssl_tls.c:2379: |2| in_left: 5, nb_want: 383
+ssl_tls.c:2403: |2| in_left: 5, nb_want: 383
+ssl_tls.c:2416: |2| <= fetch input
+ssl_tls.c:1589: |2| => decrypt buf
+ssl_tls.c:2064: |2| <= decrypt buf
+ssl_tls.c:3976: |2| <= read record
+ssl_tls.c:6721: |2| <= read
+[ LOG] (sqlight.hpp:323) mbedtls_ssl_read returns 354
+[NOTI] (sqlight.cpp:590) (DCMMC) tls ret(length)=354
+(DCMMC) Whole data received from tls
+0x0000:   01 00 00 01 04 43 00 00   02 03 64 65 66 07 74 65    .....C....def.te
+0x0010:   73 74 5F 64 62 0A 74 62   5F 63 6F 75 72 73 65 73    st_db.tb_courses
+0x0020:   0A 74 62 5F 63 6F 75 72   73 65 73 09 63 6F 75 72    .tb_courses.cour
+0x0030:   73 65 5F 69 64 09 63 6F   75 72 73 65 5F 69 64 0C    se_id.course_id.
+0x0040:   3F 00 0B 00 00 00 03 03   42 00 00 00 47 00 00 03    ?.......B...G...
+0x0050:   03 64 65 66 07 74 65 73   74 5F 64 62 0A 74 62 5F    .def.test_db.tb_
+0x0060:   63 6F 75 72 73 65 73 0A   74 62 5F 63 6F 75 72 73    courses.tb_cours
+0x0070:   65 73 0B 63 6F 75 72 73   65 5F 6E 61 6D 65 0B 63    es.course_name.c
+0x0080:   6F 75 72 73 65 5F 6E 61   6D 65 0C 08 00 28 00 00    ourse_name...(..
+0x0090:   00 FE 01 10 00 00 00 49   00 00 04 03 64 65 66 07    .......I....def.
+0x00A0:   74 65 73 74 5F 64 62 0A   74 62 5F 63 6F 75 72 73    test_db.tb_cours
+0x00B0:   65 73 0A 74 62 5F 63 6F   75 72 73 65 73 0C 63 6F    es.tb_courses.co
+0x00C0:   75 72 73 65 5F 67 72 61   64 65 0C 63 6F 75 72 73    urse_grade.cours
+0x00D0:   65 5F 67 72 61 64 65 0C   3F 00 0C 00 00 00 04 01    e_grade.?.......
+0x00E0:   10 1F 00 00 47 00 00 05   03 64 65 66 07 74 65 73    ....G....def.tes
+0x00F0:   74 5F 64 62 0A 74 62 5F   63 6F 75 72 73 65 73 0A    t_db.tb_courses.
+0x0100:   74 62 5F 63 6F 75 72 73   65 73 0B 63 6F 75 72 73    tb_courses.cours
+0x0110:   65 5F 69 6E 66 6F 0B 63   6F 75 72 73 65 5F 69 6E    e_info.course_in
+0x0120:   66 6F 0C 08 00 64 00 00   00 FE 00 00 00 00 00 05    fo...d..........
+0x0130:   00 00 06 FE 00 00 22 00   1D 00 00 07 01 31 07 4E    ......"......1.N
+0x0140:   65 74 77 6F 72 6B 01 33   10 43 6F 6D 70 75 74 65    etwork.3.Compute
+0x0150:   72 20 4E 65 74 77 6F 72   6B 05 00 00 08 FE 00 00    r Network.......
+0x0160:   22 00                                                ".              
+[NOTI] (sqlight.cpp:597) (DCMMC) new packet with no=1
+Current processing Packet
+0x0000:   01 00 00 01 04                                       .....           
+[NOTI] (sqlight.cpp:659) (DCMMC) first thing: number of fields=4
+[NOTI] (sqlight.cpp:597) (DCMMC) new packet with no=67
+Current processing Packet
+0x0000:   43 00 00 02 03 64 65 66   07 74 65 73 74 5F 64 62    C....def.test_db
+0x0010:   0A 74 62 5F 63 6F 75 72   73 65 73 0A 74 62 5F 63    .tb_courses.tb_c
+0x0020:   6F 75 72 73 65 73 09 63   6F 75 72 73 65 5F 69 64    ourses.course_id
+0x0030:   09 63 6F 75 72 73 65 5F   69 64 0C 3F 00 0B 00 00    .course_id.?....
+0x0040:   00 03 03 42 00 00 00                                 ...B...         
+[NOTI] (sqlight.cpp:837) (DCMMC) name=course_id
+[NOTI] (sqlight.cpp:597) (DCMMC) new packet with no=71
+Current processing Packet
+0x0000:   47 00 00 03 03 64 65 66   07 74 65 73 74 5F 64 62    G....def.test_db
+0x0010:   0A 74 62 5F 63 6F 75 72   73 65 73 0A 74 62 5F 63    .tb_courses.tb_c
+0x0020:   6F 75 72 73 65 73 0B 63   6F 75 72 73 65 5F 6E 61    ourses.course_na
+0x0030:   6D 65 0B 63 6F 75 72 73   65 5F 6E 61 6D 65 0C 08    me.course_name..
+0x0040:   00 28 00 00 00 FE 01 10   00 00 00                   .(.........     
+[NOTI] (sqlight.cpp:837) (DCMMC) name=course_name
+[NOTI] (sqlight.cpp:597) (DCMMC) new packet with no=73
+Current processing Packet
+0x0000:   49 00 00 04 03 64 65 66   07 74 65 73 74 5F 64 62    I....def.test_db
+0x0010:   0A 74 62 5F 63 6F 75 72   73 65 73 0A 74 62 5F 63    .tb_courses.tb_c
+0x0020:   6F 75 72 73 65 73 0C 63   6F 75 72 73 65 5F 67 72    ourses.course_gr
+0x0030:   61 64 65 0C 63 6F 75 72   73 65 5F 67 72 61 64 65    ade.course_grade
+0x0040:   0C 3F 00 0C 00 00 00 04   01 10 1F 00 00             .?...........   
+[NOTI] (sqlight.cpp:837) (DCMMC) name=course_grade
+[NOTI] (sqlight.cpp:597) (DCMMC) new packet with no=71
+Current processing Packet
+0x0000:   47 00 00 05 03 64 65 66   07 74 65 73 74 5F 64 62    G....def.test_db
+0x0010:   0A 74 62 5F 63 6F 75 72   73 65 73 0A 74 62 5F 63    .tb_courses.tb_c
+0x0020:   6F 75 72 73 65 73 0B 63   6F 75 72 73 65 5F 69 6E    ourses.course_in
+0x0030:   66 6F 0B 63 6F 75 72 73   65 5F 69 6E 66 6F 0C 08    fo.course_info..
+0x0040:   00 64 00 00 00 FE 00 00   00 00 00                   .d.........     
+[NOTI] (sqlight.cpp:837) (DCMMC) name=course_info
+[NOTI] (sqlight.cpp:597) (DCMMC) new packet with no=5
+Current processing Packet
+0x0000:   05 00 00 06 FE 00 00 22   00                         .......".       
+[NOTI] (sqlight.cpp:678) (DCMMC) EOF Packet
+[NOTI] (sqlight.cpp:681) (DCMMC) status flags=34
+[NOTI] (sqlight.cpp:694) (DCMMC) EOF
+[NOTI] (sqlight.cpp:597) (DCMMC) new packet with no=29
+Current processing Packet
+0x0000:   1D 00 00 07 01 31 07 4E   65 74 77 6F 72 6B 01 33    .....1.Network.3
+0x0010:   10 43 6F 6D 70 75 74 65   72 20 4E 65 74 77 6F 72    .Computer Networ
+0x0020:   6B                                                   k               
+[NOTI] (sqlight.cpp:727) (DCMMC) lenenc=1, type=0
+[NOTI] (sqlight.cpp:762) (DCMMC) ResultsetRow=1
+[NOTI] (sqlight.cpp:727) (DCMMC) lenenc=7, type=0
+[NOTI] (sqlight.cpp:762) (DCMMC) ResultsetRow=Network
+[NOTI] (sqlight.cpp:727) (DCMMC) lenenc=1, type=0
+[NOTI] (sqlight.cpp:762) (DCMMC) ResultsetRow=3
+[NOTI] (sqlight.cpp:727) (DCMMC) lenenc=16, type=0
+[NOTI] (sqlight.cpp:762) (DCMMC) ResultsetRow=Computer Network
+[NOTI] (sqlight.cpp:597) (DCMMC) new packet with no=5
+Current processing Packet
+0x0000:   05 00 00 08 FE 00 00 22   00                         .......".       
+[NOTI] (sqlight.cpp:678) (DCMMC) EOF Packet
+[NOTI] (sqlight.cpp:681) (DCMMC) status flags=34
+[NOTI] (sqlight.cpp:694) (DCMMC) EOF
+[NOTI] (event_handler.cpp:140) (DCMMC) result of sql7:
+[
+{
+"course_id": "1",
+"course_name": "Network",
+"course_grade": "3",
+"course_info": "Computer Network",
+},
+]
+
+
+2021-01-08 19:23:38,177 [tc.cpp:148] INFO  - (DCMMC) ecall succeeds
+2021-01-08 19:23:38,177 [tc.cpp:156] INFO  - RPC server started at 8123

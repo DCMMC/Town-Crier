@@ -108,10 +108,10 @@ enum : unsigned char {
        void disconnect();
        // bool is_connected();
 
-       typedef void (*callback3) (void *userdata, int w, int h, const char **map );
+       typedef void (*callback3) (std::string &userdata, int w, int h, const char **map );
 
        bool test( const std::string &query );
-       bool exec( const std::string &query, sq::light::callback3 cb, void *userdata = (void*)0 );
+       bool exec( const std::string &query, sq::light::callback3 cb, std::string &userdata );
 
        std::string json( const std::string &query );
        bool json( const std::string &query, std::string &result );
