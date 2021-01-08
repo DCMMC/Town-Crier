@@ -581,7 +581,7 @@ bool sq::light::recvs( void *userdata, void* onvalue, void* onfield, void *onsep
             // (DCMMC) receive 1MB at most
             // (TODO) may lead to error when data >= 1MB!
             i = recv_tls(buf_ptr, 1 << 20);
-            no = *((char *)buf_ptr);
+            no = *((int *)buf_ptr);
             buf_ptr += 4;
             no &= 0xffffff;
             LL_INFO("(DCMMC) recv with no=%d", no);
@@ -629,7 +629,7 @@ bool sq::light::recvs( void *userdata, void* onvalue, void* onfield, void *onsep
 
         // 1. first thing we receive is number of fields
         // OK packet
-        if(!fields && header == 0x00 && no > 7) {
+        if(!fields && header == 0x00) {
             // afftected_rows, int<lenenc>
             // https://dev.mysql.com/doc/internals/en/integer.html#packet-Protocol::LengthEncodedInteger
             fields = (int)(*(((byte *) buf_ptr) + 1));
