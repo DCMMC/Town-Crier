@@ -85,8 +85,11 @@ void mbedtls_debug_print_msg( const mbedtls_ssl_context *ssl, int level,
     char str[DEBUG_BUF_SIZE];
     int ret;
 
-    if( ssl->conf == NULL || ssl->conf->f_dbg == NULL || level > debug_threshold )
+    // (DCMMC) toggle all debug info, please uncomment me after debug done.
+    if( ssl->conf == NULL || ssl->conf->f_dbg == NULL )
         return;
+    // if( ssl->conf == NULL || ssl->conf->f_dbg == NULL || level > debug_threshold )
+    //     return;
 
     va_start( argp, format );
 #if defined(_WIN32)

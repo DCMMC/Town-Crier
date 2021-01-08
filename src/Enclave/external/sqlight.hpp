@@ -42,7 +42,7 @@ namespace sq
             CLIENT_IGNORE_SPACE = 256,          /* Ignore spaces before '(' */
             CLIENT_PROTOCOL_41 = 512,           /* New 4.1 protocol */
             CLIENT_INTERACTIVE = 1024,          /* This is an interactive client */
-            CLIENT_SSL = 2048,                  /* Switch to SSL after handshake */
+            CLIENT_SSL = 0x0800,                  /* Switch to SSL after handshake */
             CLIENT_IGNORE_SIGPIPE = 4096,       /* IGNORE sigpipes */
             CLIENT_TRANSACTIONS = 8192,         /* Client knows about transactions */
             CLIENT_RESERVED = 16384,            /* Old flag for 4.1 protocol */
@@ -104,6 +104,9 @@ namespace sq
 
         void init_tls()
         {
+            LL_INFO("(DCMMC) begin init_tls");
+            // (DCMMC) debug mbedtls
+            mbedtls_debug_set_threshold(0);
             mbedtls_net_init(&server_fd);
             mbedtls_ssl_init(&ssl);
             mbedtls_ssl_config_init(&conf);
@@ -140,6 +143,7 @@ namespace sq
                 throw std::runtime_error("mbedtls_x509_crt_parse failed");
             }
 #endif /* MBEDTLS_X509_CRT_PARSE_C */
+            LL_INFO("(DCMMC) finish init_tls");
         }
 
         void connect_tls(std::string &host, unsigned port) {
@@ -208,8 +212,6 @@ namespace sq
    */
   LL_TRACE("Performing the SSL/TLS handshake");
 
-  // (DCMMC) temporary exempt for localhost certificate
-  bool exempt_localhost = false;
   while ((ret = mbedtls_ssl_handshake(&ssl)) != 0) {
     if (ret != MBEDTLS_ERR_SSL_WANT_READ && ret != MBEDTLS_ERR_SSL_WANT_WRITE) {
 
@@ -225,11 +227,6 @@ namespace sq
         } else {
           LL_CRITICAL("mbedtls_ssl_get_peer_cert returns NULL");
         }
-        if (host == "localhost" || host == "127.0.0.1")
-        {
-            LL_INFO("exempt certificate error for localhost");
-            exempt_localhost = true;
-        }
       } else {
         LL_TRACE("X.509 Verifies");
       }
@@ -238,14 +235,26 @@ namespace sq
         LL_CRITICAL("Unable to verify the server's certificate.");
       }
 
-      if (exempt_localhost)
-          exempt_localhost = false;
+      // (DCMMC) debug only!!!
+    if (1)
+    {
+        ret = -ret;
+        // error code reference: mbedtls/ssh.h
+        LL_CRITICAL("(DCMMC) mbedtls_ssl_handshake failed, ret=0x%02x%02x",
+                ret >> 8, ret & 0xff);
+        LL_INFO("exempt handshake error for localhost");
+        break;
+    }
       else
+      {
+        LL_CRITICAL("(DCMMC) mbedtls_ssl_handshake failed.");
           throw std::runtime_error("mbedtls_ssl_handshake failed.");
+      }
     }
   }
 
-  LL_TRACE("Hand shake succeeds: [%s, %s]", mbedtls_ssl_get_version(&ssl), mbedtls_ssl_get_ciphersuite(&ssl));
+  LL_TRACE("Hand shake succeeds: ");
+  LL_TRACE("[%s, %s]", mbedtls_ssl_get_version(&ssl), mbedtls_ssl_get_ciphersuite(&ssl));
 
   if ((ret = mbedtls_ssl_get_record_expansion(&ssl)) >= 0) {
     LL_TRACE("Record expansion is [%d]", ret);

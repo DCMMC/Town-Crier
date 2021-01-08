@@ -71,6 +71,8 @@
 #include "App/logging.h"
 #include "Common/Constants.h"
 
+#include <sgx_eid.h>
+
 namespace po = boost::program_options;
 namespace fs = boost::filesystem;
 
@@ -132,6 +134,19 @@ int main(int argc, const char *argv[]) {
     LL_CRITICAL("%s", e.what());
     exit(-1);
   }
+
+    // (DCMMC) debug mysql
+    LL_INFO("(DCMMC) debug mysql");
+    int ecall_ret;
+    auto st = debug_mysql(eid, &ecall_ret, "127.0.0.1",
+            3306, "root", "97294597");
+
+    if (st != SGX_SUCCESS || ecall_ret != TC_SUCCESS) {
+      LL_INFO("(DCMMC) ecall failed");
+    } else {
+      LL_INFO("(DCMMC) ecall succeeds");
+    }
+
 
   jsonrpc::HttpServer status_server_connector(config.getRelayRPCAccessPoint(), "", "", 3);
   tc::status_rpc_server stat_srvr(status_server_connector, eid);

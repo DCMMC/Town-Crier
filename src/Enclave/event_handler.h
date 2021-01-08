@@ -62,6 +62,9 @@ extern "C" {
 #endif
 
 
+// (DCMMC) debug mysql
+int debug_mysql(const char *host, unsigned int port,
+        const char *user, const char *pass);
 
 int handle_request(int nonce,
                    uint64_t id,

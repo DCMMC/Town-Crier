@@ -8,6 +8,8 @@ enclave {
     include "sgx_tseal.h"
 
     trusted {
+        public int debug_mysql([user_check] const char *host, unsigned int port,
+                               [user_check] const char *user, [user_check] const char *pass);
         public int handle_request(
                    int nonce,
                    uint64_t id, uint64_t type,

@@ -20,6 +20,7 @@
 
 // (DCMMC debug)
 #include "../log.h"
+#include "../debug.h"
 
 #   define INIT()                    {}
 #   define $welse(...) __VA_ARGS__
@@ -429,21 +430,16 @@ bool sq::light::open()
 
         std::vector<unsigned char> hash;
 
-        {
-            // salt: data start from auth-plugin-data-part-1
-            byte *salt = (byte*)b+strlen(b+5)+10;
-            memcpy(salt+8,salt+27,13);
-            hash = get_mysql_hash( pass, salt );
-        }
         // (lower 2 bytes)
         int capability_flag_1 = 0;
         capability_flag_1 += (int)(*((byte *)b + strlen(b + 5) + 19));
         capability_flag_1 += ((int)(*((byte *)b + strlen(b + 5) + 20))) << 8;
+        LL_INFO("(DCMMC) MySQL capability flag of server: 0x%x%x",
+                capability_flag_1 >> 8, capability_flag_1 & 0xff);
+        hexdump("HandshakeV10", b, 48);
 
         // Construct client auth response
         // [ref] http://forge.mysql.com/wiki/MySQL_Internals_ClientServer_Protocol#Client_Authentication_Packet
-
-        d = b + 4;
 
         // int<4> capability_flags
         int capability_flags =
@@ -458,7 +454,6 @@ bool sq::light::open()
             LL_INFO("MySQL server supports SSL, client will send SSL Request Packet.");
             init_tls();
             use_tls = true;
-            connect_tls(host, port);
             // [ref] https://dev.mysql.com/doc/internals/en/connection-phase-packets.html#packet-Protocol::SSLRequest
             capability_flags |= CLIENT_SSL;
             char ssl_req[36] = {0};
@@ -473,10 +468,20 @@ bool sq::light::open()
             *(int *) (ssl_req + 12) = 8;
             // 23 bytes reserved (all [0])
             ocall_send((ssize_t *)&ret, s, ssl_req, 36, 0);
+            LL_INFO("(DCMMC) SSL request packet sent.");
+            connect_tls(host, port);
         }
         else
         {
             LL_CRITICAL("MySQL server does not support SSL!");
+        }
+
+        d = b + 4;
+        {
+            // salt: data start from auth-plugin-data-part-1
+            byte *salt = (byte*)b+strlen(b+5)+10;
+            memcpy(salt+8,salt+27,13);
+            hash = get_mysql_hash( pass, salt );
         }
         *(int*)d = capability_flags;
         d+=4;
@@ -501,22 +506,26 @@ bool sq::light::open()
         // 4 bytes header of MySQL Packet
         // [ref] https://dev.mysql.com/doc/internals/en/mysql-packet.html
         // sequence id: 2
-        *(int*)b = d-b-4 | 2<<24;                // calc final packet size and id
+        *(int*)b = d-b-4 | (use_tls ? 2 : 1) << 24;                // calc final packet size and id
 
         if (use_tls)
             ret = send_tls(b, d - b);
         else
             ocall_send((ssize_t *)&ret, s, b, d - b, 0);
+        LL_INFO("(DCMMC) client response sent.");
 
         if (use_tls)
             ret = recv_tls((char *) &no, 4);
         else
             ocall_recv((ssize_t *)&ret, s, (char *) &no, 4, 0);
         no &= (1<<24)-1;   // in case of login failure server sends us an error text
+        LL_INFO("(DCMMC) receive no = %d", no);
         if (use_tls)
             ret = recv_tls(b, no);
         else
             ocall_recv((ssize_t *)&i, s, b, no, 0);
+        hexdump("HandshakeResponse41", b, 48);
+
         if (i == -1 || *b)
             return fail(i==-1?"Timeout":b+3,"Login Failed");
     }

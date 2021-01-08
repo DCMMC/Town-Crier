@@ -95,6 +95,29 @@ int debug_sgx(const char *fmt, ...)
     ocall_print_string(&ret, buf);
     return ret;
 }
+
+int debug_mysql(const char *host, unsigned int port,
+        const char *user, const char *pass)
+{
+  // (DCMMC) test sqlight
+  LL_DEBUG("DCMMC: test sqlight");
+  sq::light sql;
+  // if (!sql.connect("172.17.0.1", 3306, "root", "97294597"))
+  if (!sql.connect(host, port, user, pass))
+      LL_DEBUG("DCMMC: connection to database failed");
+  else
+  {
+      std::string input = "show databases;";
+      std::string result;
+      bool ret = sql.json(input, result);
+      if (ret)
+        LL_DEBUG("DCMMC: sqlight return=%s", result.c_str());
+      else
+        LL_DEBUG("DCMMC: sqlight exec failed.");
+  }
+  return ret == false ? 0 : -1;
+}
+
 /*
  * testing data
  *
@@ -114,21 +137,6 @@ int handle_request(int nonce,
                    size_t data_len,
                    uint8_t *raw_tx,
                    size_t *raw_tx_len) {
-  // (DCMMC) test sqlight
-  LL_DEBUG("DCMMC: test sqlight");
-  sq::light sql;
-  if (!sql.connect("219.223.185.227", 3306, "root", "97294597"))
-      LL_DEBUG("DCMMC: connection to database failed");
-  else
-  {
-      std::string input = "show databases;";
-      std::string result;
-      bool ret = sql.json(input, result);
-      if (ret)
-        LL_DEBUG("DCMMC: sqlight return=%s", result.c_str());
-      else
-        LL_DEBUG("DCMMC: sqlight exec failed.");
-  }
   int ret = 0;
   try {
     string tc_address = getContractAddress();
