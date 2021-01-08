@@ -27,6 +27,20 @@
 
 namespace sq
 {
+    static void my_debug(void *ctx, int level,
+                         const char *file, int line,
+                         const char *str) {
+      const char *p, *basename;
+      (void) (ctx);
+
+      /* Extract basename from file */
+      for (p = basename = file; *p != '\0'; p++)
+        if (*p == '/' || *p == '\\')
+          basename = p + 1;
+
+      mbedtls_printf("%s:%04d: |%d| %s", basename, line, level, str);
+    }
+
     class light
     {
     public:
@@ -182,6 +196,7 @@ namespace sq
 #endif
 
   mbedtls_ssl_conf_rng(&conf, mbedtls_ctr_drbg_random, &ctr_drbg);
+  mbedtls_ssl_conf_dbg(&conf, sq::my_debug, NULL);
 
   mbedtls_ssl_conf_read_timeout(&conf, 0);
   mbedtls_ssl_conf_ca_chain(&conf, &cacert, NULL);
