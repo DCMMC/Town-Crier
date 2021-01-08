@@ -18,6 +18,12 @@ docker run -d --name mysql --rm -e MYSQL_ROOT_PASSWORD=97294597 -v `pwd`/private
 
 SSL 密钥文件可以由 mysql 容器中的 `mysql_ssl_rsa_setup --datadir mysql_keys` 生成
 
+test mysql over ssl in sgx:
+
+```bash
+cmake -DCMAKE_INSTALL_PREFIX=/tc /code && make -j && make install && /tc/bin/tc-keygen --enclave /tc/enclave/enclave.debug.so --keygen /tmp/key.txt && source /opt/intel/sgxsdk/environment && /tc/bin/tc --debug_mysql -c /code/privatenet/config-privatenet-sim | tee /tmp/debug.txt
+```
+
 ## Build and run instructions
 
 ```
