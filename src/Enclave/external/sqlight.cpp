@@ -566,7 +566,8 @@ bool sq::light::recvs( void *userdata, void* onvalue, void* onfield, void *onsep
     char *buf_ptr = b;
     byte typ[1000] = {0};
     int fields=0, field=0, value=0, row=0, exit=0;
-
+    // (DCMMC) 接收到的网络数据大小
+    size_t received_size = 0;
 
     // (DCMMC) TODO deprecated
     // char &b0 = b[0];
@@ -580,15 +581,25 @@ bool sq::light::recvs( void *userdata, void* onvalue, void* onfield, void *onsep
         {
             // (DCMMC) receive 1MB at most
             // (TODO) may lead to error when data >= 1MB!
-            i = recv_tls(buf_ptr, 1 << 20);
+            // (DCMMC) TLS 会一次性把这些小包全部合在一起成一个包，不过依然会出现
+            // 需要复杂的 fragment 的时候，现在暂不考虑...
+            if (buf_ptr - b >= received_size) {
+                LL_INFO("(DCMMC) received data are empty or run out.");
+                buf_ptr = b;
+                i = recv_tls(buf_ptr, 1 << 20);
+                LL_INFO("(DCMMC) tls ret(length)=%d", i);
+                received_size = i;
+            }
             no = *((int *)buf_ptr);
             buf_ptr += 4;
             no &= 0xffffff;
-            LL_INFO("(DCMMC) recv with no=%d", no);
+            LL_INFO("(DCMMC) new packet with no=%d", no);
+            hexdump("Packet", buf_ptr - 4, no + 4);
         }
         else
         {
-            i= recvfixed(s, (char*)&no, 4, 0);
+            buf_ptr = b;
+            i = recvfixed(s, (char*)&no, 4, 0);
             // i=RECV(s,(char*)&no,4,0);
             // This is a bug. server sometimes don't send those 4 bytes together. will fix it (recvfixed fix the bug)
             // this also helps to skip packet sequence number: http://mysql.timesoft.cc/doc/internals/en/the-packet-header.html
@@ -603,9 +614,9 @@ bool sq::light::recvs( void *userdata, void* onvalue, void* onfield, void *onsep
             while (rc < no)
             {
                 if (use_tls)
-                    i = recv_tls(buf_ptr + rc, no - rc);
+                    i = recv_tls(b + rc, no - rc);
                 else
-                    ocall_recv((ssize_t *)&i, s, buf_ptr + rc, no - rc, 0);
+                    ocall_recv((ssize_t *)&i, s, b + rc, no - rc, 0);
                 if (i > 0)
                     rc += i;
                 else
@@ -620,19 +631,22 @@ bool sq::light::recvs( void *userdata, void* onvalue, void* onfield, void *onsep
         byte header = *(byte *) buf_ptr;
         // ERR_Packet
         // https://dev.mysql.com/doc/internals/en/packet-ERR_Packet.html
-        if(header == 0xff && !exit) {
+        if (header == 0xff && !exit) {
             int error_code = (int)(*(((byte *)buf_ptr) + 1));
             error_code += ((int)(*(((byte *)buf_ptr) + 2))) << 8;
             int offset = capability_flags & CLIENT_PROTOCOL_41 ? 3 : 9;
             return fail(buf_ptr + offset, ("error_code=" + std::to_string(error_code)).c_str());
         } // failure: show server error text
 
+        if (header == 0x00 && !exit)
+        {
+            LL_DEBUG("OK Packet (indicates non query sql commands we get just single success)");
+            break;
+        }
+
         // 1. first thing we receive is number of fields
-        // OK packet
-        if(!fields && header == 0x00) {
-            // afftected_rows, int<lenenc>
-            // https://dev.mysql.com/doc/internals/en/integer.html#packet-Protocol::LengthEncodedInteger
-            fields = (int)(*(((byte *) buf_ptr) + 1));
+        if(!fields) {
+            fields = header;
             if (fields == 0xfc) {
                 fields = (int)(*(((byte *) buf_ptr) + 2));
                 fields += (int)(*(((byte *) buf_ptr) + 3)) << 8;
@@ -644,16 +658,16 @@ bool sq::light::recvs( void *userdata, void* onvalue, void* onfield, void *onsep
                 // (DCMMC) TODO
             }
             field = fields;
-            // memcpy(&fields,b,no); field=fields; continue;
             LL_INFO("(DCMMC) first thing: number of fields=%d", fields);
+
+            // https://dev.mysql.com/doc/internals/en/integer.html#packet-Protocol::LengthEncodedInteger
             if (fields == 0) {
-                LL_INFO("(DCMMC) OK packet with no fields");
                 break;
             }
             else {
                 continue;
             }
-        } // OK Packet
+        } // field_count
 
         // 3. 5. after receiving last field info or row we get this EOF marker or more results exist
         // OK_Packet with EOF
@@ -681,8 +695,82 @@ bool sq::light::recvs( void *userdata, void* onvalue, void* onfield, void *onsep
         }
 
 
+        // 4. after receiving all field infos we receive row field values. One row per Receive/Packet
+        while( value ) {
+            *txt = 0;
+            i = fields - value;
+            size_t len = 1;
+            byte g = *(byte *) buf_ptr;
+
+            // ~net_field_length() @ libmysql.c {
+            // int<lenenc>
+            switch (g) {
+                case 0:
+                case 251: g=0;      break; // NULL_LENGTH
+                default:
+                case   1: g=1;      break;
+                case 252: g=2, ++buf_ptr; break;
+                case 253: g=3, ++buf_ptr; break;
+                case 254: g=8, ++buf_ptr; break;
+            }
+            // @todo: beware little/big endianess here!
+            memcpy(&len, buf_ptr, g);
+            buf_ptr += g;
+            //}
+
+            auto &type = typ[i];
+            switch( type )
+            {
+                case FIELD_TYPE_BIT:
+                case FIELD_TYPE_BLOB:
+                case FIELD_TYPE_DATE:
+                case FIELD_TYPE_DATETIME:
+                case FIELD_TYPE_DECIMAL:
+                case FIELD_TYPE_DOUBLE:
+                case FIELD_TYPE_ENUM:
+                case FIELD_TYPE_FLOAT:
+                case FIELD_TYPE_GEOMETRY:
+                case FIELD_TYPE_INT24:
+                case FIELD_TYPE_LONG:
+                case FIELD_TYPE_LONG_BLOB:
+                case FIELD_TYPE_LONGLONG:
+                case FIELD_TYPE_MEDIUM_BLOB:
+                case FIELD_TYPE_NEW_DECIMAL:
+                case FIELD_TYPE_NEWDATE:
+                case FIELD_TYPE_NULL:
+                case FIELD_TYPE_SET:
+                case FIELD_TYPE_SHORT:
+                case FIELD_TYPE_STRING:
+                case FIELD_TYPE_TIME:
+                case FIELD_TYPE_TIMESTAMP:
+                case FIELD_TYPE_TINY:
+                case FIELD_TYPE_TINY_BLOB:
+                case FIELD_TYPE_VAR_STRING:
+                case FIELD_TYPE_VARCHAR:
+                case FIELD_TYPE_YEAR:
+                default: {
+                     // @todo: beware little/big endianess here!
+                     if (g)
+                         memcpy(txt, buf_ptr, len);
+                     txt[len] = 0;
+                     typedef long (*TOnValue)(void *,char*,int,int,int);
+                     if (onvalue)
+                         ret = ((TOnValue)onvalue)(userdata,txt,row,i,type);
+                     break;
+                 }
+            }
+
+            buf_ptr += len;
+            if(!--value) {
+                row++;
+                value = fields;
+                break;
+            }
+        }
+
         // 2. Second info we get are field infos like name type etc. One field per Receive/Packet
-        if( field  ) {
+        // ColumnDefinition41
+        if( field ) {
             i = fields - field;
             char *cat = buf_ptr;
             buf_ptr += 1 + *buf_ptr;
@@ -737,7 +825,6 @@ bool sq::light::recvs( void *userdata, void* onvalue, void* onfield, void *onsep
 
             if(!--field)
                 value = fields;
-            buf_ptr = b + 4;
             length = std::max(length * 3, 60L);
             length = std::min(length, 200L);
             typedef long (*TOnField)(void *,char*,int,int,int);
@@ -746,79 +833,6 @@ bool sq::light::recvs( void *userdata, void* onvalue, void* onfield, void *onsep
         }
     }
 
-    // 4. after receiving all field infos we receive row field values. One row per Receive/Packet
-    while( value ) {
-        *txt = 0;
-        i = fields - value;
-        size_t len = 1;
-        byte g = *(byte *) buf_ptr;
-
-        // ~net_field_length() @ libmysql.c {
-        // int<lenenc>
-        switch (g) {
-            case 0:
-            case 251: g=0;      break; // NULL_LENGTH
-            default:
-            case   1: g=1;      break;
-            case 252: g=2, ++buf_ptr; break;
-            case 253: g=3, ++buf_ptr; break;
-            case 254: g=8, ++buf_ptr; break;
-        }
-        // @todo: beware little/big endianess here!
-        memcpy(&len, buf_ptr, g);
-        buf_ptr += g;
-        //}
-
-        auto &type = typ[i];
-        switch( type )
-        {
-            case FIELD_TYPE_BIT:
-            case FIELD_TYPE_BLOB:
-            case FIELD_TYPE_DATE:
-            case FIELD_TYPE_DATETIME:
-            case FIELD_TYPE_DECIMAL:
-            case FIELD_TYPE_DOUBLE:
-            case FIELD_TYPE_ENUM:
-            case FIELD_TYPE_FLOAT:
-            case FIELD_TYPE_GEOMETRY:
-            case FIELD_TYPE_INT24:
-            case FIELD_TYPE_LONG:
-            case FIELD_TYPE_LONG_BLOB:
-            case FIELD_TYPE_LONGLONG:
-            case FIELD_TYPE_MEDIUM_BLOB:
-            case FIELD_TYPE_NEW_DECIMAL:
-            case FIELD_TYPE_NEWDATE:
-            case FIELD_TYPE_NULL:
-            case FIELD_TYPE_SET:
-            case FIELD_TYPE_SHORT:
-            case FIELD_TYPE_STRING:
-            case FIELD_TYPE_TIME:
-            case FIELD_TYPE_TIMESTAMP:
-            case FIELD_TYPE_TINY:
-            case FIELD_TYPE_TINY_BLOB:
-            case FIELD_TYPE_VAR_STRING:
-            case FIELD_TYPE_VARCHAR:
-            case FIELD_TYPE_YEAR:
-            default: {
-                         // @todo: beware little/big endianess here!
-                         if (g)
-                             memcpy(txt, buf_ptr, len);
-                         txt[len] = 0;
-                         typedef long (*TOnValue)(void *,char*,int,int,int);
-                         if (onvalue)
-                             ret = ((TOnValue)onvalue)(userdata,txt,row,i,type);
-                         break;
-                     }
-        }
-
-        buf_ptr += len;
-        if(!--value) {
-            row++;
-            value = fields;
-            buf_ptr = b + 4;
-            break;
-        }
-    }
     return true;
 }
 

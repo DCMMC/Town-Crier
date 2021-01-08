@@ -310,32 +310,42 @@ namespace sq
         }
 
         int recv_tls(char *buffer, size_t length) {
-            int ret = 0;
-            /*
-            return the number of bytes read, or 0 for EOF, or
-            MBEDTLS_ERR_SSL_WANT_READ or MBEDTLS_ERR_SSL_WANT_WRITE, or
-            MBEDTLS_ERR_SSL_CLIENT_RECONNECT (see below), or another negative
-            error code.
-            */
-            ret = mbedtls_ssl_read(&ssl, (unsigned char *) buffer, length);
+            int received = 0;
+            while (true) {
+                /*
+                return the number of bytes read, or 0 for EOF, or
+                MBEDTLS_ERR_SSL_WANT_READ or MBEDTLS_ERR_SSL_WANT_WRITE, or
+                MBEDTLS_ERR_SSL_CLIENT_RECONNECT (see below), or another negative
+                error code.
+                */
+                int cur_ret = mbedtls_ssl_read(&ssl, (unsigned char *) buffer + received, length - received);
 
-            LL_TRACE("mbedtls_ssl_read returns %d", ret);
+                LL_TRACE("mbedtls_ssl_read returns %d", cur_ret);
 
-            // if (ret == MBEDTLS_ERR_SSL_WANT_READ ||
-            //     ret == MBEDTLS_ERR_SSL_WANT_WRITE)
-            //   continue;
+                if (cur_ret == MBEDTLS_ERR_SSL_WANT_READ ||
+                    cur_ret == MBEDTLS_ERR_SSL_WANT_WRITE)
+                  continue;
 
-            if (ret < 0) {
-              switch (ret) {
-                case MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY:LL_CRITICAL(" connection was closed gracefully");
-                  throw std::runtime_error("connection was closed gracefully");
-                case MBEDTLS_ERR_NET_CONN_RESET:LL_CRITICAL(" connection was reset by peer");
-                  throw std::runtime_error("connected reset");
-                default:LL_CRITICAL(" mbedtls_ssl_read returned -0x%x", -ret);
-                  throw std::runtime_error("mbedtls_ssl_read returned non-sense");
-              }
+                if (cur_ret < 0) {
+                  switch (cur_ret) {
+                    case MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY:LL_CRITICAL(" connection was closed gracefully");
+                      throw std::runtime_error("connection was closed gracefully");
+                    case MBEDTLS_ERR_NET_CONN_RESET:LL_CRITICAL(" connection was reset by peer");
+                      throw std::runtime_error("connected reset");
+                    default:LL_CRITICAL(" mbedtls_ssl_read returned -0x%x", -cur_ret);
+                      throw std::runtime_error("mbedtls_ssl_read returned non-sense");
+                  }
+                }
+                else {
+                    if (cur_ret == 0)
+                        break;
+                    received += cur_ret;
+                }
+            } // while (true)
+            if (received == length) {
+                LL_CRITICAL("(DCMMC) receiving buffer (%zu bytes) is not big enough", length);
             }
-            return ret;
+            return received;
         }
 
     protected:
