@@ -624,7 +624,7 @@ bool sq::light::recvs( void *userdata, void* onvalue, void* onfield, void *onsep
             int error_code = (int)(*(((byte *)buf_ptr) + 1));
             error_code += ((int)(*(((byte *)buf_ptr) + 2))) << 8;
             int offset = capability_flags & CLIENT_PROTOCOL_41 ? 3 : 9;
-            return fail(buf_ptr + offset, "error_code=" + std::to_string(error_code));
+            return fail(buf_ptr + offset, ("error_code=" + std::to_string(error_code)).c_str());
         } // failure: show server error text
 
         // 1. first thing we receive is number of fields
@@ -634,8 +634,8 @@ bool sq::light::recvs( void *userdata, void* onvalue, void* onfield, void *onsep
             // https://dev.mysql.com/doc/internals/en/integer.html#packet-Protocol::LengthEncodedInteger
             fields = (int)(*(((byte *) buf_ptr) + 1));
             if (fields == 0xfc) {
-                fields = (int)(((byte *) buf_ptr) + 2);
-                fields += (int)(((byte *) buf_ptr) + 3) << 8;
+                fields = (int)(*(((byte *) buf_ptr) + 2));
+                fields += (int)(*(((byte *) buf_ptr) + 3)) << 8;
             }
             else if (fields == 0xfd) {
                 // (DCMMC) TODO
