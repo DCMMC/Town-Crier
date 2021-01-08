@@ -415,10 +415,12 @@ bool sq::light::open()
 {
     if(!s) {
 
-        int ret = 0;
-        ocall_connect(&ret, &s, port, const_cast<char*>(host.c_str()));
-        if (ret < 0)
-            return fail("Connect Failed  ");
+        // (DCMMC) 使用 MBED TLS 库里面的函数来创建 TCP 连接
+        // int ret = 0;
+        // ocall_connect(&ret, &s, port, const_cast<char*>(host.c_str()));
+        // if (ret < 0)
+        //     return fail("Connect Failed  ");
+        init_tls();
 
         ocall_recv((ssize_t *)&i, s, b, 1<<24, 0);
 
@@ -452,7 +454,6 @@ bool sq::light::open()
         if (capability_flag_1 & CLIENT_SSL)
         {
             LL_INFO("MySQL server supports SSL, client will send SSL Request Packet.");
-            init_tls();
             use_tls = true;
             // [ref] https://dev.mysql.com/doc/internals/en/connection-phase-packets.html#packet-Protocol::SSLRequest
             capability_flags |= CLIENT_SSL;

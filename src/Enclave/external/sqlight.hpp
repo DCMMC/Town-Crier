@@ -157,20 +157,29 @@ namespace sq
                 throw std::runtime_error("mbedtls_x509_crt_parse failed");
             }
 #endif /* MBEDTLS_X509_CRT_PARSE_C */
+
+      /*
+       * 2. Start the connection
+       */
+      LL_TRACE("connecting over TCP: %s:%s...", host.c_str(), port_str.c_str());
+
+      if ((ret = mbedtls_net_connect(&server_fd, host.c_str(), port_str.c_str(),
+                                     MBEDTLS_NET_PROTO_TCP)) != 0) {
+        throw std::runtime_error("mbedtls_net_connect returned");
+      }
+
+      // (DCMMC) MySQL 在每次建立起 TCP 回话的时候就会发送 HandshakeV10 到 client
+      // MBED TLS 的 socket file descriptor 和 sqlight 的 sq::light::s 必须共享
+      // 同一个 fd，不然的话 TLS 创建回话时，client 发握手会收到 MySQL 发来的错误的响应
+      // (HandshakeV10 而不是 TLS server hello)
+      this->s = server_fd.fd;
+      LL_INFO("(DCMMC) set global socket fd=%d", this->s);
+
             LL_INFO("(DCMMC) finish init_tls");
         }
 
         void connect_tls(std::string &host, unsigned port) {
             std::string port_str = std::to_string(port);
-  /*
-   * 2. Start the connection
-   */
-  LL_TRACE("connecting over TCP: %s:%s...", host.c_str(), port_str.c_str());
-
-  if ((ret = mbedtls_net_connect(&server_fd, host.c_str(), port_str.c_str(),
-                                 MBEDTLS_NET_PROTO_TCP)) != 0) {
-    throw std::runtime_error("mbedtls_net_connect returned");
-  }
 
   ret = mbedtls_net_set_block(&server_fd);
   if (ret != 0) {
