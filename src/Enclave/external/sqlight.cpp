@@ -834,6 +834,7 @@ bool sq::light::recvs( void *userdata, void* onvalue, void* onfield, void *onsep
                 value = fields;
             length = std::max(length * 3, 60L);
             length = std::min(length, 200L);
+            LL_INFO("(DCMMC) name=%s", name);
             typedef long (*TOnField)(void *,char*,int,int,int);
             if (onfield)
                 ((TOnField)onfield)(userdata,name,row,i,length);
