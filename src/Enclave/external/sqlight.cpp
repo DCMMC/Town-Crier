@@ -588,7 +588,7 @@ bool sq::light::recvs( void *userdata, void* onvalue, void* onfield, void *onsep
                 buf_ptr = b;
                 i = recv_tls(buf_ptr, 1 << 24);
                 LL_INFO("(DCMMC) tls ret(length)=%d", i);
-		hexdump("(DCMMC) Whole data received from tls", b, i);
+                hexdump("(DCMMC) Whole data received from tls", b, i);
                 received_size = i;
             }
             no = *((int *)buf_ptr);
@@ -657,7 +657,7 @@ bool sq::light::recvs( void *userdata, void* onvalue, void* onfield, void *onsep
             }
             field = fields;
             LL_INFO("(DCMMC) first thing: number of fields=%d", fields);
-	    buf_ptr += no;
+            buf_ptr += no;
 
             // https://dev.mysql.com/doc/internals/en/integer.html#packet-Protocol::LengthEncodedInteger
             if (fields == 0) {
@@ -679,9 +679,9 @@ bool sq::light::recvs( void *userdata, void* onvalue, void* onfield, void *onsep
             // LL_INFO("(DCMMC) offset of status flags=%d", status_flags_offset);
             int status = (buf_ptr[status_flags_offset + 1] << 8) | buf_ptr[status_flags_offset];
             LL_INFO("(DCMMC) status flags=%d", status);
-	    buf_ptr += no;
+            buf_ptr += no;
             if (status & 0x0008) {
-		// no = 5
+                // no = 5
                 // SERVER_MORE_RESULTS_EXISTS
                 typedef void (*TOnSep)(void *);
                 if (onsep)
@@ -690,12 +690,12 @@ bool sq::light::recvs( void *userdata, void* onvalue, void* onfield, void *onsep
                 continue;
             }
             else {
-		// (DCMMC) first EOF is between column_def and row
+                // (DCMMC) first EOF is between column_def and row
                 LL_INFO("(DCMMC) EOF");
-		if (exit++)
-			break;
-		else
-			continue;
+                if (exit++)
+                    break;
+                else
+                    continue;
             }
         }
 
@@ -724,7 +724,7 @@ bool sq::light::recvs( void *userdata, void* onvalue, void* onfield, void *onsep
             //}
 
             auto &type = typ[i];
-	    LL_INFO("(DCMMC) lenenc=%d, type=%d", len, type);
+            LL_INFO("(DCMMC) lenenc=%d, type=%d", len, type);
             switch( type )
             {
                 case FIELD_TYPE_BIT:
@@ -755,16 +755,16 @@ bool sq::light::recvs( void *userdata, void* onvalue, void* onfield, void *onsep
                 case FIELD_TYPE_VARCHAR:
                 case FIELD_TYPE_YEAR:
                 default: {
-                     // @todo: beware little/big endianess here!
-                     if (g)
-                         memcpy(txt, buf_ptr, len);
-                     txt[len] = 0;
-		     LL_INFO("(DCMMC) ResultsetRow=%s", txt);
-                     typedef long (*TOnValue)(void *,char*,int,int,int);
-                     if (onvalue)
-                         ret = ((TOnValue)onvalue)(userdata,txt,row,i,type);
-                     break;
-                 }
+                             // @todo: beware little/big endianess here!
+                             if (g)
+                                 memcpy(txt, buf_ptr, len);
+                             txt[len] = 0;
+                             LL_INFO("(DCMMC) ResultsetRow=%s", txt);
+                             typedef long (*TOnValue)(void *,char*,int,int,int);
+                             if (onvalue)
+                                 ret = ((TOnValue)onvalue)(userdata,txt,row,i,type);
+                             break;
+                         }
             }
 
             buf_ptr += len;

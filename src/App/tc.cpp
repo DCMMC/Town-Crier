@@ -77,9 +77,9 @@ namespace po = boost::program_options;
 namespace fs = boost::filesystem;
 
 namespace tc {
-namespace main {
-log4cxx::LoggerPtr logger(log4cxx::Logger::getLogger("tc.cpp"));
-}
+    namespace main {
+        log4cxx::LoggerPtr logger(log4cxx::Logger::getLogger("tc.cpp"));
+    }
 }
 
 using tc::main::logger;
@@ -89,81 +89,83 @@ std::atomic<bool> quit(false);
 void exitGraceful(int) { quit.store(true); }
 
 int main(int argc, const char *argv[]) {
-  std::signal(SIGINT, exitGraceful);
-  std::signal(SIGTERM, exitGraceful);
+    std::signal(SIGINT, exitGraceful);
+    std::signal(SIGTERM, exitGraceful);
 
-  log4cxx::PropertyConfigurator::configure(LOGGING_CONF_FILE);
+    log4cxx::PropertyConfigurator::configure(LOGGING_CONF_FILE);
 
-  tc::Config config(argc, argv);
-  LL_INFO("config:\n%s", config.toString().c_str());
+    tc::Config config(argc, argv);
+    LL_INFO("config:\n%s", config.toString().c_str());
 
-  int ret;
-  sgx_enclave_id_t eid;
-  sgx_status_t st;
+    int ret;
+    sgx_enclave_id_t eid;
+    sgx_status_t st;
 
-  ret = initialize_enclave(config.getEnclavePath().c_str(), &eid);
-  if (ret != 0) {
-    LL_CRITICAL("Failed to initialize the enclave");
-    std::exit(-1);
-  } else {
-    LL_INFO("Enclave %ld created", eid);
-  }
-
-  // print MR and exit if requested
-  if (config.getIsPrintMR()) {
-    cout << get_mr_enclave(eid) << endl;
-    std::exit(0);
-  }
-
-  string wallet_address, hybrid_pubkey;
-
-  try {
-    // (DCMMC) 配置文件中的 [sealed] sig_key 就是 SGX WALLET address
-    wallet_address = unseal_key(eid, config.getSealedSigKey(), tc::keyUtils::ECDSA_KEY);
-    hybrid_pubkey = unseal_key(eid, config.getSealedHybridKey(), tc::keyUtils::HYBRID_ENCRYPTION_KEY);
-
-    LL_INFO("using wallet address at %s", wallet_address.c_str());
-    LL_INFO("using hybrid pubkey: %s", hybrid_pubkey.c_str());
-
-    provision_key(eid, config.getSealedSigKey(), tc::keyUtils::ECDSA_KEY);
-    provision_key(eid, config.getSealedHybridKey(), tc::keyUtils::HYBRID_ENCRYPTION_KEY);
-  } catch (const tc::EcallException &e) {
-    LL_CRITICAL("%s", e.what());
-    exit(-1);
-  } catch (const std::exception &e) {
-    LL_CRITICAL("%s", e.what());
-    exit(-1);
-  }
-
-    // (DCMMC) debug mysql
-    LL_INFO("(DCMMC) debug mysql");
-    int ecall_ret;
-    auto ecall_status = debug_mysql(eid, &ecall_ret, "219.223.189.199",
-            3306, "root", "97294597");
-
-    if (ecall_status != SGX_SUCCESS) {
-      LL_INFO("(DCMMC) ecall failed");
+    ret = initialize_enclave(config.getEnclavePath().c_str(), &eid);
+    if (ret != 0) {
+        LL_CRITICAL("Failed to initialize the enclave");
+        std::exit(-1);
     } else {
-      LL_INFO("(DCMMC) ecall succeeds");
+        LL_INFO("Enclave %ld created", eid);
     }
 
+    // print MR and exit if requested
+    if (config.getIsPrintMR()) {
+        cout << get_mr_enclave(eid) << endl;
+        std::exit(0);
+    }
 
-  jsonrpc::HttpServer status_server_connector(config.getRelayRPCAccessPoint(), "", "", 3);
-  tc::status_rpc_server stat_srvr(status_server_connector, eid);
-  stat_srvr.StartListening();
-  LL_INFO("RPC server started at %d", config.getRelayRPCAccessPoint());
+    string wallet_address, hybrid_pubkey;
 
-  st = init_enclave_kv_store(eid, config.getContractAddress().c_str());
-  if (st != SGX_SUCCESS) {
-    LL_CRITICAL("cannot initialize enclave env");
-    exit(-1);
-  }
+    try {
+        // (DCMMC) 配置文件中的 [sealed] sig_key 就是 SGX WALLET address
+        wallet_address = unseal_key(eid, config.getSealedSigKey(), tc::keyUtils::ECDSA_KEY);
+        hybrid_pubkey = unseal_key(eid, config.getSealedHybridKey(), tc::keyUtils::HYBRID_ENCRYPTION_KEY);
 
-  while (!quit.load()) {
-    this_thread::sleep_for(chrono::microseconds(500));
-  }
+        LL_INFO("using wallet address at %s", wallet_address.c_str());
+        LL_INFO("using hybrid pubkey: %s", hybrid_pubkey.c_str());
 
-  stat_srvr.StopListening();
-  sgx_destroy_enclave(eid);
-  LL_INFO("all enclave closed successfully");
+        provision_key(eid, config.getSealedSigKey(), tc::keyUtils::ECDSA_KEY);
+        provision_key(eid, config.getSealedHybridKey(), tc::keyUtils::HYBRID_ENCRYPTION_KEY);
+    } catch (const tc::EcallException &e) {
+        LL_CRITICAL("%s", e.what());
+        exit(-1);
+    } catch (const std::exception &e) {
+        LL_CRITICAL("%s", e.what());
+        exit(-1);
+    }
+
+    // (DCMMC) debug mysql
+    if (config.isDebugMySQL()) {
+        LL_INFO("(DCMMC) debug mysql");
+        int ecall_ret;
+        auto ecall_status = debug_mysql(eid, &ecall_ret, "219.223.189.199",
+                3306, "root", "97294597");
+
+        if (ecall_status != SGX_SUCCESS) {
+            LL_INFO("(DCMMC) ecall failed");
+        } else {
+            LL_INFO("(DCMMC) ecall succeeds");
+        }
+
+    }
+
+    jsonrpc::HttpServer status_server_connector(config.getRelayRPCAccessPoint(), "", "", 3);
+    tc::status_rpc_server stat_srvr(status_server_connector, eid);
+    stat_srvr.StartListening();
+    LL_INFO("RPC server started at %d", config.getRelayRPCAccessPoint());
+
+    st = init_enclave_kv_store(eid, config.getContractAddress().c_str());
+    if (st != SGX_SUCCESS) {
+        LL_CRITICAL("cannot initialize enclave env");
+        exit(-1);
+    }
+
+    while (!quit.load()) {
+        this_thread::sleep_for(chrono::microseconds(500));
+    }
+
+    stat_srvr.StopListening();
+    sgx_destroy_enclave(eid);
+    LL_INFO("all enclave closed successfully");
 }

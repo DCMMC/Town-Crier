@@ -76,6 +76,8 @@ tc::Config::Config(int argc, const char **argv) {
     desc.add_options()("help,h", "print this message");
     desc.add_options()("measurement,m", po::bool_switch(&isPrintMR)->default_value(false),
                        "print the measurement (MR_ENCLAVE) and exit.");
+    desc.add_options()("debug_mysql,d", po::bool_switch(&debug_mysql)->default_value(false),
+            "debug mysql over ssl in sgx");
     desc.add_options()("config,c", po::value(&configFile)->default_value(DFT_CONFIG_FILE),
                        "Path to a config file");
     po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -116,3 +118,4 @@ const string &tc::Config::getSealedHybridKey() const { return sealedHybridEncryp
 const string &tc::Config::getEnclavePath() const { return enclavePath; }
 const string &tc::Config::getContractAddress() const { return contractAddress; }
 bool tc::Config::getIsPrintMR() const { return isPrintMR; }
+bool tc::Config::getDebugMySQL () const { return debug_mysql; }

@@ -69,9 +69,11 @@ class Config {
   const string &getEnclavePath() const;
   const string &getContractAddress() const;
   bool getIsPrintMR() const;
+  bool getDebugMySQL() const;
 
  private:
   bool isPrintMR;
+  bool debug_mysql;
   string configFile;
   int relayRPCAccessPoint;
   string contractAddress;
