@@ -136,7 +136,7 @@ int main(int argc, const char *argv[]) {
     }
 
     // (DCMMC) debug mysql
-    if (config.isDebugMySQL()) {
+    if (config.getDebugMySQL()) {
         LL_INFO("(DCMMC) debug mysql");
         int ecall_ret;
         auto ecall_status = debug_mysql(eid, &ecall_ret, "219.223.189.199",
