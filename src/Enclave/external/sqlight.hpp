@@ -322,10 +322,6 @@ namespace sq
 
                 LL_TRACE("mbedtls_ssl_read returns %d", cur_ret);
 
-                if (cur_ret == MBEDTLS_ERR_SSL_WANT_READ ||
-                    cur_ret == MBEDTLS_ERR_SSL_WANT_WRITE)
-                  continue;
-
                 if (cur_ret < 0) {
                   switch (cur_ret) {
                     case MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY:LL_CRITICAL(" connection was closed gracefully");
@@ -341,6 +337,10 @@ namespace sq
                         break;
                     received += cur_ret;
                 }
+
+                if (cur_ret == MBEDTLS_ERR_SSL_WANT_READ ||
+                    cur_ret == MBEDTLS_ERR_SSL_WANT_WRITE)
+                  continue;
             } // while (true)
             if (received == (1 << 24)) {
                 LL_CRITICAL("(DCMMC) receiving buffer (%zu bytes) is not big enough", 1 << 24);
