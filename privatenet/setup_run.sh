@@ -84,6 +84,9 @@ add_sgx=${add_sgx:1:42}
 echo 'Address of SGX wallet: '${add_sgx}
 echo 'Address of SGX wallet: '${add_sgx} > address_info.txt
 sed_s '23s/0x.\{40\};/'${add_sgx}';/' ./contracts/TownCrier.sol
+# may encounter insufficient funds error in low-end devices...
+# one workaround is to sleep...
+sleep 20s
 test_tc_res=`python3 test_tc.py`
 echo ${test_tc_res}
 add_tc=`echo ${test_tc_res} | cut -d ' ' -f 2`

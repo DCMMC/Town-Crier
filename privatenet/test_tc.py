@@ -108,10 +108,12 @@ class Deploy():
     def wait_response(self):
         max_wait = 100
         for i in range(max_wait):
-            time.sleep(2)
+            time.sleep(4)
             lines = list(open('relay.log').readlines())
             for idx in range(len(lines)):
                 if 'response sent 0x' in lines[-idx]:
+                    print('find response, wait for 4s.')
+                    time.sleep(4)
                     result_tx = lines[-idx].strip().split()[-1]
                     receipt = self.w3.eth.getTransactionReceipt(result_tx)
                     # print(receipt)
@@ -124,7 +126,7 @@ class Deploy():
                     reqId, error, data = self.parse_response(response[0])
                     print(f'\n{"#"*60}\nerror: {error}\ndata:\n{data}\n{"#"*60}')
                     return
-            print('wait for 2s.')
+            print('wait for 4s.')
 
 
     def import_instance(self, tc, app):

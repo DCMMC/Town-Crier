@@ -1,10 +1,15 @@
 # (DCMMC) fix dependencies problem when enter sgx environment
 # by scripts/sgx-enter.sh
+cat <<EOF > /etc/apt/sources.list
+deb http://mirrors.cloud.tencent.com/ubuntu/ xenial main restricted universe multiverse
+deb http://mirrors.cloud.tencent.com/ubuntu/ xenial-security main restricted universe multiverse
+deb http://mirrors.cloud.tencent.com/ubuntu/ xenial-updates main restricted universe multiverse
+EOF
 if [[ -d /code/privatenet/pkgs ]]
 then
   dpkg -i /code/privatenet/pkgs/*.deb
 else
-  apt install -y libmicrohttpd-dev libjsoncpp-dev libjsonrpccpp-dev libjsonrpccpp-tools
+  apt update && apt install -y libmicrohttpd-dev libjsoncpp-dev libjsonrpccpp-dev libjsonrpccpp-tools
 fi
 cd /build
 cmake -DCMAKE_INSTALL_PREFIX=/tc /code
