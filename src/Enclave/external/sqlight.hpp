@@ -359,6 +359,8 @@ namespace sq
         bool acquire();
         void release();
     private:
+        // (DCMMC) MySQL cap flags
+        int capability_flags = 0;
         bool use_tls = false;
         const char *pers = "Town-Crier";
         mbedtls_net_context server_fd;

@@ -14,9 +14,9 @@
 #include <vector>
 
 // (DCMMC) from include/linux/socket.h
-#define MSG_PEEK	2
-#define MSG_DONTWAIT	0x40	/* Nonblocking io		 */
-#define MSG_NOSIGNAL	0x4000	/* Do not generate SIGPIPE */
+#define MSG_PEEK    2
+#define MSG_DONTWAIT    0x40    /* Nonblocking io        */
+#define MSG_NOSIGNAL    0x4000  /* Do not generate SIGPIPE */
 
 // (DCMMC debug)
 #include "../log.h"
@@ -30,14 +30,14 @@
 #include "sqlight.hpp"
 
 namespace {
-        // knot c&p in the future we must do it right
-        enum
-        {
-            TCP_OK = 0,
-            TCP_ERROR = -1,
-            TCP_TIMEOUT = -2
-    //      TCP_DISCONNECTED = -3,
-        };
+    // knot c&p in the future we must do it right
+    enum
+    {
+        TCP_OK = 0,
+        TCP_ERROR = -1,
+        TCP_TIMEOUT = -2
+            //      TCP_DISCONNECTED = -3,
+    };
 
     // We must complete socket functions, timeout socket receptions.
     // This is just a fix and it will block if count bytes are
@@ -83,7 +83,7 @@ namespace {
                     0x6ED9EBA1,
                     0x8F1BBCDC,
                     0xCA62C1D6
-                    };
+                };
                 int     t;                          // Loop counter
                 basetype    temp;                       // Temporary word value
                 basetype    W[80];                      // Word sequence
@@ -136,7 +136,7 @@ namespace {
                 for(t = 40; t < 60; t++)
                 {
                     temp = CircularShift(5,A) +
-                    ((B & C) | (B & D) | (C & D)) + E + W[t] + K[2];         //(B & C) | (D & (B | C))
+                        ((B & C) | (B & D) | (C & D)) + E + W[t] + K[2];         //(B & C) | (D & (B | C))
                     temp &= 0xFFFFFFFF;
                     E = D;
                     D = C;
@@ -212,10 +212,10 @@ namespace {
         // Result() and PadMessage()
 
         /*
-        *  Check to see if the current message block is too small to hold
-        *  the initial padding bits and length.  If so, we will pad the
-        *  block, process it, and then continue padding into a second block.
-        */
+         *  Check to see if the current message block is too small to hold
+         *  the initial padding bits and length.  If so, we will pad the
+         *  block, process it, and then continue padding into a second block.
+         */
         if (Message_Block_Index > 55)
         {
             Message_Block[Message_Block_Index++] = 0x80;
@@ -260,20 +260,20 @@ namespace {
     }
 
     template< typename T >
-    hash SHA1( const T &input ) {
-        hash h(5);
-        h[0] = 0x67452301, h[1] = 0xEFCDAB89,
-        h[2] = 0x98BADCFE, h[3] = 0x10325476,
-        h[4] = 0xC3D2E1F0;
-        hash raw = SHA1( input.data(), input.size() * sizeof( *input.begin() ), h );
-        return raw;
-    }
+        hash SHA1( const T &input ) {
+            hash h(5);
+            h[0] = 0x67452301, h[1] = 0xEFCDAB89,
+                h[2] = 0x98BADCFE, h[3] = 0x10325476,
+                h[4] = 0xC3D2E1F0;
+            hash raw = SHA1( input.data(), input.size() * sizeof( *input.begin() ), h );
+            return raw;
+        }
 
     hash SHA1( const void *mem, int len ) {
         hash h(5);
         h[0] = 0x67452301, h[1] = 0xEFCDAB89,
-        h[2] = 0x98BADCFE, h[3] = 0x10325476,
-        h[4] = 0xC3D2E1F0;
+            h[2] = 0x98BADCFE, h[3] = 0x10325476,
+            h[4] = 0xC3D2E1F0;
         hash raw = SHA1( mem, len, h );
         return raw;
     }
@@ -444,7 +444,7 @@ bool sq::light::open()
         // [ref] http://forge.mysql.com/wiki/MySQL_Internals_ClientServer_Protocol#Client_Authentication_Packet
 
         // int<4> capability_flags
-        int capability_flags =
+        capability_flags =
             CLIENT_FOUND_ROWS|
             CLIENT_PROTOCOL_41|
             CLIENT_SECURE_CONNECTION|
@@ -540,7 +540,7 @@ bool sq::light::sends( const std::string &query )
     // Details at: http://forge.mysql.com/wiki/MySQL_Internals_ClientServer_Protocol#Command_Packet
     // [ref] https://dev.mysql.com/doc/internals/en/com-query.html
 
-LL_INFO("(DCMMC) sends query=%s", query.c_str());
+    LL_INFO("(DCMMC) sends query=%s", query.c_str());
     d[4]=0x3;
     memcpy(d + 5, const_cast<char*>(query.c_str()), query.size() + 1);
     *(int*)d=strlen(d+5)+1;
@@ -548,7 +548,7 @@ LL_INFO("(DCMMC) sends query=%s", query.c_str());
         i = send_tls(d, 4 + *((int *) d));
     else
         ocall_send((ssize_t *)&i, s, d, 4 + *((int *) d), $windows(0) $welse(MSG_NOSIGNAL));
-LL_INFO("(DCMMC) sends return=%d", i);
+    LL_INFO("(DCMMC) sends return=%d", i);
     if (i<0)
         return false;
     return true;
@@ -563,158 +563,157 @@ bool sq::light::recvs( void *userdata, void* onvalue, void* onfield, void *onsep
     std::vector<char> txtv(65536, 0); // medium blob
     char *txt = txtv.data();
 
-    char *p=b; byte typ[1000]={0}; int fields=0, field=0, value=0, row=0, exit=0, rc=0;
+    char *buf_ptr = b;
+    byte typ[1000] = {0};
+    int fields=0, field=0, value=0, row=0, exit=0;
 
-    char &b0 = b[0];
-    char &b1 = b[1]; // warning count  low byte
-    char &b2 = b[2]; // warning count high byte
-    char &b3 = b[3]; // status  low byte
-    char &b4 = b[4]; // status high byte
 
-    while (1) {
-               rc = 0;
-               if (use_tls)
-               {
-                    i = recv_tls((char *)&no, 4);
-               }
-               else
-               {
-               i= recvfixed(s, (char*)&no, 4, 0);
-               // i=RECV(s,(char*)&no,4,0);
-               no&=0xffffff; // This is a bug. server sometimes don't send those 4 bytes together. will fix it (recvfixed fix the bug)
-               // this also helps to skip packet sequence number: http://mysql.timesoft.cc/doc/internals/en/the-packet-header.html
-               }
+    // (DCMMC) TODO deprecated
+    // char &b0 = b[0];
+    // char &b1 = b[1]; // warning count  low byte
+    // char &b2 = b[2]; // warning count high byte
+    // char &b3 = b[3]; // status  low byte
+    // char &b4 = b[4]; // status high byte
 
-LL_INFO("(DCMMC) recv with no=%d", no);
-              if (i<0)
-                   return fail("connection lost");
-
-        while (rc < no)
+    while (true) {
+        if (use_tls)
         {
-            if (use_tls)
-                i = recv_tls(b + rc, no - rc);
-            else
-                ocall_recv((ssize_t *)&i, s, b + rc, no - rc, 0);
-            if (i > 0)
-                rc += i;
-            else
-                break;
+            // (DCMMC) receive 1MB at most
+            // (TODO) may lead to error when data >= 1MB!
+            i = recv_tls(buf_ptr, 1 << 20);
+            no = *((char *)buf_ptr);
+            buf_ptr += 4;
+            no &= 0xffffff;
+            LL_INFO("(DCMMC) recv with no=%d", no);
         }
+        else
+        {
+            i= recvfixed(s, (char*)&no, 4, 0);
+            // i=RECV(s,(char*)&no,4,0);
+            // This is a bug. server sometimes don't send those 4 bytes together. will fix it (recvfixed fix the bug)
+            // this also helps to skip packet sequence number: http://mysql.timesoft.cc/doc/internals/en/the-packet-header.html
+            // (DCMMC) remove sequence id
+            no &= 0xffffff;
+            LL_INFO("(DCMMC) recv with no=%d", no);
 
-        if(i<1) return fail("connection lost"); // Connection lost
+            if (i < 0)
+                return fail("connection lost");
 
+            int rc = 0;
+            while (rc < no)
+            {
+                if (use_tls)
+                    i = recv_tls(buf_ptr + rc, no - rc);
+                else
+                    ocall_recv((ssize_t *)&i, s, buf_ptr + rc, no - rc, 0);
+                if (i > 0)
+                    rc += i;
+                else
+                    break;
+            }
+            if(i < 1)
+                return fail("connection lost"); // Connection lost
+        } // not use_tls
         // 0. For non query sql commands we get just single success or failure response
         // OK_Packet
-        if(*       b==0x00&&!exit)                                      break;   // success
+
+        byte header = *(byte *) buf_ptr;
         // ERR_Packet
-        if(*(byte*)b==0xff&&!exit)  { b[*(short*)(b+1)+3]=0; return fail(b+3); } // failure: show server error text
+        // https://dev.mysql.com/doc/internals/en/packet-ERR_Packet.html
+        if(header == 0xff && !exit) {
+            int error_code = (int)(*(((byte *)buf_ptr) + 1));
+            error_code += ((int)(*(((byte *)buf_ptr) + 2))) << 8;
+            int offset = capability_flags & CLIENT_PROTOCOL_41 ? 3 : 9;
+            return fail(buf_ptr + offset, "error_code=" + std::to_string(error_code));
+        } // failure: show server error text
 
         // 1. first thing we receive is number of fields
-        if(!fields ) {
-LL_INFO("(DCMMC) first thing: number of fields");
-memcpy(&fields,b,no); field=fields; continue; }
+        // OK packet
+        if(!fields && header == 0x00 && no > 7) {
+            // afftected_rows, int<lenenc>
+            // https://dev.mysql.com/doc/internals/en/integer.html#packet-Protocol::LengthEncodedInteger
+            fields = (int)(*(((byte *) buf_ptr) + 1));
+            if (fields == 0xfc) {
+                fields = (int)(((byte *) buf_ptr) + 2);
+                fields += (int)(((byte *) buf_ptr) + 3) << 8;
+            }
+            else if (fields == 0xfd) {
+                // (DCMMC) TODO
+            }
+            else if (fields == 0xfe) {
+                // (DCMMC) TODO
+            }
+            field = fields;
+            // memcpy(&fields,b,no); field=fields; continue;
+            LL_INFO("(DCMMC) first thing: number of fields=%d", fields);
+            if (fields == 0) {
+                LL_INFO("(DCMMC) OK packet with no fields");
+                break;
+            }
+            else {
+                continue;
+            }
+        } // OK Packet
 
         // 3. 5. after receiving last field info or row we get this EOF marker or more results exist
         // OK_Packet with EOF
-        if (*(byte*)b==0xfe && no < 9)
+        if (header == 0xfe && no < 9)
         {
-            if( no == 5 )
-            {
-                int status = ( b4 << 8 ) | b3;
-                if( status & 0x0008 ) { // SERVER_MORE_RESULTS_EXISTS
-                    typedef void (*TOnSep)(void *);  if(onsep) ((TOnSep)onsep)(userdata);
-LL_INFO("(DCMMC) server more results exists");
-                    continue;
-                }
+            int status_flags_offset = 3;
+            // deprected
+            // (DCMMC) i.e. MySQL 7.5.6 and up uses OK Packet to represent EOF packet, and deprecat EOF Packet
+            LL_INFO("(DCMMC) EOF Packet");
+            // LL_INFO("(DCMMC) offset of status flags=%d", status_flags_offset);
+            int status = (buf_ptr[status_flags_offset + 1] << 8) | buf_ptr[status_flags_offset];
+            LL_INFO("(DCMMC) status flags=%d", status);
+            if (status & 0x0008) {
+                // SERVER_MORE_RESULTS_EXISTS
+                typedef void (*TOnSep)(void *);
+                if (onsep)
+                    ((TOnSep)onsep)(userdata);
+                LL_INFO("(DCMMC) server has more results exists");
+                continue;
             }
-
-            if(exit++)
-{
-LL_INFO("(DCMMC) OK_packet with EOF");
-break;
-}
-else
-{
-LL_INFO("(DCMMC) continue");
-continue;        // EOF
-}
+            else {
+                LL_INFO("(DCMMC) EOF");
+                break;
+            }
         }
 
-        // 4. after receiving all field infos we receive row field values. One row per Receive/Packet
-        while( value  ) {
-            *txt=0; i=fields-value; size_t len=1; byte g=*(byte*)p;
-
-            // ~net_field_length() @ libmysql.c {
-                switch(g) {
-                    case 0:
-                    case 251: g=0;      break; // NULL_LENGTH
-                    default:
-                    case   1: g=1;      break;
-                    case 252: g=2, ++p; break;
-                    case 253: g=3, ++p; break;
-                    case 254: g=8, ++p; break;
-                }
-                // @todo: beware little/big endianess here!
-                memcpy(&len,p,g); p+=g;
-            //}
-
-            auto &type = typ[i];
-            switch( type )
-            {
-                case FIELD_TYPE_BIT:
-                case FIELD_TYPE_BLOB:
-                case FIELD_TYPE_DATE:
-                case FIELD_TYPE_DATETIME:
-                case FIELD_TYPE_DECIMAL:
-                case FIELD_TYPE_DOUBLE:
-                case FIELD_TYPE_ENUM:
-                case FIELD_TYPE_FLOAT:
-                case FIELD_TYPE_GEOMETRY:
-                case FIELD_TYPE_INT24:
-                case FIELD_TYPE_LONG:
-                case FIELD_TYPE_LONG_BLOB:
-                case FIELD_TYPE_LONGLONG:
-                case FIELD_TYPE_MEDIUM_BLOB:
-                case FIELD_TYPE_NEW_DECIMAL:
-                case FIELD_TYPE_NEWDATE:
-                case FIELD_TYPE_NULL:
-                case FIELD_TYPE_SET:
-                case FIELD_TYPE_SHORT:
-                case FIELD_TYPE_STRING:
-                case FIELD_TYPE_TIME:
-                case FIELD_TYPE_TIMESTAMP:
-                case FIELD_TYPE_TINY:
-                case FIELD_TYPE_TINY_BLOB:
-                case FIELD_TYPE_VAR_STRING:
-                case FIELD_TYPE_VARCHAR:
-                case FIELD_TYPE_YEAR:
-                default: {
-                    // @todo: beware little/big endianess here!
-                    if(g) memcpy(txt,p,len); txt[len]=0;
-                    typedef long (*TOnValue)(void *,char*,int,int,int);  if(onvalue) ret=((TOnValue)onvalue)(userdata,txt,row,i,type);
-                    break;
-                }
-            }
-
-            p+=len;
-            if(!--value) { row++; value=fields; p=b; break; }
-        }
 
         // 2. Second info we get are field infos like name type etc. One field per Receive/Packet
         if( field  ) {
-                  i        = fields - field;
-            char* cat      =          p; p+=1+*p; *   cat ++=0;
-            char* db       =          p; p+=1+*p; *    db ++=0;
-            char* table    =          p; p+=1+*p; * table ++=0;
-            char* table_   =          p; p+=1+*p; * table_++=0;
-            char* name     =          p; p+=1+*p; *  name ++=0;
-            char* name_    =          p; p+=1+*p; *  name_++=0; *p++=0;
-            short charset  = *(short*)p; p+=2;
-            long  length   = * (long*)p; p+=4;
-                  typ[i]   = * (byte*)p; p+=1;
-            short flags    = *(short*)p; p+=2;
-            byte  digits   = * (byte*)p; p+=3;
-            char* Default  =          p;
+            i = fields - field;
+            char *cat = buf_ptr;
+            buf_ptr += 1 + *buf_ptr;
+            *cat++ = 0;
+            char *db = buf_ptr;
+            buf_ptr += 1 + *buf_ptr;
+            *db++ = 0;
+            char *table = buf_ptr;
+            buf_ptr += 1 + *buf_ptr;
+            *table++ = 0;
+            char *table_ = buf_ptr;
+            buf_ptr += 1 + *buf_ptr;
+            *table_++ = 0;
+            char *name = buf_ptr;
+            buf_ptr += 1 + *buf_ptr;
+            *name++ = 0;
+            char *name_ = buf_ptr;
+            buf_ptr += 1 + *buf_ptr;
+            *name_++=0;
+            *buf_ptr++ = 0;
+            short charset = *(short*)buf_ptr;
+            buf_ptr += 2;
+            long length = *(long *)buf_ptr;
+            buf_ptr += 4;
+            typ[i] = *(byte *) buf_ptr;
+            buf_ptr += 1;
+            short flags = *(short *) buf_ptr;
+            buf_ptr += 2;
+            byte digits = *(byte *) buf_ptr;
+            buf_ptr += 3;
+            char* Default = buf_ptr;
 
             auto &type = typ[i];
             switch( type )
@@ -731,16 +730,95 @@ continue;        // EOF
                 case FIELD_TYPE_NEW_DECIMAL:
                     break;
                 default:
-                // (DCMMC) eliminate iostream
-                LL_CRITICAL("Warning: unsupported type %d in column: %s\n", int(type), name);
-                // std::cerr << "Warning: unsupported type " << int(type) << " in column: " << name << std::endl;
+                    // (DCMMC) eliminate iostream
+                    LL_CRITICAL("Warning: unsupported type %d in column: %s\n", int(type), name);
+                    // std::cerr << "Warning: unsupported type " << int(type) << " in column: " << name << std::endl;
             }
 
-            if(!--field) value = fields; p=b; length=std::max(length*3,60L); length=std::min(length,200L);
-            typedef long (*TOnField)(void *,char*,int,int,int);  if(onfield) ((TOnField)onfield)(userdata,name,row,i,length);
+            if(!--field)
+                value = fields;
+            buf_ptr = b + 4;
+            length = std::max(length * 3, 60L);
+            length = std::min(length, 200L);
+            typedef long (*TOnField)(void *,char*,int,int,int);
+            if (onfield)
+                ((TOnField)onfield)(userdata,name,row,i,length);
         }
     }
 
+    // 4. after receiving all field infos we receive row field values. One row per Receive/Packet
+    while( value ) {
+        *txt = 0;
+        i = fields - value;
+        size_t len = 1;
+        byte g = *(byte *) buf_ptr;
+
+        // ~net_field_length() @ libmysql.c {
+        // int<lenenc>
+        switch (g) {
+            case 0:
+            case 251: g=0;      break; // NULL_LENGTH
+            default:
+            case   1: g=1;      break;
+            case 252: g=2, ++buf_ptr; break;
+            case 253: g=3, ++buf_ptr; break;
+            case 254: g=8, ++buf_ptr; break;
+        }
+        // @todo: beware little/big endianess here!
+        memcpy(&len, buf_ptr, g);
+        buf_ptr += g;
+        //}
+
+        auto &type = typ[i];
+        switch( type )
+        {
+            case FIELD_TYPE_BIT:
+            case FIELD_TYPE_BLOB:
+            case FIELD_TYPE_DATE:
+            case FIELD_TYPE_DATETIME:
+            case FIELD_TYPE_DECIMAL:
+            case FIELD_TYPE_DOUBLE:
+            case FIELD_TYPE_ENUM:
+            case FIELD_TYPE_FLOAT:
+            case FIELD_TYPE_GEOMETRY:
+            case FIELD_TYPE_INT24:
+            case FIELD_TYPE_LONG:
+            case FIELD_TYPE_LONG_BLOB:
+            case FIELD_TYPE_LONGLONG:
+            case FIELD_TYPE_MEDIUM_BLOB:
+            case FIELD_TYPE_NEW_DECIMAL:
+            case FIELD_TYPE_NEWDATE:
+            case FIELD_TYPE_NULL:
+            case FIELD_TYPE_SET:
+            case FIELD_TYPE_SHORT:
+            case FIELD_TYPE_STRING:
+            case FIELD_TYPE_TIME:
+            case FIELD_TYPE_TIMESTAMP:
+            case FIELD_TYPE_TINY:
+            case FIELD_TYPE_TINY_BLOB:
+            case FIELD_TYPE_VAR_STRING:
+            case FIELD_TYPE_VARCHAR:
+            case FIELD_TYPE_YEAR:
+            default: {
+                         // @todo: beware little/big endianess here!
+                         if (g)
+                             memcpy(txt, buf_ptr, len);
+                         txt[len] = 0;
+                         typedef long (*TOnValue)(void *,char*,int,int,int);
+                         if (onvalue)
+                             ret = ((TOnValue)onvalue)(userdata,txt,row,i,type);
+                         break;
+                     }
+        }
+
+        buf_ptr += len;
+        if(!--value) {
+            row++;
+            value = fields;
+            buf_ptr = b + 4;
+            break;
+        }
+    }
     return true;
 }
 
