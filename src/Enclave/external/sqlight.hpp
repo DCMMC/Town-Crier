@@ -161,6 +161,8 @@ namespace sq
       /*
        * 2. Start the connection
        */
+
+      std::string port_str = std::to_string(port);
       LL_TRACE("connecting over TCP: %s:%s...", host.c_str(), port_str.c_str());
 
       if ((ret = mbedtls_net_connect(&server_fd, host.c_str(), port_str.c_str(),
