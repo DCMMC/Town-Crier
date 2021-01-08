@@ -311,7 +311,7 @@ namespace sq
 
         int recv_tls(char *buffer, size_t length) {
             int received = 0;
-            while (true) {
+            while (received <= length) {
                 /*
                 return the number of bytes read, or 0 for EOF, or
                 MBEDTLS_ERR_SSL_WANT_READ or MBEDTLS_ERR_SSL_WANT_WRITE, or
@@ -342,8 +342,8 @@ namespace sq
                     received += cur_ret;
                 }
             } // while (true)
-            if (received == length) {
-                LL_CRITICAL("(DCMMC) receiving buffer (%zu bytes) is not big enough", length);
+            if (received == (1 << 24)) {
+                LL_CRITICAL("(DCMMC) receiving buffer (%zu bytes) is not big enough", 1 << 24);
             }
             return received;
         }

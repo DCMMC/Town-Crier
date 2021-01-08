@@ -613,10 +613,7 @@ bool sq::light::recvs( void *userdata, void* onvalue, void* onfield, void *onsep
             int rc = 0;
             while (rc < no)
             {
-                if (use_tls)
-                    i = recv_tls(b + rc, no - rc);
-                else
-                    ocall_recv((ssize_t *)&i, s, b + rc, no - rc, 0);
+                ocall_recv((ssize_t *)&i, s, b + rc, no - rc, 0);
                 if (i > 0)
                     rc += i;
                 else
