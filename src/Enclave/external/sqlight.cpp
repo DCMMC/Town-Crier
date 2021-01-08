@@ -855,8 +855,10 @@ namespace
 
     struct local {
         int x, y;
+        // map
         std::vector< char * > data;
-        std::vector< char * > head;
+        // (DCMMC) useless
+        // std::vector< char * > head;
 
         local() : x(0),y(0) {
         }
@@ -864,27 +866,29 @@ namespace
         ~local() {
             for( unsigned i = 0, end = data.size(); i < end; ++i )
                 if( data[i] ) free( data[i] ), data[i] = 0;
-            for( unsigned i = 0, end = head.size(); i < end; ++i )
-                if( head[i] ) free( head[i] ), head[i] = 0;
+            // for( unsigned i = 0, end = head.size(); i < end; ++i )
+            //     if( head[i] ) free( head[i] ), head[i] = 0;
         }
     };
 
-    void GetText2f( void *userdata, char* txt ) {
-        local *l = (local *)userdata;
-        l->head.push_back( txt ? strdup(txt) : strdup("") );
-    }
-    void GetText2v( void *userdata, char* txt ) {
-        local *l = (local *)userdata;
-        l->data.push_back( txt ? strdup(txt) : strdup("") );
-    }
+    // void GetText2f( void *userdata, char* txt ) {
+    //     local *l = (local *)userdata;
+    //     l->head.push_back( txt ? strdup(txt) : strdup("") );
+    // }
+    // void GetText2v( void *userdata, char* txt ) {
+    //     local *l = (local *)userdata;
+    //     l->data.push_back( txt ? strdup(txt) : strdup("") );
+    // }
 
     void GetText3f( void *userdata, char* txt ) {
+        LL_INFO("(DCMMC) GetText2f，aka field=%s", txt);
         local *l = (local *)userdata;
         l->x++;
         l->y++;
         l->data.push_back( txt ? strdup(txt) : strdup("") );
     }
     void GetText3v( void *userdata, char* txt ) {
+        LL_INFO("(DCMMC) GetText3v, aka value=%s", txt);
         local *l = (local *)userdata;
         l->y++;
         l->data.push_back( txt ? strdup(txt) : strdup("") );
@@ -925,7 +929,8 @@ bool sq::light::exec( const std::string &query, sq::light::callback3 cb3, void *
     if( !query.empty() )
         if( open() ) // setup
             if( sends(query) ) // send
-                if( recvs( (void *)&l /*userdata*/, (void *)GetText3v, (void *)GetText3f, 0 /*onsep*/) ) { // recv and parse
+                if( recvs( (void *)&l /*userdata*/, (void *)GetText3v /* onvalue */,
+                            (void *)GetText3f /* onfield */, 0 /*onsep*/) ) { // recv and parse
                     if( l.x > 0 )
                         (*cb3)( userdata, l.x, l.y / l.x, (const char **)l.data.data() );
                     return true;
@@ -951,6 +956,8 @@ namespace {
         return out;
     }
     void OnJSONCb( void *userdata, int w, int h, const char **map ) {
+        LL_INFO("(DCMMC) OnJSONCb, w=%d, h=%d", w, h);
+        // userdata is the result string of the sql statement
         std::string &array = *((std::string*)userdata);
         const char **field = &map[0];
         const char **value = &map[w];
