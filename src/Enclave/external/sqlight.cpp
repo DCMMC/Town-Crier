@@ -540,6 +540,7 @@ bool sq::light::sends( const std::string &query )
     // Details at: http://forge.mysql.com/wiki/MySQL_Internals_ClientServer_Protocol#Command_Packet
     // [ref] https://dev.mysql.com/doc/internals/en/com-query.html
 
+LL_INFO("(DCMMC) sends query=%s", query.c_str());
     d[4]=0x3;
     memcpy(d + 5, const_cast<char*>(query.c_str()), query.size() + 1);
     *(int*)d=strlen(d+5)+1;
@@ -547,6 +548,7 @@ bool sq::light::sends( const std::string &query )
         i = send_tls(d, 4 + *((int *) d));
     else
         ocall_send((ssize_t *)&i, s, d, 4 + *((int *) d), $windows(0) $welse(MSG_NOSIGNAL));
+LL_INFO("(DCMMC) sends return=%d", i);
     if (i<0)
         return false;
     return true;
@@ -582,6 +584,8 @@ bool sq::light::recvs( void *userdata, void* onvalue, void* onfield, void *onsep
                no&=0xffffff; // This is a bug. server sometimes don't send those 4 bytes together. will fix it (recvfixed fix the bug)
                // this also helps to skip packet sequence number: http://mysql.timesoft.cc/doc/internals/en/the-packet-header.html
                }
+
+LL_INFO("(DCMMC) recv with no=%d", no);
               if (i<0)
                    return fail("connection lost");
 
@@ -606,7 +610,9 @@ bool sq::light::recvs( void *userdata, void* onvalue, void* onfield, void *onsep
         if(*(byte*)b==0xff&&!exit)  { b[*(short*)(b+1)+3]=0; return fail(b+3); } // failure: show server error text
 
         // 1. first thing we receive is number of fields
-        if(!fields ) { memcpy(&fields,b,no); field=fields; continue; }
+        if(!fields ) {
+LL_INFO("(DCMMC) first thing: number of fields");
+memcpy(&fields,b,no); field=fields; continue; }
 
         // 3. 5. after receiving last field info or row we get this EOF marker or more results exist
         // OK_Packet with EOF
@@ -617,11 +623,21 @@ bool sq::light::recvs( void *userdata, void* onvalue, void* onfield, void *onsep
                 int status = ( b4 << 8 ) | b3;
                 if( status & 0x0008 ) { // SERVER_MORE_RESULTS_EXISTS
                     typedef void (*TOnSep)(void *);  if(onsep) ((TOnSep)onsep)(userdata);
+LL_INFO("(DCMMC) server more results exists");
                     continue;
                 }
             }
 
-            if(exit++) break; else continue;        // EOF
+            if(exit++)
+{
+LL_INFO("(DCMMC) OK_packet with EOF");
+break;
+}
+else
+{
+LL_INFO("(DCMMC) continue");
+continue;        // EOF
+}
         }
 
         // 4. after receiving all field infos we receive row field values. One row per Receive/Packet
