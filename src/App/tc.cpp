@@ -138,10 +138,10 @@ int main(int argc, const char *argv[]) {
     // (DCMMC) debug mysql
     LL_INFO("(DCMMC) debug mysql");
     int ecall_ret;
-    auto st = debug_mysql(eid, &ecall_ret, "127.0.0.1",
+    auto ecall_status = debug_mysql(eid, &ecall_ret, "219.223.189.199",
             3306, "root", "97294597");
 
-    if (st != SGX_SUCCESS || ecall_ret != TC_SUCCESS) {
+    if (ecall_status != SGX_SUCCESS || ecall_ret != TC_SUCCESS) {
       LL_INFO("(DCMMC) ecall failed");
     } else {
       LL_INFO("(DCMMC) ecall succeeds");

@@ -100,6 +100,7 @@ int debug_mysql(const char *host, unsigned int port,
         const char *user, const char *pass)
 {
   // (DCMMC) test sqlight
+bool ret = true;
   LL_DEBUG("DCMMC: test sqlight");
   sq::light sql;
   // if (!sql.connect("172.17.0.1", 3306, "root", "97294597"))
@@ -109,7 +110,7 @@ int debug_mysql(const char *host, unsigned int port,
   {
       std::string input = "show databases;";
       std::string result;
-      bool ret = sql.json(input, result);
+      ret = sql.json(input, result);
       if (ret)
         LL_DEBUG("DCMMC: sqlight return=%s", result.c_str());
       else
