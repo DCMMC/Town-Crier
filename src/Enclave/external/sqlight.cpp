@@ -586,15 +586,16 @@ bool sq::light::recvs( void *userdata, void* onvalue, void* onfield, void *onsep
             if (buf_ptr - b >= received_size) {
                 LL_INFO("(DCMMC) received data are empty or run out.");
                 buf_ptr = b;
-                i = recv_tls(buf_ptr, 1 << 20);
+                i = recv_tls(buf_ptr, 1 << 24);
                 LL_INFO("(DCMMC) tls ret(length)=%d", i);
+		hexdump("(DCMMC) Whole data received from tls", b, i);
                 received_size = i;
             }
             no = *((int *)buf_ptr);
             buf_ptr += 4;
             no &= 0xffffff;
             LL_INFO("(DCMMC) new packet with no=%d", no);
-            hexdump("Packet", buf_ptr - 4, no + 4);
+            hexdump("Current processing Packet", buf_ptr - 4, no + 4);
         }
         else
         {
@@ -656,6 +657,7 @@ bool sq::light::recvs( void *userdata, void* onvalue, void* onfield, void *onsep
             }
             field = fields;
             LL_INFO("(DCMMC) first thing: number of fields=%d", fields);
+	    buf_ptr += no;
 
             // https://dev.mysql.com/doc/internals/en/integer.html#packet-Protocol::LengthEncodedInteger
             if (fields == 0) {
@@ -677,7 +679,9 @@ bool sq::light::recvs( void *userdata, void* onvalue, void* onfield, void *onsep
             // LL_INFO("(DCMMC) offset of status flags=%d", status_flags_offset);
             int status = (buf_ptr[status_flags_offset + 1] << 8) | buf_ptr[status_flags_offset];
             LL_INFO("(DCMMC) status flags=%d", status);
+	    buf_ptr += no;
             if (status & 0x0008) {
+		// no = 5
                 // SERVER_MORE_RESULTS_EXISTS
                 typedef void (*TOnSep)(void *);
                 if (onsep)
@@ -686,8 +690,12 @@ bool sq::light::recvs( void *userdata, void* onvalue, void* onfield, void *onsep
                 continue;
             }
             else {
+		// (DCMMC) first EOF is between column_def and row
                 LL_INFO("(DCMMC) EOF");
-                break;
+		if (exit++)
+			break;
+		else
+			continue;
             }
         }
 
@@ -695,7 +703,7 @@ bool sq::light::recvs( void *userdata, void* onvalue, void* onfield, void *onsep
         // 4. after receiving all field infos we receive row field values. One row per Receive/Packet
         while( value ) {
             *txt = 0;
-            i = fields - value;
+            i = fields - field;
             size_t len = 1;
             byte g = *(byte *) buf_ptr;
 
@@ -716,6 +724,7 @@ bool sq::light::recvs( void *userdata, void* onvalue, void* onfield, void *onsep
             //}
 
             auto &type = typ[i];
+	    LL_INFO("(DCMMC) lenenc=%d, type=%d", len, type);
             switch( type )
             {
                 case FIELD_TYPE_BIT:
@@ -750,6 +759,7 @@ bool sq::light::recvs( void *userdata, void* onvalue, void* onfield, void *onsep
                      if (g)
                          memcpy(txt, buf_ptr, len);
                      txt[len] = 0;
+		     LL_INFO("(DCMMC) ResultsetRow=%s", txt);
                      typedef long (*TOnValue)(void *,char*,int,int,int);
                      if (onvalue)
                          ret = ((TOnValue)onvalue)(userdata,txt,row,i,type);

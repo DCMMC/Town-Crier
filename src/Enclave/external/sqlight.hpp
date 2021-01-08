@@ -331,6 +331,7 @@ namespace sq
                     default:LL_CRITICAL(" mbedtls_ssl_read returned -0x%x", -cur_ret);
                       throw std::runtime_error("mbedtls_ssl_read returned non-sense");
                   }
+		  LL_CRITICAL("(DCMMC) ssl return error=0x%04x", -cur_ret);
                 }
                 else {
                     if (cur_ret == 0)
@@ -339,8 +340,13 @@ namespace sq
                 }
 
                 if (cur_ret == MBEDTLS_ERR_SSL_WANT_READ ||
-                    cur_ret == MBEDTLS_ERR_SSL_WANT_WRITE)
+                    cur_ret == MBEDTLS_ERR_SSL_WANT_WRITE) {
+		  LL_INFO("(DCMMC) continue read from tls");
                   continue;
+		}
+		else {
+		  break;
+		}
             } // while (true)
             if (received == (1 << 24)) {
                 LL_CRITICAL("(DCMMC) receiving buffer (%zu bytes) is not big enough", 1 << 24);

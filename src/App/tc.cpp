@@ -141,7 +141,7 @@ int main(int argc, const char *argv[]) {
     auto ecall_status = debug_mysql(eid, &ecall_ret, "219.223.189.199",
             3306, "root", "97294597");
 
-    if (ecall_status != SGX_SUCCESS || ecall_ret != TC_SUCCESS) {
+    if (ecall_status != SGX_SUCCESS) {
       LL_INFO("(DCMMC) ecall failed");
     } else {
       LL_INFO("(DCMMC) ecall succeeds");

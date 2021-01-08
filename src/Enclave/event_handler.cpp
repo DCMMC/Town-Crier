@@ -108,7 +108,7 @@ bool ret = true;
       LL_DEBUG("DCMMC: connection to database failed");
   else
   {
-      std::string input = "show databases;";
+      std::string input = "show variables like '%%ssl%%';";
       std::string result;
       ret = sql.json(input, result);
       if (ret)
