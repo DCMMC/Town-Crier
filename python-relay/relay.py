@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 class TCMonitor:
     ETH_RPC_ADDRESS = 'http://localhost:8000'
-    TC_CORE_RPC_URL = "http://localhost:8123"
+    TC_CORE_RPC_URL = "localhost:8123"
     # (DCMMC) TC 合约发出的 RequestInfo 信号的 Keccak-256 hash
     # RequestInfo(uint64,uint8,address,uint256,address,bytes32,uint256,bytes32[])
     # 这个可以直接用 truffle develop 交互式界面输入 tc 的 instance 名称，然后找到这个 event,
@@ -115,6 +115,8 @@ class TCMonitor:
                     # if the except e is not due to "filter not found", pass it through (i.e., re-raise)
                     logger.error('exception: %s', e)
                     raise e
+            except Exception as e:
+                logger.error('exception: %s', e)
             time.sleep(2)
 
 

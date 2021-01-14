@@ -111,7 +111,7 @@ class Deploy():
             time.sleep(4)
             lines = list(open('relay.log').readlines())
             for idx in range(len(lines)):
-                if 'response sent 0x' in lines[-idx]:
+                if 'response sent and mined' in lines[-idx]:
                     print('find response, wait for 4s.')
                     time.sleep(4)
                     result_tx = lines[-idx].strip().split()[-1]
