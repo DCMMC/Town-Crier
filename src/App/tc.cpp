@@ -45,33 +45,33 @@
 #include <sgx_uae_service.h>
 
 // system headers
+#include <grpcpp/server_builder.h>
+#include <log4cxx/logger.h>
+#include <log4cxx/propertyconfigurator.h>
+
 #include <atomic>
+#include <boost/filesystem.hpp>
+#include <boost/program_options.hpp>
+#include <boost/property_tree/ini_parser.hpp>
+#include <chrono>
 #include <csignal>
 #include <iostream>
 #include <string>
 #include <thread>
-#include <chrono>
 #include <utility>
-#include <log4cxx/logger.h>
-#include <log4cxx/propertyconfigurator.h>
-#include <jsonrpccpp/server/connectors/httpserver.h>
-#include <boost/filesystem.hpp>
-#include <boost/program_options.hpp>
-#include <boost/property_tree/ini_parser.hpp>
 
 // app headers
 #include "App/Enclave_u.h"
-#include "App/status_rpc_server.h"
 #include "App/attestation.h"
 #include "App/config.h"
 #include "App/key_utils.h"
-#include "App/request_parser.h"
+#include "App/logging.h"
+#include "App/rpc.h"
 #include "App/tc_exception.h"
 #include "App/utils.h"
-#include "App/logging.h"
 #include "Common/Constants.h"
 
-#include <sgx_eid.h>
+// #include <sgx_eid.h>
 
 namespace po = boost::program_options;
 namespace fs = boost::filesystem;
@@ -119,8 +119,10 @@ int main(int argc, const char *argv[]) {
 
     try {
         // (DCMMC) 配置文件中的 [sealed] sig_key 就是 SGX WALLET address
-        wallet_address = unseal_key(eid, config.getSealedSigKey(), tc::keyUtils::ECDSA_KEY);
-        hybrid_pubkey = unseal_key(eid, config.getSealedHybridKey(), tc::keyUtils::HYBRID_ENCRYPTION_KEY);
+        wallet_address = unseal_key(
+                eid, config.getSealedSigKey(), tc::keyUtils::ECDSA_KEY);
+        hybrid_pubkey = unseal_key(
+                eid, config.getSealedHybridKey(), tc::keyUtils::HYBRID_ENCRYPTION_KEY);
 
         LL_INFO("using wallet address at %s", wallet_address.c_str());
         LL_INFO("using hybrid pubkey: %s", hybrid_pubkey.c_str());
@@ -150,22 +152,25 @@ int main(int argc, const char *argv[]) {
 
     }
 
-    jsonrpc::HttpServer status_server_connector(config.getRelayRPCAccessPoint(), "", "", 3);
-    tc::status_rpc_server stat_srvr(status_server_connector, eid);
-    stat_srvr.StartListening();
-    LL_INFO("RPC server started at %d", config.getRelayRPCAccessPoint());
-
+    // initialize the enclave environment variables
     st = init_enclave_kv_store(eid, config.getContractAddress().c_str());
     if (st != SGX_SUCCESS) {
         LL_CRITICAL("cannot initialize enclave env");
         exit(-1);
     }
 
-    while (!quit.load()) {
-        this_thread::sleep_for(chrono::microseconds(500));
-    }
+    // starting the backend RPC server
+    RpcServer tc_service(eid);
+    std::string server_address("0.0.0.0:" +
+            std::to_string(config.getRelayRPCAccessPoint()));
+    grpc::ServerBuilder builder;
+    builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
+    builder.RegisterService(&tc_service);
 
-    stat_srvr.StopListening();
+    std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
+    LOG4CXX_INFO(logger, "TC service listening on " << server_address);
+
+    server->Wait();
     sgx_destroy_enclave(eid);
     LL_INFO("all enclave closed successfully");
 }

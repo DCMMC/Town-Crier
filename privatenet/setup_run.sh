@@ -128,7 +128,7 @@ docker run --rm -td \
         kill `echo $i | awk '{print $2}'` 2>/dev/null
       done
       rm -vf tc.log.bin
-      python3 ../python-relay/relay.py --db tc.log.bin --sgx_wallet ${add_sgx} --tc_contract ${add_tc} > relay.log 2>&1 &
+      python3 ../python-relay/relay.py --sgx_wallet ${add_sgx} --tc_contract ${add_tc} > relay.log 2>&1 &
       sleep 3s
       cat relay.log
 

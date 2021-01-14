@@ -4,24 +4,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_C_FLAGS} -std=c++11")
 ###############################
 #### list source code files
 ###############################
-
-set(TC_SRC_FILES
-        attestation.cpp
-        request_parser.cpp
-        mbedtls_sgx_net.c
-        Enclave_u.c
-        ocalls.cpp
-        debug.cpp
-        converter.cpp
-        utils.cpp
-        types.cpp
-        status_rpc_server.cpp
-        ../Common/external/base64.cpp
-        key_utils.cpp
-        logging.cpp
-        tc_exception.cpp
-        config.cpp)
-
 add_custom_command(
         OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/Enclave_u.c
         COMMAND ${SGX_EDGER8R} --untrusted ${TC_ROOT_DIR}/Enclave/Enclave.edl
@@ -55,11 +37,64 @@ configure_file(
 set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "Enclave_u.c; Enclave_u.h")
 
 ###############################
+#### dependencies
+###############################
+
+find_package(Boost QUIET REQUIRED COMPONENTS program_options filesystem system)
+find_package(Log4CXX REQUIRED)
+
+# ###############################################################################
+# grpc
+# ###############################################################################
+
+list(APPEND CMAKE_PREFIX_PATH "/opt/grpc" "/opt/protobuf")
+
+find_package(Protobuf REQUIRED)
+find_package(GRPC REQUIRED)
+
+# Generated sources
+set(PROTO_OUTDIR ${CMAKE_CURRENT_SOURCE_DIR}/services/generated)
+set(PROTO_FILE ${CMAKE_CURRENT_SOURCE_DIR}/services/tc.proto)
+
+file(MAKE_DIRECTORY ${PROTO_OUTDIR})
+
+protobuf_generate_cpp(PROTO_SRCS
+        PROTO_HDRS
+        ${PROTO_OUTDIR}
+        ${PROTO_FILE})
+
+grpc_generate_cpp(GRPC_SRCS
+        GRPC_HDRS
+        ${PROTO_OUTDIR}
+        ${PROTO_FILE})
+
+set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "Enclave_u.c; Enclave_u.h")
+
+
+###############################
 #### targets
 ###############################
 
 # (DCMMC) 最终就是生成这两个可执行文件
-add_executable(tc tc.cpp ${TC_SRC_FILES})
+add_executable(tc
+        tc.cpp
+        attestation.cpp
+        mbedtls_sgx_net.c
+        Enclave_u.c
+        ocalls.cpp
+        debug.cpp
+        converter.cpp
+        utils.cpp
+        types.cpp
+        rpc.cpp
+        ../Common/external/base64.cpp
+        key_utils.cpp
+        logging.cpp
+        tc_exception.cpp
+        config.cpp
+        ${PROTO_SRCS}
+        ${GRPC_SRCS})
+
 add_executable(tc-keygen
         tc-keygen.cpp
         logging.cpp
@@ -70,40 +105,28 @@ add_executable(tc-keygen
         utils.cpp
         mbedtls_sgx_net.c)
 
-###############################
-#### dependencies
-###############################
-
-find_package(CURL REQUIRED)
-find_package(Boost QUIET REQUIRED COMPONENTS program_options filesystem system)
-find_package(Jsoncpp REQUIRED)
-find_package(MHD REQUIRED)
-find_package(JsonCppRpc REQUIRED)
-find_package(Log4CXX REQUIRED)
-
 include_directories(
-        ${CURL_INCLUDE_DIRS}
         ${Boost_INCLUDE_DIRS}
-        ${JSONCPP_INCLUDE_DIRS}/${JSONCPP_INCLUDE_PREFIX}
-        ${MHD_INCLUDE_DIRS}
         ${SGXSDK_INCLUDE_DIRS}
-        ${JSONRPCCPP_INCLUDE_DIRS}
         ${MBEDTLS_LIB_DIR}/include
         ${LOG4CXX_INCLUDE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/..
 )
 
 target_link_libraries(tc
-        ${JSONCPP_LIBRARIES} ${CURL_LIBRARIES} ${JSONRPCCPP_LIBRARIES}
-        ${MHD_LIBRARIES} ${Boost_LIBRARIES}
+        ${Boost_LIBRARIES}
         ${LOG4CXX_LIBRARY}
         ${SGX_URTS_LIBRARY} ${SGX_USVC_LIBRARY}
+        gRPC::grpc++
+        protobuf::libprotobuf
+        -Wl,-rpath=/opt/grpc/lib:/opt/protobuf/lib # hardcode rpath for now.
         -lpthread -ldl)
 
 target_link_libraries(tc-keygen
         ${SGX_URTS_LIBRARY} ${SGX_USVC_LIBRARY} ${Boost_LIBRARIES}
         ${LOG4CXX_LIBRARY}
         -lpthread -ldl)
+
 
 # (DCMMC) 可执行文件依赖父目录中 Enclave 生成的 enclave 库
 add_dependencies(tc enclave)
@@ -137,7 +160,6 @@ if(BUILD_TESTS)
             converter.cpp
             ../Common/external/base64.cpp
             types.cpp
-            request_parser.cpp
             key_utils.cpp)
 
     target_include_directories(tc-test
