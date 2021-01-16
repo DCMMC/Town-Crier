@@ -11,6 +11,8 @@ import grpc
 from web3 import Web3, HTTPProvider
 from solc import compile_standard
 
+import random
+
 import tc_pb2
 import tc_pb2_grpc
 
@@ -67,16 +69,19 @@ class TCMonitor:
         else:
             logger.info('connected to {0}'.format(self.w3.clientVersion))
 
-
     def _process_request(self, req):
         nonce = self.w3.eth.getTransactionCount(self.config.SGX_WALLET_ADDR)
         req = req['args']
-        response = self.stub.process(tc_pb2.Request(
+        grpc_req = tc_pb2.Request(
             id=req['id'],
             type=req['requestType'],
             # concat an array of bytes
             data=b''.join(req['requestData']),
-            nonce=nonce))
+            nonce=nonce)
+        if args.voting:
+            response = self.stub.process(grpc_req)
+        else:
+            response = self.stub.process(grpc_req)
         if response.error_code != 0:
             logger.error("Enclave returned error %d", response.error_code)
         logger.info('response from enclave: %s', response.response_tx.hex())
@@ -128,6 +133,7 @@ parser.add_argument('--tc_contract', action='store', dest='TC_CONTRACT_ADDR',
                     help='TC contract address in the blockchain')
 parser.add_argument('--start_block', action='store', dest='TC_CONTRACT_BLOCK_NUM', type=int,
                     default=0, help='block number where TC contract start running, default=0')
+parser.add_argument('--voting', action='store_true', dest='voting')
 
 args = parser.parse_args()
 args.parser = parser

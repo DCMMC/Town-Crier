@@ -168,16 +168,20 @@ int form_transaction(int nonce,
 
   // calculate a _tx_hash of input
   // note that the raw input = request_id || request_data
-  size_t __hash_input_len = 1 + request_data_len;
-  auto __hash_input = static_cast<uint8_t *>(malloc(__hash_input_len));
-  memset(__hash_input, 0, __hash_input_len);
-
-  __hash_input[0] = request_type;
-  memcpy(__hash_input + 1, request_data, request_data_len);
-
   uint8_t __hash_out[32];
-  keccak(__hash_input, __hash_input_len, __hash_out, sizeof __hash_out);
-  free(__hash_input);
+  if (type == TYPE_GENERATE_TRANSACTION) {
+      memcpy(__hash_out, response, 32);
+  } else {
+      size_t __hash_input_len = 1 + request_data_len;
+      auto __hash_input = static_cast<uint8_t *>(malloc(__hash_input_len));
+      memset(__hash_input, 0, __hash_input_len);
+
+      __hash_input[0] = request_type;
+      memcpy(__hash_input + 1, request_data, request_data_len);
+
+      keccak(__hash_input, __hash_input_len, __hash_out, sizeof __hash_out);
+      free(__hash_input);
+  }
 
   bytes32 param_hash(__hash_out, sizeof __hash_out);
 

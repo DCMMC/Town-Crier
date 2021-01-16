@@ -66,18 +66,15 @@
 // #define TYPE_FLIGHT_INS_ENC	0x10
 // #define TYPE_STEAM_EX       0x11
 
-// (DCMMD) requestData 为原始的 SQL 语句，但是服务器只能是 https://localhost:8443
-// 该服务器是一个 https 服务器，返回数据为 JSON 格式。
-#define TYPE_GENERIC_SQL_LOCALHOST8443 0x0
-// TODO (DCMMD) requestData 为想要执行的 SQL 语句的描述，在 TC server 中对其进行安全校验才拼接成
-// 最终的 SQL 语句，但是服务器只能是 https://localhost:8443
-// requestData 可以是一个 JSON 对象, 参考 flight.cpp
-#define TYPE_RESTRICTED_SQL_LOCALHOST8443 0x1
+// (DCMMD) requestData 为原始的 SQL 语句
+#define TYPE_GENERIC_SQL 0x0
 // (DCMMC) 可以在 TC server 的 src/Enclave/hybrid_cipher 中设置私钥 PREDEFINED_HYBRID_SECKEY
 // 然后 TC server 公开其对应的公钥，这样用户可以在 User Contract 中提交事先通过公钥加密的数据作为
 // RequestData（用户不需要在区块链上加密）
-#define TYPE_PRIVATE_SQL_LOCALHOST8443 0x2
-#define TYPE_RESTRICTED_PRIVATE_SQL_LOCALHOST8443 0x4
+#define TYPE_PRIVATE_SQL 0x1
+// (DCMMC) 用于负载均衡，从 Load balancer 那里得到 resp 数据后，
+// TC server 仅仅用于负责生成 RawTransaction
+#define TYPE_GENERATE_TRANSACTION 0x2
 
 /* Possible return values to be used in Enclave-Relay Connections */
 #define TC_SUCCESS          0x0

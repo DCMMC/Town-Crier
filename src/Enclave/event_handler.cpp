@@ -190,7 +190,7 @@ int do_handle_request(int nonce,
     int error_flag = 0;
 
     switch (type) {
-        case TYPE_GENERIC_SQL_LOCALHOST8443:
+        case TYPE_GENERIC_SQL:
             {
                 LL_INFO("DCMMC: SQL start!\n");
                 SQLScraper sql_scrapers;
@@ -214,6 +214,10 @@ int do_handle_request(int nonce,
                         break;
                 }
                 break;
+            }
+        case TYPE_GENERATE_TRANSACTION:
+            {
+                LL_INFO("(DCMMC) when use load balancer, TC server is only used to generate raw transaction.");
             }
             /*
                case TYPE_ENCRYPT_TEST: {
