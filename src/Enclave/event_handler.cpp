@@ -117,9 +117,9 @@ int debug_mysql(const char *host, unsigned int port,
         else
             LL_DEBUG("DCMMC: sqlight exec failed.");
 
-	std::string sql1 = "CREATE DATABASE IF NOT EXISTS test_db;";
-	std::string sql2 = "USE test_db;";
-	std::string sql3 = "DROP TABLE IF EXISTS tb_courses;";
+        std::string sql1 = "CREATE DATABASE IF NOT EXISTS test_db;";
+        std::string sql2 = "USE test_db;";
+        std::string sql3 = "DROP TABLE IF EXISTS tb_courses;";
         std::string sql4 = "CREATE TABLE tb_courses (course_id INT NOT NULL AUTO_INCREMENT, course_name CHAR(40) NOT NULL, course_grade FLOAT NOT NULL, course_info CHAR(100) NULL, PRIMARY KEY(course_id));";
         std::string sql5 = "SELECT * FROM tb_courses;";
         std::string sql6 = "INSERT INTO tb_courses (course_id,course_name,course_grade,course_info) VALUES(1,'Network',3,'Computer Network');";
@@ -190,256 +190,72 @@ int do_handle_request(int nonce,
     int error_flag = 0;
 
     switch (type) {
-        /*
-           case TYPE_LOOP_THROUGH: {
-           printf_sgx("nonce: %d\n", nonce);
-           printf_sgx("id: %" PRIu64 "\n", id);
-           printf_sgx("type: %" PRIu64 "\n", type);
-           printf_sgx("data len: %zu\n", data_len);
+        case TYPE_GENERIC_SQL_LOCALHOST8443:
+            {
+                LL_INFO("DCMMC: SQL start!\n");
+                SQLScraper sql_scrapers;
+                string result;
+                switch (sql_scrapers.handle(data, data_len, &result)) {
+                    case UNKNOWN_ERROR:
+                    case WEB_ERROR:
+                        LL_INFO("DCMMC: SQL TC_INTERNAL_ERROR\n");
+                        error_flag = TC_INTERNAL_ERROR;
+                        break;
+                    case INVALID_PARAMS:
+                        LL_INFO("DCMMC: SQL TC_INPUT_ERROR\n");
+                        error_flag = TC_INPUT_ERROR;
+                        break;
+                    case NO_ERROR:
+                        LL_INFO("(DCMMC) SQLScraper returned: %s\n", result.c_str());
+                        resp_data.insert(resp_data.end(), result.begin(), result.end());
+                        break;
+                    default:
+                        error_flag = TC_ERR_FLAG_INVALID_INPUT;
+                        break;
+                }
+                break;
+            }
+            /*
+               case TYPE_ENCRYPT_TEST: {
+               HybridEncryption dec_ctx;
+               ECPointBuffer tc_pubkey;
+               dec_ctx.queryPubkey(tc_pubkey);
 
-           if (data_len > TC_REQUEST_PAYLOAD_LIMIT) {
-           LL_CRITICAL("data (%zu bytes) exceeds limit (%d bytes)", data_len, TC_REQUEST_PAYLOAD_LIMIT);
-           return -1;
-           }
-           dump_buf("data:", data, data_len);
-           return -1;
-           }
-           */
-        // case TYPE_BITCOIN_FEE: {
-        //   BitcoinFees bitcoinFees;
-        //   int fastestFee;
-        //   switch (bitcoinFees.handle(data, data_len, &fastestFee)) {
-        //   case UNKNOWN_ERROR:
-        //   case WEB_ERROR:
-        //     error_flag = TC_INTERNAL_ERROR;
-        //     break;
-        //   case INVALID_PARAMS:
-        //     error_flag = TC_INPUT_ERROR;
-        //     break;
-        //   case NO_ERROR:
-        //     append_as_uint256(resp_data, fastestFee, sizeof(fastestFee));
-        //     break;
-        //   }
-        //   break;
-        // }
-        // case TYPE_FLIGHT_INS: {
-        //   FlightScraper flightHandler;
-        //   int delay = 0;
-        //   switch (flightHandler.handle(data, data_len, &delay)) {
-        //   case UNKNOWN_ERROR:
-        //   case WEB_ERROR:
-        //     error_flag = TC_INTERNAL_ERROR;
-        //     break;
-        //   case INVALID_PARAMS:
-        //     error_flag = TC_INPUT_ERROR;
-        //     break;
-        //   case NO_ERROR:
-        //     append_as_uint256(resp_data, delay, sizeof(delay));
-        //     break;
-        //   };
-        //   break;
-        // }
-        // case TYPE_STEAM_EX: {
-        //   SteamScraper steamHandler;
-        //   int found;
-        //   switch (steamHandler.handle(data, data_len, &found)) {
-        //   case UNKNOWN_ERROR:
-        //   case WEB_ERROR:
-        //     error_flag = TC_INTERNAL_ERROR;
-        //     break;
-        //   case INVALID_PARAMS:
-        //     error_flag = TC_INPUT_ERROR;
-        //     break;
-        //   case NO_ERROR:
-        //     append_as_uint256(resp_data, found, sizeof(found));
-        //     break;
-        //   }
-        //   break;
-        // }
-        // case TYPE_FINANCE_INFO: {
-        //   YahooYQLStock yahooYQLStock;
-        //   int closing_price = 0;
-        //   switch (yahooYQLStock.handle(data, data_len, &closing_price)) {
-        //   case INVALID_PARAMS:
-        //     error_flag = TC_ERR_FLAG_INVALID_INPUT;
-        //     break;
-        //   case WEB_ERROR:
-        //     error_flag = TC_INTERNAL_ERROR;
-        //     break;
-        //   case NO_ERROR:
-        //     LL_DEBUG("closing pricing is %d", closing_price);
-        //     append_as_uint256(resp_data, closing_price, sizeof(closing_price));
-        //     break;
-        //   default:
-        //     LL_CRITICAL("unknown state!");
-        //     error_flag = TC_ERR_FLAG_INTERNAL_ERR;
-        //   }
-        //   break;
-        // }
-        // case TYPE_UPS_TRACKING: {
-        //   LL_CRITICAL("not supported yet");
-        //   error_flag = TC_ERR_FLAG_INTERNAL_ERR;
-        //   break;
-        //   USPSScraper uSPSScraper;
-        //   int pkg_status;
-        //   switch (uSPSScraper.handle(data, data_len, &pkg_status)) {
-        //   case UNKNOWN_ERROR:
-        //   case WEB_ERROR:
-        //     error_flag = TC_INTERNAL_ERROR;
-        //     break;
-        //   case INVALID_PARAMS:
-        //     error_flag = TC_INPUT_ERROR;
-        //   case NO_ERROR:
-        //     append_as_uint256(resp_data, pkg_status, sizeof(pkg_status));
-        //     break;
-        //   };
-        //   break;
-        // }
-        // case TYPE_COINMARKET: {
-        //   CoinMarket coinMarket;
-        //   int coin_value;
-        //   switch (coinMarket.handle(data, data_len, &coin_value)) {
-        //   case UNKNOWN_ERROR:
-        //   case WEB_ERROR:
-        //     error_flag = TC_INTERNAL_ERROR;
-        //     break;
-        //   case INVALID_PARAMS:
-        //     error_flag = TC_INPUT_ERROR;
-        //     break;
-        //   case NO_ERROR:
-        //     append_as_uint256(resp_data, coin_value, sizeof(coin_value));
-        //     break;
-        //   };
-        //   break;
-        // }
-        // case TYPE_WEATHER: {
-        //   WeatherScraper weatherScraper;
-        //   int temperature;
-        //   switch (weatherScraper.handle(data, data_len, &temperature)) {
-        //   case UNKNOWN_ERROR:
-        //   case WEB_ERROR:
-        //     error_flag = TC_INTERNAL_ERROR;
-        //     break;
-        //   case INVALID_PARAMS:
-        //     error_flag = TC_INPUT_ERROR;
-        //     break;
-        //   case NO_ERROR:
-        //     append_as_uint256(resp_data, temperature, sizeof(temperature));
-        //     break;
-        //   };
-        //   break;
-        // }
-        /*
-           case TYPE_CURRENT_VOTE: {
-           double r1 = 0, r2 = 0;
-           yahoo_current("GOOG", &r1);
-           google_current("GOOG", &r2);
-           break;
-           }
-           */
-        // case TYPE_WOLFRAM: {
-        //   WolframScraper wolframScraper;
-        //   string status;
-        //   switch (wolframScraper.handle(data, data_len, &status)) {
-        //   case UNKNOWN_ERROR:
-        //   case WEB_ERROR:
-        //     error_flag = TC_INTERNAL_ERROR;
-        //     break;
-        //   case INVALID_PARAMS:
-        //     error_flag = TC_INPUT_ERROR;
-        //     break;
-        //   case NO_ERROR:
-        //     LL_INFO("wolfram returned: %s", status.c_str());
-        //     resp_data.insert(resp_data.end(), status.begin(), status.end());
-        //     break;
-        //   default:
-        //     error_flag = TC_ERR_FLAG_INVALID_INPUT;
-        //     break;
-        //   }
-        //   break;
-        // }
-        // case TYPE_FLIGHT_INS_ENC: {
-        //   FlightScraper flightHandler;
-        //   int delay = 0;
-        //   switch (flightHandler.handleEncryptedQuery(data, data_len, &delay)) {
-        //   case UNKNOWN_ERROR:
-        //   case WEB_ERROR:
-        //     error_flag = TC_INTERNAL_ERROR;
-        //     break;
-        //   case INVALID_PARAMS:
-        //     error_flag = TC_INPUT_ERROR;
-        //     break;
-        //   case NO_ERROR:
-        //     append_as_uint256(resp_data, delay, sizeof(delay));
-        //     break;
-        //   };
-        //   break;
-        // }
-        case TYPE_GENERIC_SQL_LOCALHOST8443: {
-                                                 LL_INFO("DCMMC: SQL start!\n");
-                                                 SQLScraper sql_scrapers;
-                                                 string result;
-                                                 switch (sql_scrapers.handle(data, data_len, &result)) {
-                                                     case UNKNOWN_ERROR:
-                                                     case WEB_ERROR:
-                                                         LL_INFO("DCMMC: SQL TC_INTERNAL_ERROR\n");
-                                                         error_flag = TC_INTERNAL_ERROR;
-                                                         break;
-                                                     case INVALID_PARAMS:
-                                                         LL_INFO("DCMMC: SQL TC_INPUT_ERROR\n");
-                                                         error_flag = TC_INPUT_ERROR;
-                                                         break;
-                                                     case NO_ERROR:
-                                                         LL_INFO("(DCMMC) SQLScraper returned: %s\n", result.c_str());
-                                                         resp_data.insert(resp_data.end(), result.begin(), result.end());
-                                                         break;
-                                                     default:
-                                                         error_flag = TC_ERR_FLAG_INVALID_INPUT;
-                                                         break;
-                                                 }
-                                                 break;
-                                             }
-                                             /*
-                                                case TYPE_ENCRYPT_TEST: {
-                                                HybridEncryption dec_ctx;
-                                                ECPointBuffer tc_pubkey;
-                                                dec_ctx.queryPubkey(tc_pubkey);
+               string cipher_b64(data, data + data_len);
+               hexdump("encrypted query: ", data, data_len);
 
-                                                string cipher_b64(data, data + data_len);
-                                                hexdump("encrypted query: ", data, data_len);
+               try {
+               HybridCiphertext cipher = dec_ctx.decode(cipher_b64);
+               vector<uint8_t> cleartext;
+               dec_ctx.hybridDecrypt(cipher, cleartext);
+               hexdump("decrypted message", &cleartext[0], cleartext.size());
 
-                                                try {
-                                                HybridCiphertext cipher = dec_ctx.decode(cipher_b64);
-                                                vector<uint8_t> cleartext;
-                                                dec_ctx.hybridDecrypt(cipher, cleartext);
-                                                hexdump("decrypted message", &cleartext[0], cleartext.size());
+            // decrypted message is the base64 encoded data
+            string encoded_message(cleartext.begin(), cleartext.end());
+            uint8_t decrypted_data[cleartext.size()];
+            int decrypted_data_len = ext::b64_pton(encoded_message.c_str(),
+            decrypted_data, sizeof decrypted_data);
 
-                                             // decrypted message is the base64 encoded data
-                                             string encoded_message(cleartext.begin(), cleartext.end());
-                                             uint8_t decrypted_data[cleartext.size()];
-                                             int decrypted_data_len = ext::b64_pton(encoded_message.c_str(),
-                                             decrypted_data, sizeof decrypted_data);
+            if (decrypted_data_len == -1) {
+            throw runtime_error("can't decode user message");
+            }
 
-                                             if (decrypted_data_len == -1) {
-                                             throw runtime_error("can't decode user message");
-                                             }
+            hexdump("decoded message", decrypted_data, (size_t) decrypted_data_len);
+            }
+            catch (const std::exception &e) {
+            LL_CRITICAL("decryption error: %s. See dump above.", e.what());
+            }
+            catch (...) {
+            LL_CRITICAL("unknown exception happened while decrypting. See dump above.");
+            }
 
-                                             hexdump("decoded message", decrypted_data, (size_t) decrypted_data_len);
-                                             }
-                                             catch (const std::exception &e) {
-                                             LL_CRITICAL("decryption error: %s. See dump above.", e.what());
-                                             }
-                                             catch (...) {
-                                             LL_CRITICAL("unknown exception happened while decrypting. See dump above.");
-                                             }
-
-                                             return TC_INTERNAL_TEST;
-                                             }
-                                             */
+            return TC_INTERNAL_TEST;
+            }
+            */
         default :
-                                             LL_CRITICAL("Unknown request type: %"
-                                                     PRIu64, type);
-                                             error_flag = TC_ERR_FLAG_INVALID_INPUT;
+            LL_CRITICAL("Unknown request type: %"
+                    PRIu64, type);
+            error_flag = TC_ERR_FLAG_INVALID_INPUT;
     }
 
     return form_transaction(nonce, id, type, data, data_len, error_flag, resp_data,
