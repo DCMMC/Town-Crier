@@ -72,25 +72,37 @@ class TCMonitor:
     def _process_request(self, req):
         nonce = self.w3.eth.getTransactionCount(self.config.SGX_WALLET_ADDR)
         req = req['args']
-        grpc_req = tc_pb2.Request(
-            id=req['id'],
-            type=req['requestType'],
-            # concat an array of bytes
-            data=b''.join(req['requestData']),
-            nonce=nonce)
         if args.voting:
-            response = self.stub.process(grpc_req)
+            req = {
+                id=req['id'],
+                type=req['requestType'],
+                # concat an array of bytes
+                data=b''.join(req['requestData']),
+                nonce=nonce
+            }
+            headers = {'Content-Type': 'application/json'}
+            # address of load balancer
+            response = requests.post(url='http://127.0.0.1:8000',
+                                     headers=headers,
+                                     data=json.dumps(data))
+            print(f'Load balancer return: {response}')
         else:
+            grpc_req = tc_pb2.Request(
+                id=req['id'],
+                type=req['requestType'],
+                # concat an array of bytes
+                data=b''.join(req['requestData']),
+                nonce=nonce)
             response = self.stub.process(grpc_req)
-        if response.error_code != 0:
-            logger.error("Enclave returned error %d", response.error_code)
-        logger.info('response from enclave: %s', response.response_tx.hex())
-        response_tx = response.response_tx
-        # (DCMMC) 发送回复到区块链
-        # ref: https://web3py.readthedocs.io/en/stable/web3.eth.html#web3.eth.Eth.sendRawTransaction
-        txid = self.w3.eth.sendRawTransaction(response_tx)
-        receipt = self.w3.eth.waitForTransactionReceipt(txid)
-        logger.info("response sent and mined: {0}".format(Web3.toHex(txid)))
+            if response.error_code != 0:
+                logger.error("Enclave returned error %d", response.error_code)
+            logger.info('response from enclave: %s', response.response_tx.hex())
+            response_tx = response.response_tx
+            # (DCMMC) 发送回复到区块链
+            # ref: https://web3py.readthedocs.io/en/stable/web3.eth.html#web3.eth.Eth.sendRawTransaction
+            txid = self.w3.eth.sendRawTransaction(response_tx)
+            receipt = self.w3.eth.waitForTransactionReceipt(txid)
+            logger.info("response sent and mined: {0}".format(Web3.toHex(txid)))
 
     def loop(self):
         filter_all_requests = self.tc_contract.events.RequestInfo.createFilter(

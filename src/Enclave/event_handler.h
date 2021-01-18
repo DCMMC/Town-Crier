@@ -72,7 +72,8 @@ int handle_request(int nonce,
                    const uint8_t *data,
                    size_t data_len,
                    uint8_t *raw_tx,
-                   size_t *raw_tx_len);
+                   size_t *raw_tx_len,
+                   const char *tc_ip_port);
 
 int do_handle_request(int nonce,
                       uint64_t id,
@@ -80,7 +81,8 @@ int do_handle_request(int nonce,
                       const uint8_t *data,
                       size_t data_len,
                       uint8_t *raw_tx,
-                      size_t *raw_tx_len);
+                      size_t *raw_tx_len,
+                      const char *tc_ip_port);
 #if defined(__cplusplus)
 }
 #endif

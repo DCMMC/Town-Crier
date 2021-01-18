@@ -99,6 +99,7 @@ int form_transaction(int nonce,
                      bytes resp_data,
                      uint8_t *tx_output_bf,
                      size_t *o_len,
+                     const char *tc_ip_port,
                      bool sign = true);
 
 #if defined(__cplusplus)

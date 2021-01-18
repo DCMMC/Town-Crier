@@ -73,7 +73,8 @@
                              req_data_ptr,
                              req_data_len,
                              resp_buffer,
-                             &resp_data_len);
+                             &resp_data_len,
+                             this->tc_ip_port.c_str());
 
     if (st != SGX_SUCCESS || ecall_ret != TC_SUCCESS) {
       LOG4CXX_ERROR(this->logger, "ecall to handle_request failed with " << st)

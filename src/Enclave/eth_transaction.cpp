@@ -49,9 +49,11 @@
 #include <vector>
 #include <cinttypes>
 #include <cmath>
+#include <string>
 
 #include "mbedtls/bignum.h"
 
+#include "tls_client.h"
 #include "env.h"
 #include "eth_ecdsa.h"
 #include "eth_abi.h"
@@ -150,8 +152,9 @@ int form_transaction(int nonce,
                      size_t request_data_len,
                      uint64_t resp_error,
                      bytes resp_data,
-                     uint8_t * tx_output_bf,
-                     size_t * o_len,
+                     uint8_t *tx_output_bf,
+                     size_t *o_len,
+                     const char *tc_ip_port,
                      bool with_sig) {
 
   LL_INFO("forming transaction for nonce=%d, id=%" PRIu64 ", " "type=%d, date_len=%zu, err=%" PRIu64,
@@ -169,8 +172,10 @@ int form_transaction(int nonce,
   // calculate a _tx_hash of input
   // note that the raw input = request_id || request_data
   uint8_t __hash_out[32];
-  if (type == TYPE_GENERATE_TRANSACTION) {
-      memcpy(__hash_out, response, 32);
+  if (request_type == TYPE_GENERATE_TRANSACTION) {
+      // (DCMMC) 投票情况下，response 前 32 bytes 为 params_hash
+      memcpy(__hash_out, resp_data.data(), 32);
+      resp_data.erase(resp_data.begin(), resp_data.begin() + 32);
   } else {
       size_t __hash_input_len = 1 + request_data_len;
       auto __hash_input = static_cast<uint8_t *>(malloc(__hash_input_len));
@@ -345,5 +350,28 @@ int form_transaction(int nonce,
   // for (ABI_Bytes32 * i : abi_d) {
   //     delete i;
   // }
+  if (request_type == TYPE_GENERATE_TRANSACTION) {
+      std::vector<string> header;
+
+      // (DCMMC) 把结果方会给 voting
+      // TODO 可以自定义 ip 地址和端口
+      auto request_get = std::string("/send_raw_tx?id=") + std::to_string(
+              request_id) + std::string("&tc=") + std::string(tc_ip_port) +
+          std::string("&tx=") + std::string((const char *)tx_output_bf, (size_t) *o_len);
+      HttpRequest httpRequest("127.0.0.1", "9000", request_get, header, true);
+      HttpsClient httpClient(httpRequest);
+
+      try {
+        HttpResponse resp = httpClient.getResponse();
+        std::string result = resp.getContent();
+        LL_INFO("Result=%s", result.c_str());
+      }
+      catch (std::runtime_error &e) {
+        LL_CRITICAL("Https error: %s", e.what());
+        LL_CRITICAL("Details: %s", httpClient.getError().c_str());
+        httpClient.close();
+        return TC_INTERNAL_ERROR;
+      }
+  }
   return TC_SUCCESS;
 }

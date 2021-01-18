@@ -160,13 +160,15 @@ int handle_request(int nonce,
         const uint8_t *data,
         size_t data_len,
         uint8_t *raw_tx,
-        size_t *raw_tx_len) {
+        size_t *raw_tx_len,
+        const char *tc_ip_port) {
     int ret = 0;
     try {
         string tc_address = getContractAddress();
         LL_DEBUG("serving tc address: %s", tc_address.c_str());
 
-        int ret = do_handle_request(nonce, id, type, data, data_len, raw_tx, raw_tx_len);
+        int ret = do_handle_request(nonce, id, type, data, data_len,
+                raw_tx, raw_tx_len, tc_ip_port);
         return ret;
     }
     catch (const std::exception &e) {
@@ -185,7 +187,9 @@ int do_handle_request(int nonce,
         const uint8_t *data,
         size_t data_len,
         uint8_t *raw_tx,
-        size_t *raw_tx_len) {
+        size_t *raw_tx_len,
+        const char *tc_ip_port
+        ) {
     bytes resp_data;
     int error_flag = 0;
 
@@ -265,5 +269,6 @@ int do_handle_request(int nonce,
     return form_transaction(nonce, id, type, data, data_len, error_flag, resp_data,
             raw_tx, raw_tx_len,
             // sign = true
+            tc_ip_port,
             true);
 }
