@@ -52,6 +52,7 @@
 #include <string>
 
 #include "mbedtls/bignum.h"
+#include "mbedtls/base64.h"
 
 #include "tls_client.h"
 #include "env.h"
@@ -63,6 +64,7 @@
 #include "log.h"
 #include "commons.h"
 #include "debug.h"
+
 
 void rlp_item(const uint8_t *input, const int len, bytes &out) {
   int i;
@@ -173,9 +175,13 @@ int form_transaction(int nonce,
   // note that the raw input = request_id || request_data
   uint8_t __hash_out[32];
   if (request_type == TYPE_GENERATE_TRANSACTION) {
+      std::string tmp((char *)request_data, request_data_len);
       // (DCMMC) 投票情况下，response 前 32 bytes 为 params_hash
+      LL_INFO("Request Type: generate transaction, data=%s, len=%d",
+              tmp.c_str(), request_data_len);
       memcpy(__hash_out, resp_data.data(), 32);
       resp_data.erase(resp_data.begin(), resp_data.begin() + 32);
+      request_data_len -= 32;
   } else {
       size_t __hash_input_len = 1 + request_data_len;
       auto __hash_input = static_cast<uint8_t *>(malloc(__hash_input_len));
@@ -269,6 +275,7 @@ int form_transaction(int nonce,
 
   // construct a TX
 
+  LL_INFO("(DCMMC) before tx");
   // 1) encode the nonce
   Transaction tx(Transaction::MessageCall,
                  nonce,
@@ -277,6 +284,7 @@ int form_transaction(int nonce,
                  getContractAddress(),
                  0,
                  encoded_delivery_call);
+  LL_INFO("(DCMMC) done encode the nonce");
 
   tx.m_data = encoded_delivery_call;
 
@@ -355,10 +363,21 @@ int form_transaction(int nonce,
 
       // (DCMMC) 把结果方会给 voting
       // TODO 可以自定义 ip 地址和端口
+      std::string tx;
+      {
+          // (DCMMC) TODO buf size = o_len * 2
+          unsigned char buf[10240];
+          size_t olen;
+          mbedtls_base64_encode(buf, sizeof(buf), &olen,
+                  (const unsigned char *) tx_output_bf, (size_t) *o_len);
+          tx = std::string((const char *) buf, olen);
+          LL_INFO("(DCMMC) base64 len=%d, res=%s", olen, tx.c_str());
+      }
       auto request_get = std::string("/send_raw_tx?id=") + std::to_string(
               request_id) + std::string("&tc=") + std::string(tc_ip_port) +
-          std::string("&tx=") + std::string((const char *)tx_output_bf, (size_t) *o_len);
-      HttpRequest httpRequest("127.0.0.1", "9000", request_get, header, true);
+          std::string("&tx=") + tx;
+      HttpRequest httpRequest("localhost", "9001", request_get,
+              header, /*isHttp11=*/true);
       HttpsClient httpClient(httpRequest);
 
       try {

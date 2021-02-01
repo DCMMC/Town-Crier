@@ -20,4 +20,15 @@ determine_sgx_device
 # token: generate from https://gitlab.scontain.com/-/profile/personal_access_tokens with read_registry permission
 # docker login registry.scontain.com:5050
 
-docker run --rm -td $MOUNT_SGXDEVICE -v "$PWD"/..:/code -w /code -p 8000:8000 registry.scontain.com:5050/sconecuratedimages/crosscompilers:alpine
+# docker stop scone
+# sleep 3s
+# docker rm scone
+# docker run --rm -td --net=host --name scone $MOUNT_SGXDEVICE -v "$PWD"/..:/code -w /code registry.scontain.com:5050/sconecuratedimages/crosscompilers:alpine
+# docker exec -it scone bash -c 'sed -i "s/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g" /etc/apk/repositories && apk add python3 gcc python3-dev && pip3 --default-timeout=1000 install -i https://pypi.tuna.tsinghua.edu.cn/simple Flask mysql-connector-python grpcio==1.26.0 web3'
+
+echo 'Run load_balancer and voting'
+docker exec -td scone bash -c 'pkill python3'
+
+docker exec -td scone bash -c 'cd /code/privatenet/ && python3 load_balancer.py >/code/privatenet/logs/load_balancer.log 2>&1'
+
+docker exec -td scone bash -c 'cd /code/privatenet/ && python3 voting.py >/code/privatenet/logs/voting.log 2>&1'

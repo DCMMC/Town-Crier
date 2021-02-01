@@ -99,7 +99,7 @@ ADR: 89b44e4d3c81ede05d0f5de8d1a68f754d73d997
 // 这个 secret key 可以通过我写的 get_secret_key_from_keystore 获得
 // 仅限于测试环境使用，这个私钥千万不要泄漏出去！
 #define PREDEFINED_SECKEY \
-  "9c482de3ab64503075139af5e9c2b4799afe7507aad0fec2a7cc5a2d8247e167"
+  "63f0606b2ab7db2d1c65e8997cc7ee8fcaea31e75f0b0d21813eb3577bab2a77"
   // "cd244b3015703ddf545595da06ada5516628c5feadbf49dc66049c4b370cc5d8"
 // #undef PREDEFINED_SECKEY
 // (DCMMC) 这是全局用于存放 SGX WALLET address 对应的私钥的变量

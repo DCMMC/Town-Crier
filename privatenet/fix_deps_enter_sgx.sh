@@ -13,7 +13,8 @@
 # fi
 cd /build
 cmake -DCMAKE_INSTALL_PREFIX=/tc /code
-make -j && make install && /tc/bin/tc-keygen --enclave /tc/enclave/enclave.debug.so --keygen /tmp/key.txt
+make -j2 && make install && /tc/bin/tc-keygen --enclave /tc/enclave/enclave.debug.so --keygen /tmp/key.txt
 sealed_key=`cat /tmp/key.txt`
-sed -i '8s:sig_key = .\+$:sig_key = '${sealed_key}':' /code/privatenet/config-privatenet-sim
+cp -v /code/privatenet/config-privatenet-sim /tmp/tc_config
+sed -i '8s:sig_key = .\+$:sig_key = '${sealed_key}':' /tmp/tc_config
 echo 'New sealed_key: '${sealed_key}

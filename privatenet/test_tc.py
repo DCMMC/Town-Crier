@@ -44,7 +44,7 @@ class Deploy():
 
 
     def submit_request(self, gas=20 * 10 ** 4, req_type=0,
-                       req_data='{'+ '"test sql": "SELECT AVG(Price) FROM Products;", ' * 3 + '}'):
+                       req_data='show databases;'):
         gas_estimate = self.ins_app.functions.request(
             req_type,
             self.string_to_bytes32_array(req_data)).estimateGas()
@@ -109,7 +109,7 @@ class Deploy():
         max_wait = 100
         for i in range(max_wait):
             time.sleep(4)
-            lines = list(open('relay.log').readlines())
+            lines = list(open('logs/relay.log').readlines())
             for idx in range(len(lines)):
                 if 'response sent and mined' in lines[-idx]:
                     print('find response, wait for 4s.')

@@ -222,6 +222,10 @@ int do_handle_request(int nonce,
         case TYPE_GENERATE_TRANSACTION:
             {
                 LL_INFO("(DCMMC) when use load balancer, TC server is only used to generate raw transaction.");
+                string result((char *)data, data_len);
+                LL_INFO("(DCMMC) SQL result: %s\n", result.c_str());
+                resp_data.insert(resp_data.end(), result.begin(), result.end());
+                break;
             }
             /*
                case TYPE_ENCRYPT_TEST: {

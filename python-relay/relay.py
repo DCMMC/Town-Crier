@@ -1,15 +1,15 @@
 #!/bin/env python
-
 import time
 import os
+import json
 import logging
 import requests
-import json
 import argparse
 import sys
 import grpc
 from web3 import Web3, HTTPProvider
 from solc import compile_standard
+import traceback
 
 import random
 
@@ -74,17 +74,16 @@ class TCMonitor:
         req = req['args']
         if args.voting:
             req = {
-                id=req['id'],
-                type=req['requestType'],
+                'id': req['id'],
+                'type': req['requestType'],
                 # concat an array of bytes
-                data=b''.join(req['requestData']),
-                nonce=nonce
+                'data': ''.join([r.decode('utf-8').rstrip('\x00') for r in req['requestData']]),
+                'nonce': nonce
             }
-            headers = {'Content-Type': 'application/json'}
             # address of load balancer
-            response = requests.post(url='http://127.0.0.1:8000',
-                                     headers=headers,
-                                     data=json.dumps(data))
+            response = requests.post(url='https://127.0.0.1:9000/request',
+                                     json=req,
+                                     verify=False)
             print(f'Load balancer return: {response}')
         else:
             grpc_req = tc_pb2.Request(
@@ -96,6 +95,7 @@ class TCMonitor:
             response = self.stub.process(grpc_req)
             if response.error_code != 0:
                 logger.error("Enclave returned error %d", response.error_code)
+            logger.info(f'response_tx: {response.response_tx}')
             logger.info('response from enclave: %s', response.response_tx.hex())
             response_tx = response.response_tx
             # (DCMMC) 发送回复到区块链
@@ -134,6 +134,7 @@ class TCMonitor:
                     raise e
             except Exception as e:
                 logger.error('exception: %s', e)
+                traceback.print_exc()
             time.sleep(2)
 
 

@@ -163,7 +163,7 @@ int main(int argc, const char *argv[]) {
     std::string port = std::to_string(config.getRelayRPCAccessPoint());
     // (DCMMC) 用于 voting 的时候是被区别 tc server instance
     // TODO 现在的 ip 只是测试，有关 ip 的配置
-    std::string tc_ip_port = "127.0.0.1:" + port;
+    std::string tc_ip_port = "127.0.0.1_" + port;
     RpcServer tc_service(eid, tc_ip_port);
     std::string server_address("0.0.0.0:" + port);
     grpc::ServerBuilder builder;

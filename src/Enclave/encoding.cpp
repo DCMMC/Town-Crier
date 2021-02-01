@@ -108,6 +108,7 @@ void bytes::toString() { dump("bytes"); }
 
 bytes20::bytes20(const char *hex) {
   auto b = tc::enclave::from_hex(hex);
+  LL_INFO("(DCMMC) hex=%s, b.size()=%d, SIZE=%d", hex, b.size(), SIZE);
   if (b.size() != SIZE)
     throw invalid_argument("wrong size");
 

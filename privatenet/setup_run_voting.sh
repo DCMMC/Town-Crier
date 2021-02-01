@@ -45,6 +45,18 @@ addr01=`geth account list --datadir node01 2>/dev/null | cut -d ' ' -f 3 | cut -
 addr02=`geth account list --datadir node02 2>/dev/null | cut -d ' ' -f 3 | cut -b 2-41`
 addr03=`geth account list --datadir node03 2>/dev/null | cut -d ' ' -f 3 | cut -b 2-41`
 
+if [[ ${#addr01} != 40 ]]; then
+  echo 'Wrong addr'
+  exit -1
+fi
+if [[ ${#addr02} != 40 ]]; then
+  echo 'Wrong addr'
+  exit -1
+fi
+if [[ ${#addr03} != 40 ]]; then
+  echo 'Wrong addr'
+  exit -1
+fi
 sed_s '15s/\("0x\)[0-9a-fA-F]\{40\}/"0x'${addr01}'/' genesis.json
 sed_s '15s/\("0x\)[0-9a-fA-F]\{40\}/"0x'${addr02}'/' genesis.json
 sed_s '15s/\("0x\)[0-9a-fA-F]\{40\}/"0x'${addr03}'/' genesis.json
@@ -70,6 +82,10 @@ geth attach http://localhost:8002 --exec "admin.addPeer("${adminNode}")"
 echo 'Nodes done.'
 
 sgx_wallet=`printf 'node01\n'${passwd}'\n' | node get_secret_key_from_keystore.js`
+if [[ ${#sgx_wallet} != 64 ]]; then
+  echo 'Wrong sgx_wallet'
+  exit -1
+fi
 sed_s '102s/"[0-9a-fA-F]\{64\}/"'${sgx_wallet}'/' ../src/Enclave/eth_ecdsa.cpp
 echo 'Updated source code of TC to new sgx_wallet: '${sgx_wallet}
 
@@ -83,6 +99,10 @@ add_sgx=`geth attach http://localhost:8000 --exec "web3.toChecksumAddress(eth.ac
 add_sgx=${add_sgx:1:42}
 echo 'Address of SGX wallet: '${add_sgx}
 echo 'Address of SGX wallet: '${add_sgx} > address_info.txt
+if [[ ${#add_sgx} != 42 ]]; then
+  echo 'Wrong add_sgx'
+  exit -1
+fi
 sed_s '23s/0x.\{40\};/'${add_sgx}';/' ./contracts/TownCrier.sol
 # may encounter insufficient funds error in low-end devices...
 # one workaround is to sleep...
@@ -95,6 +115,10 @@ echo 'Address of TC: '${add_tc}
 echo 'Address of TC: '${add_tc} >> address_info.txt
 echo 'Address of APP: '${add_app}
 echo 'Address of APP: '${add_app} >> address_info.txt
+if [[ ${#add_tc} != 42 ]]; then
+  echo 'Wrong add_tc'
+  exit -1
+fi
 sed_s '2s/tc_address = .\{42\}$/tc_address = '${add_tc}'/' config-privatenet-sim
 echo 'Modify tc_address in config-privatenet-sim'
 
@@ -108,7 +132,7 @@ docker run --rm -td \
   --name "tc-devel" \
   -v ${ROOTDIR}:/code \
   -e "SGX_SDK=/opt/intel/sgxsdk" \
-  -p 8123:8123 \
+  --net=host \
   -w /build \
   bl4ck5un/tc-sgx-sdk:latest \
   /usr/bin/env bash
@@ -118,8 +142,15 @@ sleep 2s
 docker exec -it tc-devel \
   bash -c 'source /opt/intel/sgxsdk/environment && /code/privatenet/fix_deps_enter_sgx.sh'
 
-docker exec -td tc-devel \
-  bash -c 'source /opt/intel/sgxsdk/environment && /tc/bin/tc -c /tmp/tc_config > /code/privatenet/logs/tc_server.log 2>&1'
+# 9 instances of tc server
+for i in $(seq 1 9); do
+  echo 'Run tc_server '$i
+  docker exec -it tc-devel \
+    bash -c 'cp -v /tmp/tc_config /tmp/tc_config_'$i' && sed -i "5s/8123/8'$i'23/g" /tmp/tc_config_'$i
+  docker exec -td tc-devel \
+    bash -c 'source /opt/intel/sgxsdk/environment && /tc/bin/tc -c /tmp/tc_config_'$i' > /code/privatenet/logs/tc_server_'$i'.log 2>&1'
+  printf 'Done\n\n'
+done
 
 echo 'TC server log stored in privatenet/logs/tc_server.log'
 sleep 2s
@@ -130,9 +161,12 @@ for i in `ps aux | egrep relay`; do
   kill `echo $i | awk '{print $2}'` 2>/dev/null
 done
 rm -vf tc.log.bin
-python3 ../python-relay/relay.py --sgx_wallet ${add_sgx} --tc_contract ${add_tc} > logs/relay.log 2>&1 &
+python3 ../python-relay/relay.py --voting --sgx_wallet ${add_sgx} --tc_contract ${add_tc} > logs/relay.log 2>&1 &
 sleep 3s
-cat logs/relay.log
+cat relay.log
+
+echo 'Deploy and run load_balancer and voting in SCONE.'
+. start_scone.sh
 
 printf '\n\nAll done. address info stored in privatenet/address_info.txt.\n'
 deploy="Deploy(add_tc='"${add_tc}"', add_app='"${add_app}"')"

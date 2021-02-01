@@ -2,6 +2,7 @@ from flask import Flask
 from flask import request
 from mysql.connector import connect, Error
 import logging
+from web3 import Web3
 
 import grpc
 import tc_pb2
@@ -14,7 +15,7 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 # 9 tc server instances
 stubs = [tc_pb2_grpc.towncrierStub(
-    grpc.insecure_channel('127.0.0.1:8{i}23')) for i in range(9)]
+    grpc.insecure_channel(f'127.0.0.1:8{i}23')) for i in range(1, 10)]
 # RR scheduler
 rr_curr = 0
 connection = connect(
@@ -25,6 +26,7 @@ connection = connect(
 
 
 def load_balance_scheduler():
+    global rr_curr
     rr_curr += 1
     rr_curr %= 9
     return [stubs[i % 9] for i in range(rr_curr, rr_curr + 3)]
@@ -47,27 +49,28 @@ def execute_sql(sql):
 
 
 @app.route('/request', methods=['POST'])
-def request():
+def request_tc():
     # get sql query result
     # select 3 tc according to load balancer (RR)
     # assign rawTransaction generation task to 3 tc
-    req = request.form
+    req = request.json
     logger.info(f'(DCMMC) load balancer get request: {req}')
     if req['type'] == 0:
-        sql = req['data']
-        res = execute_sql(sq)
+        sql = req['data'].rstrip('0')
+        res = execute_sql(sql)
         req = {
-            id=req['id'],
+            'id': req['id'],
             # this type indicates tc server only need to
             # generate raw transaction
-            type=2,
+            'type': 2,
             # concat an array of bytes
-            data=b''.join(res),
-            nonce=req['nonce']
+            'data': bytes(Web3.keccak(bytes([2]) + res.encode())) + res.encode(),
+            'nonce': req['nonce']
         }
         res = ''
         for stub in load_balance_scheduler():
-            res += str(stub.process(tc_pb2.Request(req))) + '\n'
+            logger.info(f'stub {stub}, req: {req}')
+            res += str(stub.process(tc_pb2.Request(**req))) + '\n'
             logger.info(f'stub {stub} return: {res}')
         return res
     else:
@@ -76,4 +79,5 @@ def request():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8000)
+    app.run(host='0.0.0.0', port=9000,
+            ssl_context=('flask_cert/cert.pem', 'flask_cert/key.pem'))
