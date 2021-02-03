@@ -59,13 +59,16 @@ def request_tc():
         sql_raw = req['data']
         sql = req['data'].rstrip('0')
         res = execute_sql(sql)
+        res_bytes = res.encode()
+        if len(res_bytes) % 32 != 0:
+            res_bytes = res_bytes + bytes([0] * (32 - len(res_bytes) % 32))
         req = {
             'id': req['id'],
             # this type indicates tc server only need to
             # generate raw transaction
             'type': 2,
             # concat an array of bytes
-            'data': bytes(Web3.keccak(bytes([req['type']]) + sql_raw.encode())) + res.encode(),
+            'data': bytes(Web3.keccak(bytes([req['type']]) + sql_raw.encode())) + res_bytes,
             'nonce': req['nonce']
         }
         res = ''

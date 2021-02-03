@@ -154,7 +154,7 @@ done
 
 echo 'TC server log stored in privatenet/logs/tc_server.log'
 sleep 2s
-cat logs/tc_server.log
+cat logs/tc_server_2.log
 
 IFS=$'\n'
 for i in `ps aux | egrep relay`; do
@@ -174,7 +174,7 @@ read -p "Do you want to start a test request? (Y/N)" -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
-  python3 -c 'from test_tc import *; d = '${deploy}'; d.submit_request(); d.wait_response();'
+    python3 -c 'from test_tc import *; d = '${deploy}'; d.demo();'
   echo
 fi
 echo "You can now use "${deploy}" to test."
