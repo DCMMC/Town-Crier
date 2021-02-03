@@ -20,7 +20,7 @@ contract TownCrier {
     event Cancel(uint64 requestId, address canceller, address requester, uint fee, int flag); // log of cancellations
 
     // (DCMMC) 需要在这里配置好 SGX 钱包的地址
-    address payable public constant SGX_ADDRESS = 0x5099B7847Ac8c06A72F0Db15675cc012b9d555B6;
+    address payable public constant SGX_ADDRESS = 0xD32607B40374b3F62AbcE9c6B64503fC7CA946BF;
 
     uint public GAS_PRICE = 5 * 10**10;
     uint public MIN_FEE = 30000 * GAS_PRICE; // minimum fee required for the requester to pay such that SGX could call deliver() to send a response
@@ -135,29 +135,29 @@ contract TownCrier {
 
     // function deliver(uint64 requestId, bytes32 paramsHash, uint64 error, bytes32[] memory respData) public {
     function deliver(uint64 requestId, bytes32 paramsHash, uint64 error, bytes32 respData) public {
-        /* emit Debug("DEBUG: enter"); */
+        emit Debug("DEBUG: enter");
         if (msg.sender != SGX_ADDRESS ||
                 requestId <= 0 ||
                 requests[requestId].requester == address(0) ||
                 requests[requestId].fee == DELIVERED_FEE_FLAG) {
-            /* emit Debug("error return1"); */
+            emit Debug("error return1");
             // If the response is not delivered by the SGX account or the
             // request has already been responded to, discard the response.
             return;
         }
 
         uint fee = requests[requestId].fee;
-        /* emit Debug("get fee"); */
+        emit Debug("get fee");
         if (requests[requestId].paramsHash != paramsHash) {
             // If the hash of request parameters in the response is not
             // correct, discard the response for security concern.
-            /* emit Debug("unexp paramsHash"); */
+            emit Debug("unexp paramsHash");
             return;
         } else if (fee == CANCELLED_FEE_FLAG) {
             // If the request is cancelled by the requester, cancellation
             // fee goes to the SGX account and set the request as having
             // been responded to.
-            /* emit Debug("cancle"); */
+            emit Debug("cancle");
             SGX_ADDRESS.transfer(CANCELLATION_FEE);
             requests[requestId].fee = DELIVERED_FEE_FLAG;
             unrespondedCnt--;
@@ -167,15 +167,15 @@ contract TownCrier {
         requests[requestId].fee = DELIVERED_FEE_FLAG;
         unrespondedCnt--;
 
-        /* emit Debug("deliver fee"); */
+        emit Debug("deliver fee");
         if (error < 2) {
             // Either no error occurs, or the requester sent an invalid query.
             // Send the fee to the SGX account for its delivering.
-            /* emit Debug("no error"); */
+            emit Debug("no error");
             SGX_ADDRESS.transfer(fee);
         } else {
             // Error in TC, refund the requester.
-            /* emit Debug("error 2"); */
+            emit Debug("error 2");
             externalCallFlag = true;
             (bool ret,) = requests[requestId].requester.call.gas(2300).value(fee)("");
             assert(ret);
@@ -184,13 +184,13 @@ contract TownCrier {
 
         uint callbackGas = (fee - MIN_FEE) / tx.gasprice; // gas left for the callback function
         emit DeliverInfo(requestId, fee, tx.gasprice, gasleft(), callbackGas, paramsHash, error, respData); // log the response information
-        /* emit Debug("success emit deliver"); */
+        emit Debug("success emit deliver");
         if (callbackGas > gasleft() - 5000) {
             callbackGas = gasleft() - 5000;
         }
 
         externalCallFlag = true;
-        /* emit Debug("before callback"); */
+        emit Debug("before callback");
         (bool ret,) = requests[requestId].callbackAddr.call.gas(callbackGas)(
             abi.encodeWithSelector(requests[requestId].callbackFID,
             requestId, error, respData)); // call the callback function in the application contract

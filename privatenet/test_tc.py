@@ -117,6 +117,9 @@ class Deploy():
                     result_tx = lines[-idx].strip().split()[-1]
                     receipt = self.w3.eth.getTransactionReceipt(result_tx)
                     # print(receipt)
+                    debug_info = self.ins_tc.events.Debug().processReceipt(
+                        receipt)
+                    print(f'debug_info: {debug_info}')
                     deliver = self.ins_tc.events.DeliverInfo().processReceipt(
                         receipt)
                     print(f'DeliverInfo event in TownCrier:\n{deliver}')

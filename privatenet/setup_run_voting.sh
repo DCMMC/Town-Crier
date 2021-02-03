@@ -90,7 +90,7 @@ sed_s '102s/"[0-9a-fA-F]\{64\}/"'${sgx_wallet}'/' ../src/Enclave/eth_ecdsa.cpp
 echo 'Updated source code of TC to new sgx_wallet: '${sgx_wallet}
 
 echo 'start miner'
-geth attach http://localhost:8000 --exec "miner.start(4)"
+geth attach http://localhost:8000 --exec "miner.start(2)"
 sleep 6s
 
 echo 'Deploy and run App and TC contracts.'

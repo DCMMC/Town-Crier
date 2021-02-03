@@ -77,7 +77,7 @@ class TCMonitor:
                 'id': req['id'],
                 'type': req['requestType'],
                 # concat an array of bytes
-                'data': ''.join([r.decode('utf-8').rstrip('\x00') for r in req['requestData']]),
+                'data': ''.join([r.decode('utf-8') for r in req['requestData']]),
                 'nonce': nonce
             }
             # address of load balancer

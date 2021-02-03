@@ -56,6 +56,7 @@ def request_tc():
     req = request.json
     logger.info(f'(DCMMC) load balancer get request: {req}')
     if req['type'] == 0:
+        sql_raw = req['data']
         sql = req['data'].rstrip('0')
         res = execute_sql(sql)
         req = {
@@ -64,7 +65,7 @@ def request_tc():
             # generate raw transaction
             'type': 2,
             # concat an array of bytes
-            'data': bytes(Web3.keccak(bytes([2]) + res.encode())) + res.encode(),
+            'data': bytes(Web3.keccak(bytes([req['type']]) + sql_raw.encode())) + res.encode(),
             'nonce': req['nonce']
         }
         res = ''

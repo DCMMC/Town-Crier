@@ -24,7 +24,7 @@ determine_sgx_device
 # sleep 3s
 # docker rm scone
 # docker run --rm -td --net=host --name scone $MOUNT_SGXDEVICE -v "$PWD"/..:/code -w /code registry.scontain.com:5050/sconecuratedimages/crosscompilers:alpine
-# docker exec -it scone bash -c 'sed -i "s/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g" /etc/apk/repositories && apk add python3 gcc python3-dev && pip3 --default-timeout=1000 install -i https://pypi.tuna.tsinghua.edu.cn/simple Flask mysql-connector-python grpcio==1.26.0 web3'
+# docker exec -it scone bash -c 'sed -i "s/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g" /etc/apk/repositories && apk add python3 gcc python3-dev && pip3 install -i https://mirrors.bfsu.edu.cn/pypi/web/simple Flask mysql-connector-python grpcio==1.26.0 web3'
 
 echo 'Run load_balancer and voting'
 docker exec -td scone bash -c 'pkill python3'

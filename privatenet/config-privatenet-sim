@@ -1,5 +1,5 @@
 enclave_path = /tc/enclave/enclave.debug.so
-tc_address = 0xACC30c0659355Bf4d185b7081a4F8C9837CdD2f3
+tc_address = 0x6D246c70ccd2D72C3Cdc65D95E8fE7E1B59BC654
 
 [RPC]
 port = 8123
