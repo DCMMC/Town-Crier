@@ -59,4 +59,4 @@ def send_raw_tx():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=9001,
-            ssl_context=('flask_cert/cert.pem', 'flask_cert/key.pem'))
+            ssl_context=('/app/flask_cert/cert.pem', '/app/flask_cert/key.pem'))
